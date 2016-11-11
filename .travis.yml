@@ -9,4 +9,4 @@ install:
   - echo "Nothing to install"
 
 script:
-  - cd base && docker build -t seafile/base .
+  - cd image && make base && make

@@ -1,0 +1,78 @@
+#!/bin/bash
+
+set -e
+set -o pipefail
+
+version=6.0.5
+image=seafileorg/server:$version
+topdir=$(cd $(dirname $0); pwd -P)
+sharedir=$topdir/shared
+
+cd $topdir
+
+dbg() {
+    if [[ $debug == "true" ]]; then
+        echo "dbg: $1"
+    fi
+}
+
+err_and_quit () {
+    printf "\n\n\033[33mError: %s\033[m\n\n" "$1"
+    exit 1
+}
+
+set_volumes() {
+    local mounts seahub_db
+
+    seahub_db=$sharedir/seahub.db
+    if [[ ! -e $seahub_db ]]; then
+        touch $seahub_db
+    fi
+
+    local bash_history=$sharedir/.bash_history
+    if [[ ! -e $bash_history ]]; then
+        touch $bash_history
+    fi
+
+    mounts=(
+        $sharedir:/shared
+        $topdir/containers:/containers:ro
+        $topdir/scripts:/scripts:ro
+        $bash_history:/root/.bash_history
+    )
+    volumes=""
+    local m
+    for m in ${mounts[*]}; do
+        volumes="$volumes -v $m"
+    done
+}
+
+bootstrap() {
+    set_volumes
+    docker run --rm -it $volumes $image /scripts/bootstrap.py
+}
+
+start() {
+    set_volumes
+    docker run --rm -it $volumes $image # scripts/start.py
+}
+
+enter() {
+    err_and_quit "Not implemented yet"
+}
+
+function main {
+    local action
+    while [[ $# -gt 0 ]]
+    do
+        case "$1" in
+            bootstrap|start|enter)    action=$1          ; shift 1 ;;
+            --debug)                  debug=true         ; shift 1 ;;
+            --dummy)                  dummy=$2           ; shift 2 ;;
+            *)                        err_and_quit "Argument error. Please see help." ;;
+        esac
+    done
+    "$action"
+}
+
+main "$@"
