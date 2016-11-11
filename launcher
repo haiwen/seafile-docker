@@ -49,7 +49,7 @@ set_volumes() {
 
 bootstrap() {
     set_volumes
-    docker run --rm -it $volumes $image /scripts/bootstrap.py
+    docker run --rm -it -v SEAFILE_BOOTSRAP=1 $volumes $image /scripts/bootstrap.py
 }
 
 start() {

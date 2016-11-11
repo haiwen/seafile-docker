@@ -3,6 +3,10 @@
 set -e
 set -o pipefail
 
+if [[ $SEAFILE_BOOTSRAP != "" ]]; then
+    exit 0
+fi
+
 dirs=(
     conf
     ccnet
