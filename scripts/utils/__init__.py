@@ -1,17 +1,18 @@
 # coding: UTF-8
 
 from __future__ import print_function
+from ConfigParser import ConfigParser
+from contextlib import contextmanager
 import os
+from os.path import abspath, basename, exists, dirname, join, isdir, expanduser
 import platform
 import sys
-import termcolor
 import subprocess
 import logging
 import logging.config
 import click
+import termcolor
 import colorlog
-from os.path import abspath, basename, exists, dirname, join, isdir, expanduser
-from contextlib import contextmanager
 
 logger = logging.getLogger('.utils')
 
@@ -47,6 +48,7 @@ def call(*a, **kw):
     dry_run = kw.pop('dry_run', False)
     quiet = kw.pop('quiet', False)
     cwd = kw.get('cwd', os.getcwd())
+    check_call = kw.pop('check_call', False)
     reduct_args = kw.pop('reduct_args', [])
     if not quiet:
         toprint = a[0]
@@ -58,7 +60,10 @@ def call(*a, **kw):
         eprint('cwd:     ', green(cwd))
     kw.setdefault('shell', True)
     if not dry_run:
-        return subprocess.Popen(*a, **kw).wait()
+        if check_call:
+            return subprocess.check_call(*a, **kw)
+        else:
+            return subprocess.Popen(*a, **kw).wait()
 
 @contextmanager
 def cd(path):
@@ -204,3 +209,13 @@ def get_install_dir():
 
 def get_script(script):
     return join(get_install_dir(), script)
+
+
+_config = None
+
+def get_conf(key):
+    global _config
+    if _config is None:
+        _config = ConfigParser()
+        _config.read("/bootstrap/bootstrap.conf")
+    return _config.get("server", key)

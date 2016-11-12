@@ -13,3 +13,4 @@ script:
   - cd ..
   - cp samples/server-sqlite3.conf bootstrap/bootstrap.conf
   - ./launcher bootstrap
+  - ./launcher start

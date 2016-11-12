@@ -5,10 +5,11 @@ set -o pipefail
 
 version=6.0.5
 image=seafileorg/server:$version
-topdir=$(cd $(dirname $0); pwd -P)
-sharedir=$topdir/shared
+dockerdir=$(cd $(dirname $0); pwd -P)
+sharedir=$dockerdir/shared
+installdir=/opt/seafile/seafile-server-$version
 
-cd $topdir
+cd $dockerdir
 
 dbg() {
     if [[ $debug == "true" ]]; then
@@ -36,8 +37,9 @@ set_volumes() {
 
     mounts=(
         $sharedir:/shared
-        $topdir/bootstrap:/bootstrap:ro
-        $topdir/scripts:/scripts:ro
+        $dockerdir/bootstrap:/bootstrap:ro
+        $dockerdir/scripts:/scripts:ro
+        $dockerdir/scripts/tmp/check_init_admin.py:$installdir/check_init_admin.py:ro
         $bash_history:/root/.bash_history
     )
     volumes=""
@@ -54,7 +56,7 @@ bootstrap() {
 
 start() {
     set_volumes
-    docker run --rm -it $volumes $image # scripts/start.py
+    docker run --rm -it $volumes $image scripts/start.py
 }
 
 enter() {

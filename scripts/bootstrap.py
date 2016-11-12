@@ -7,25 +7,15 @@ setup-seafile.sh or setup-seafile-mysql.sh. It's supposed to run inside the
 container.
 """
 
-from ConfigParser import ConfigParser
 import os
 from os.path import abspath, basename, exists, dirname, join, isdir
 import shutil
 import sys
 
-from utils import call, get_install_dir, get_script
+from utils import call, get_conf, get_install_dir, get_script
 
 installdir = get_install_dir()
 topdir = dirname(installdir)
-
-_config = None
-
-def get_conf(key):
-    global _config
-    if _config is None:
-        _config = ConfigParser()
-        _config.read("/bootstrap/bootstrap.conf")
-    return _config.get("server", key)
 
 def main():
     env = {
