@@ -37,6 +37,7 @@ set_volumes() {
 
     mounts=(
         $sharedir:/shared
+        $sharedir/logs/var-log:/var/log
         $dockerdir/bootstrap:/bootstrap:ro
         $dockerdir/scripts:/scripts:ro
         $dockerdir/scripts/tmp/check_init_admin.py:$installdir/check_init_admin.py:ro

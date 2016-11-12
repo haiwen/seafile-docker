@@ -4,5 +4,5 @@
 .DS_Store
 *.pyc
 
-bootstrap/
-shared/
+bootstrap/*
+shared/*
