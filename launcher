@@ -36,7 +36,7 @@ set_volumes() {
 
     mounts=(
         $sharedir:/shared
-        $topdir/containers:/containers:ro
+        $topdir/bootstrap:/bootstrap:ro
         $topdir/scripts:/scripts:ro
         $bash_history:/root/.bash_history
     )
@@ -49,7 +49,7 @@ set_volumes() {
 
 bootstrap() {
     set_volumes
-    docker run --rm -it -v SEAFILE_BOOTSRAP=1 $volumes $image /scripts/bootstrap.py
+    docker run --rm -it -e SEAFILE_BOOTSRAP=1 $volumes $image /scripts/bootstrap.py
 }
 
 start() {

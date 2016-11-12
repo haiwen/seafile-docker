@@ -97,7 +97,7 @@ get_server_name
 get_admin_email
 get_admin_passwd
 
-cat >containers/bootstrap.conf<<EOF
+cat >bootstrap/bootstrap.conf<<EOF
 [server]
 server.hostname = $server_name
 admin.email = $admin_email

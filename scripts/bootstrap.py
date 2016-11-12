@@ -24,7 +24,7 @@ def get_conf(key):
     global _config
     if _config is None:
         _config = ConfigParser()
-        _config.read("/containers/bootstrap.conf")
+        _config.read("/bootstrap/bootstrap.conf")
     return _config.get("server", key)
 
 def main():
