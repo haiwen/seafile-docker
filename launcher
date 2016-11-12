@@ -56,7 +56,7 @@ bootstrap() {
 
 start() {
     set_volumes
-    docker run --rm -it $volumes $image scripts/start.py
+    docker run --rm -it $volumes $image /scripts/start.py
 }
 
 enter() {
