@@ -22,18 +22,20 @@ err_and_quit () {
     exit 1
 }
 
-set_volumes() {
-    local mounts seahub_db
-
-    seahub_db=$sharedir/seahub.db
-    if [[ ! -e $seahub_db ]]; then
-        touch $seahub_db
-    fi
+init_shared() {
+    mkdir -p $sharedir/seafile/
+    mkdir -p $sharedir/logs/{seafile,var-log}
+    touch $sharedir/logs/var-log/syslog
 
     local bash_history=$sharedir/.bash_history
     if [[ ! -e $bash_history ]]; then
         touch $bash_history
     fi
+}
+
+set_volumes() {
+    local mounts
+    init_shared
 
     mounts=(
         $sharedir:/shared
@@ -41,7 +43,7 @@ set_volumes() {
         $dockerdir/bootstrap:/bootstrap:ro
         $dockerdir/scripts:/scripts:ro
         $dockerdir/scripts/tmp/check_init_admin.py:$installdir/check_init_admin.py:ro
-        $bash_history:/root/.bash_history
+        $sharedir/.bash_history:/root/.bash_history
     )
     volumes=""
     local m
