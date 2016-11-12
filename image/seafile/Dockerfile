@@ -11,4 +11,6 @@ RUN mkdir -p /opt/seafile/ && \
 RUN mkdir -p /etc/my_init.d
 ADD create_data_links.sh /etc/my_init.d/create_data_links.sh
 
+ADD seafile.nginx.conf /etc/nginx/sites-enabled/seafile.nginx.conf
+
 CMD ["/sbin/my_init", "--", "bash", "-l"]

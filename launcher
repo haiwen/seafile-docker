@@ -5,7 +5,7 @@ set -o pipefail
 
 version=6.0.5
 image=seafileorg/server:$version
-dockerdir=$(cd $(dirname $0); pwd -P)
+dockerdir=$(cd "$(dirname $0)"; pwd -P)
 sharedir=$dockerdir/shared
 installdir=/opt/seafile/seafile-server-$version
 
@@ -25,6 +25,8 @@ err_and_quit () {
 init_shared() {
     mkdir -p $sharedir/seafile/
     mkdir -p $sharedir/logs/{seafile,var-log}
+
+    mkdir -p $sharedir/logs/var-log/nginx
     touch $sharedir/logs/var-log/syslog
 
     local bash_history=$sharedir/.bash_history
@@ -53,13 +55,17 @@ set_volumes() {
 }
 
 bootstrap() {
+    local bootstrap_conf=$dockerdir/bootstrap/bootstrap.conf
+    if [[ ! -e $bootstrap_conf  ]]; then
+        err_and_quit "The file $bootstrap_conf doesn't exist. Have you run seafile-server-setup?"
+    fi
     set_volumes
     docker run --rm -it -e SEAFILE_BOOTSRAP=1 $volumes $image /scripts/bootstrap.py
 }
 
 start() {
     set_volumes
-    docker run --rm -it $volumes $image /scripts/start.py
+    docker run --rm -it --name seafile $volumes $image # /scripts/start.py
 }
 
 enter() {
