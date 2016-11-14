@@ -5,13 +5,15 @@ FROM phusion/baseimage:0.9.19
 ENV UPDATED_AT=20161110 \
     DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update -qq && apt-get -qq -y install memcached mariadb-server nginx \
-        python2.7-dev python-imaging python-ldap python-mysqldb
+RUN apt-get update -qq && apt-get -qq -y install memcached mariadb-server nginx
 
 # Utility tools
 RUN apt-get install -qq -y vim htop net-tools psmisc git wget curl
 
-# Install latest version of pip & wheel
+# Guidline for installing python libs: if a lib has C-compoment (e.g.
+# python-imaging depends on libjpeg/libpng), we install it use apt-get.
+# Otherwise we install it with pip.
+RUN apt-get install -y python2.7-dev python-imaging python-ldap python-mysqldb
 RUN curl -sSL -o /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py && \
     python /tmp/get-pip.py && \
     rm -rf /tmp/get-pip.py && \
