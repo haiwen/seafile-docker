@@ -12,7 +12,6 @@ dirs=(
     ccnet
     seafile-data
     seahub-data
-    seahub.db
 )
 
 for d in ${dirs[*]}; do

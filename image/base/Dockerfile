@@ -5,7 +5,7 @@ FROM phusion/baseimage:0.9.19
 ENV UPDATED_AT=20161110 \
     DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update -qq && apt-get -qq -y install memcached sqlite3 mariadb-server nginx \
+RUN apt-get update -qq && apt-get -qq -y install memcached mariadb-server nginx \
         python2.7-dev python-imaging python-ldap python-mysqldb
 
 # Utility tools
