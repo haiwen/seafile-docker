@@ -46,7 +46,12 @@ def main():
         if exists(password_file):
             os.unlink(password_file)
 
-    watch_controller()
+    print 'seafile server is running now.'
+    try:
+        watch_controller()
+    except KeyboardInterrupt:
+        print 'Stopping seafile server.'
+        sys.exit(0)
 
 if __name__ == '__main__':
     main()

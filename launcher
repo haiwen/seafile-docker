@@ -23,7 +23,7 @@ err_and_quit () {
 }
 
 init_shared() {
-    mkdir -p $sharedir/seafile/
+    mkdir -p $sharedir/{seafile,db}
     mkdir -p $sharedir/logs/{seafile,var-log}
 
     mkdir -p $sharedir/logs/var-log/nginx
@@ -42,6 +42,7 @@ set_volumes() {
     mounts=(
         $sharedir:/shared
         $sharedir/logs/var-log:/var/log
+        $sharedir/db:/var/lib/mysql
         $dockerdir/bootstrap:/bootstrap:ro
         $dockerdir/scripts:/scripts:ro
         $dockerdir/scripts/tmp/check_init_admin.py:$installdir/check_init_admin.py:ro
@@ -60,7 +61,7 @@ bootstrap() {
         err_and_quit "The file $bootstrap_conf doesn't exist. Have you run seafile-server-setup?"
     fi
     set_volumes
-    docker run --rm -it -e SEAFILE_BOOTSRAP=1 $volumes $image /scripts/bootstrap.py
+    docker run --rm -it -e SEAFILE_BOOTSRAP=1 $volumes $image /sbin/my_init -- /scripts/bootstrap.py
 }
 
 start() {

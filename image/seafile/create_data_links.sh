@@ -26,4 +26,8 @@ if [[ -e /shared/logs/seafile ]]; then
     ln -sf /shared/logs/seafile/ /opt/seafile/logs
 fi
 
+if [[ ! -e /opt/seafile/seafile-server-latest ]]; then
+    ln -sf /opt/seafile/seafile-server-$SEAFILE_VERSION /opt/seafile/seafile-server-latest
+fi
+
 # TODO: create avatars link
