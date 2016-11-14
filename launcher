@@ -65,7 +65,9 @@ bootstrap() {
 
 start() {
     set_volumes
-    docker run --rm -it --name seafile $volumes $image /scripts/start.py
+    docker run --rm -it --name seafile $volumes $image \
+           /sbin/my_init -- /scripts/start.py
+           # /sbin/my_init -- bash -l
 }
 
 enter() {

@@ -12,11 +12,23 @@ import os
 from os.path import abspath, basename, exists, dirname, join, isdir
 import shutil
 import sys
+import time
 
-from utils import call, get_conf, get_install_dir, get_script
+from utils import call, get_conf, get_install_dir, get_script, get_command_output
 
 installdir = get_install_dir()
 topdir = dirname(installdir)
+
+def watch_controller():
+    maxretry = 4
+    retry = 0
+    while retry < maxretry:
+        controller_pid = get_command_output('ps aux | grep seafile-controller |grep -v grep || true').strip()
+        if not controller_pid:
+            retry += 1
+        time.sleep(2)
+    print 'seafile controller exited unexpectedly.'
+    sys.exit(1)
 
 def main():
     admin_pw = {
@@ -33,6 +45,8 @@ def main():
     finally:
         if exists(password_file):
             os.unlink(password_file)
+
+    watch_controller()
 
 if __name__ == '__main__':
     main()
