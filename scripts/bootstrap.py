@@ -13,14 +13,16 @@ import shutil
 import sys
 import uuid
 
-from utils import call, get_conf, get_install_dir, get_script, render_nginx_conf
+from utils import call, get_conf, get_install_dir, get_script, render_template, get_seafile_version
 
+seafile_version = get_seafile_version()
 installdir = get_install_dir()
 topdir = dirname(installdir)
 shared_seafiledir = '/shared/seafile'
 ssl_dir = '/shared/ssl'
+generated_dir = '/bootstrap/generated'
 
-def init_letsencryt():
+def init_letsencrypt():
     if not exists(ssl_dir):
         os.mkdir(ssl_dir)
 
@@ -29,17 +31,41 @@ def init_letsencryt():
         'https': False,
         'domain': domain,
     }
-    render_nginx_conf('/templates/seafile.nginx.conf',
-                      '/etc/nginx/sites-enabled/seafile.nginx.conf', context)
+
+    # Create a temporary nginx conf to start a server, which would accessed by letsencrypt
+    render_template('/templates/seafile.nginx.conf.template',
+                    '/etc/nginx/sites-enabled/seafile.nginx.conf', context)
     call('nginx -s reload')
     call('/scripts/ssl.sh {0} {1}'.format(ssl_dir, domain))
+
+    # Now create the final nginx configuratin
+    context = {
+        'https': True,
+        'domain': domain,
+    }
+    render_template('/templates/seafile.nginx.conf.template', join(generated_dir, 'seafile.nginx.conf'), context)
+
+def is_https():
+    return get_conf('server.https', '').lower() == 'true'
+
+def generate_local_dockerfile():
+    context = {
+        'seafile_version': seafile_version,
+        'https': is_https(),
+        'domain': get_conf('server.domain'),
+    }
+    render_template('/templates/Dockerfile.template', join(generated_dir, 'Dockerfile'), context)
 
 def main():
     if not exists(shared_seafiledir):
         os.mkdir(shared_seafiledir)
+    if not exists(generated_dir):
+        os.mkdir(generated_dir)
 
-    if get_conf('server.https', '').lower() == 'true':
-        init_letsencryt()
+    generate_local_dockerfile()
+
+    if is_https():
+        init_letsencrypt()
 
     env = {
         'SERVER_NAME': 'seafile',

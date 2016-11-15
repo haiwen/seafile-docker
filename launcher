@@ -5,6 +5,7 @@ set -o pipefail
 
 version=6.0.5
 image=seafileorg/server:$version
+local_image=local_seafile/server:latest
 dockerdir=$(cd "$(dirname $0)"; pwd -P)
 sharedir=$dockerdir/shared
 installdir=/opt/seafile/seafile-server-$version
@@ -40,6 +41,27 @@ set_ports() {
     ports=""
 }
 
+set_bootstrap_volumes() {
+    local mounts
+    init_shared
+
+    mounts=(
+        $sharedir:/shared
+        $sharedir/logs/var-log:/var/log
+        $sharedir/db:/var/lib/mysql
+        $dockerdir/bootstrap:/bootstrap
+        $dockerdir/scripts:/scripts:ro
+        $dockerdir/templates:/templates:ro
+        $dockerdir/scripts/tmp/check_init_admin.py:$installdir/check_init_admin.py:ro
+        $sharedir/.bash_history:/root/.bash_history
+    )
+    volumes=""
+    local m
+    for m in ${mounts[*]}; do
+        volumes="$volumes -v $m"
+    done
+}
+
 set_volumes() {
     local mounts
     init_shared
@@ -48,9 +70,6 @@ set_volumes() {
         $sharedir:/shared
         $sharedir/logs/var-log:/var/log
         $sharedir/db:/var/lib/mysql
-        $dockerdir/bootstrap:/bootstrap:ro
-        $dockerdir/scripts:/scripts:ro
-        $dockerdir/scripts/tmp/check_init_admin.py:$installdir/check_init_admin.py:ro
         $sharedir/.bash_history:/root/.bash_history
     )
     volumes=""
@@ -65,17 +84,28 @@ bootstrap() {
     if [[ ! -e $bootstrap_conf  ]]; then
         err_and_quit "The file $bootstrap_conf doesn't exist. Have you run seafile-server-setup?"
     fi
+
+    # First initialize seafile server and letsencrypt
+    set_bootstrap_volumes
+    set_ports
+
+    docker run --rm -it --name seafile-bootstrap -e SEAFILE_BOOTSRAP=1 $volumes $ports $image /sbin/my_init -- /scripts/bootstrap.py
+
+    docker build -f bootstrap/generated/Dockerfile -t local_seafile/server:latest  .
+}
+
+oldstart() {
     set_volumes
     set_ports
-    docker run --rm -it --name seafile-bootstrap -e SEAFILE_BOOTSRAP=1 $volumes $ports $image /sbin/my_init -- /scripts/bootstrap.py
+    docker run --rm -it --name seafile $volumes $ports $image \
+           /sbin/my_init -- bash -l
+           # /sbin/my_init -- /scripts/start.py
 }
 
 start() {
     set_volumes
     set_ports
-    docker run --rm -it --name seafile $volumes $ports $image \
-           /sbin/my_init -- /scripts/start.py
-           # /sbin/my_init -- bash -l
+    docker run --rm -it --name seafile $volumes $ports $local_image
 }
 
 enter() {
@@ -87,10 +117,10 @@ main() {
     while [[ $# -gt 0 ]]
     do
         case "$1" in
-            bootstrap|start|enter)    action=$1          ; shift 1 ;;
-            --debug)                  debug=true         ; shift 1 ;;
-            --dummy)                  dummy=$2           ; shift 2 ;;
-            *)                        err_and_quit "Argument error. Please see help." ;;
+            bootstrap|oldstart|start|enter)    action=$1            ; shift 1 ;;
+            --debug)                            debug=true          ; shift 1 ;;
+            --dummy)                            dummy=$2            ; shift 2 ;;
+            *)                                  err_and_quit "Argument error. Please see help." ;;
         esac
     done
     "$action"

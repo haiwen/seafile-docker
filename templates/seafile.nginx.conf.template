@@ -1,3 +1,5 @@
+# -*- mode: nginx -*-
+# Auto generated at {{ current_timestr }}
 {% if https -%}
 server {
     listen 80;

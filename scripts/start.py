@@ -14,7 +14,7 @@ import shutil
 import sys
 import time
 
-from utils import call, get_conf, get_install_dir, get_script, get_command_output, render_nginx_conf
+from utils import call, get_conf, get_install_dir, get_script, get_command_output, render_template
 
 installdir = get_install_dir()
 topdir = dirname(installdir)
@@ -30,18 +30,7 @@ def watch_controller():
     print 'seafile controller exited unexpectedly.'
     sys.exit(1)
 
-def init_https():
-    domain = get_conf('server.hostname')
-    context = {
-        'https': True,
-        'domain': domain,
-    }
-    render_nginx_conf('/templates/seafile.nginx.conf',
-                      '/etc/nginx/sites-enabled/seafile.nginx.conf', context)
-    call('nginx -t && nginx -s reload')
-
 def main():
-    init_https()
     admin_pw = {
         'email': get_conf('admin.email'),
         'password': get_conf('admin.password'),

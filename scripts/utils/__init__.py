@@ -4,6 +4,7 @@ from __future__ import print_function
 from ConfigParser import ConfigParser
 from contextlib import contextmanager
 import os
+import datetime
 from os.path import abspath, basename, exists, dirname, join, isdir, expanduser
 import platform
 import sys
@@ -221,9 +222,17 @@ def get_conf(key, default=None):
     return _config.get("server", key) if _config.has_option("server", key) \
         else default
 
-def render_nginx_conf(template, target, context):
+def _add_default_context(context):
+    default_context = {
+        'current_timestr': datetime.datetime.now().strftime('%m/%d/%Y %H:%M:%S'),
+    }
+    for k in default_context:
+        context.setdefault(k, default_context[k])
+
+def render_template(template, target, context):
     from jinja2 import Environment, FileSystemLoader
     env = Environment(loader=FileSystemLoader(dirname(template)))
+    _add_default_context(context)
     content = env.get_template(basename(template)).render(**context)
     with open(target, 'w') as fp:
         fp.write(content)

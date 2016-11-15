@@ -7,13 +7,15 @@ if [[ ! -d /var/lib/mysql/mysql ]]; then
     echo 'Rebuilding mysql data dir'
 
     chown -R mysql.mysql /var/lib/mysql
-    mysql_install_db > /dev/null
+
+    mysql_install_db >/var/log/mysql-bootstrap.log 2>&1
+    # TODO: print the log if mysql_install_db fails
 
     rm -rf /var/run/mysqld/*
 
     echo 'Starting mysqld'
     # The sleep 1 is there to make sure that inotifywait starts up before the socket is created
-    mysqld_safe &
+    mysqld_safe >>/var/log/bootstrap-mysql.log &
 
     echo 'Waiting for mysqld to come online'
     while [[ ! -x /var/run/mysqld/mysqld.sock ]]; do
