@@ -48,7 +48,7 @@ def call(*a, **kw):
     dry_run = kw.pop('dry_run', False)
     quiet = kw.pop('quiet', False)
     cwd = kw.get('cwd', os.getcwd())
-    check_call = kw.pop('check_call', False)
+    check_call = kw.pop('check_call', True)
     reduct_args = kw.pop('reduct_args', [])
     if not quiet:
         toprint = a[0]
@@ -220,3 +220,10 @@ def get_conf(key, default=None):
         _config.read("/bootstrap/bootstrap.conf")
     return _config.get("server", key) if _config.has_option("server", key) \
         else default
+
+def render_nginx_conf(template, target, context):
+    from jinja2 import Environment, FileSystemLoader
+    env = Environment(loader=FileSystemLoader(dirname(template)))
+    content = env.get_template(basename(template)).render(**context)
+    with open(target, 'w') as fp:
+        fp.write(content)

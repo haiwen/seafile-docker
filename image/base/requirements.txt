@@ -6,12 +6,10 @@
 #
 click==6.6
 colorlog==2.7.0
+Jinja2==2.8
+MarkupSafe==0.23          # via jinja2
 prettytable==0.7.2
 python-memcached==1.58
 six==1.10.0               # via python-memcached
 termcolor==1.1.0
 urllib3==1.19
-
-# The following packages are commented out because they are
-# considered to be unsafe in a requirements file:
-# setuptools                # via python-ldap

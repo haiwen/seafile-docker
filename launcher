@@ -35,6 +35,11 @@ init_shared() {
     fi
 }
 
+set_ports() {
+    ports="-p 80:80 -p 443:443"
+    ports=""
+}
+
 set_volumes() {
     local mounts
     init_shared
@@ -61,12 +66,14 @@ bootstrap() {
         err_and_quit "The file $bootstrap_conf doesn't exist. Have you run seafile-server-setup?"
     fi
     set_volumes
-    docker run --rm -it -e SEAFILE_BOOTSRAP=1 $volumes $image /sbin/my_init -- /scripts/bootstrap.py
+    set_ports
+    docker run --rm -it --name seafile-bootstrap -e SEAFILE_BOOTSRAP=1 $volumes $ports $image /sbin/my_init -- /scripts/bootstrap.py
 }
 
 start() {
     set_volumes
-    docker run --rm -it --name seafile $volumes $image \
+    set_ports
+    docker run --rm -it --name seafile $volumes $ports $image \
            /sbin/my_init -- /scripts/start.py
            # /sbin/my_init -- bash -l
 }
@@ -75,7 +82,7 @@ enter() {
     err_and_quit "Not implemented yet"
 }
 
-function main {
+main() {
     local action
     while [[ $# -gt 0 ]]
     do
