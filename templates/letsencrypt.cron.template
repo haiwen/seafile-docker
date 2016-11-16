@@ -1,0 +1,3 @@
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# m h  dom mon dow   command
+0 0 1 * * root /scripts/ssl.sh {{ ssl_dir }} {{ domain }}

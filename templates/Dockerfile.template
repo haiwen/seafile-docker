@@ -6,13 +6,14 @@ ADD scripts /scripts
 
 ADD bootstrap /bootstrap
 
-# This can be removed for seafile server 6.0.6 and later
+{%- if seafile_version <= '6.0.6' %}
 ADD scripts/tmp/check_init_admin.py /opt/seafile/seafile-server-{{ seafile_version }}/check_init_admin.py
+{%- endif %}
 
 ADD bootstrap/generated/seafile.nginx.conf /etc/nginx/sites-enabled/seafile.nginx.conf
 
-{% if https -%}
-# TODO: add a cron job to renew letsencrypt
-{% endif -%}
+{%- if https %}
+ADD bootstrap/generated/letsencrypt.cron /etc/cron.d/letsencrypt.cron
+{%- endif %}
 
 CMD ["/sbin/my_init", "--", "/scripts/start.py"]

@@ -13,6 +13,7 @@ from os.path import abspath, basename, exists, dirname, join, isdir
 import shutil
 import sys
 import uuid
+import time
 
 from utils import call, get_conf, get_install_dir, get_script, render_template, get_seafile_version
 
@@ -44,7 +45,21 @@ def init_letsencrypt():
         'https': True,
         'domain': domain,
     }
-    render_template('/templates/seafile.nginx.conf.template', join(generated_dir, 'seafile.nginx.conf'), context)
+    render_template(
+        '/templates/seafile.nginx.conf.template',
+        join(generated_dir, 'seafile.nginx.conf'),
+        context
+    )
+
+    context = {
+        'ssl_dir': ssl_dir,
+        'domain': domain,
+    }
+    render_template(
+        '/templates/letsencrypt.cron.template',
+        join(generated_dir, 'letsencrypt.cron'),
+        context
+    )
 
 def is_https():
     return get_conf('server.https', '').lower() == 'true'
@@ -88,6 +103,13 @@ def main():
 
     if is_https():
         init_letsencrypt()
+
+    init_seafile_server()
+
+def init_seafile_server():
+    if exists(join(shared_seafiledir, 'seafile-data')):
+        print 'Skipping running setup-seafile-mysql.py because there is existing seafile-data folder.'
+        return
 
     env = {
         'SERVER_NAME': 'seafile',
