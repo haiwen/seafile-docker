@@ -7,6 +7,7 @@ setup-seafile.sh or setup-seafile-mysql.sh. It's supposed to run inside the
 container.
 """
 
+import argparse
 import os
 from os.path import abspath, basename, exists, dirname, join, isdir
 import shutil
@@ -56,7 +57,28 @@ def generate_local_dockerfile():
     }
     render_template('/templates/Dockerfile.template', join(generated_dir, 'Dockerfile'), context)
 
+def parse_args():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--parse-ports', action='store_true')
+
+    return ap.parse_args()
+
+def do_parse_ports():
+    """
+    Parse the server.port_mappings option and print docker command line port
+    mapping flags like "-p 80:80 -p 443:443"
+    """
+    # conf is like '80:80,443:443'
+    conf = get_conf('server.port_mappings', '').strip()
+    if conf:
+        sys.stdout.write(' '.join(['-p {}'.format(part.strip()) for part in conf.split(',')]))
+        sys.stdout.flush()
+
 def main():
+    args = parse_args()
+    if args.parse_ports:
+        do_parse_ports()
+        return
     if not exists(shared_seafiledir):
         os.mkdir(shared_seafiledir)
     if not exists(generated_dir):
@@ -92,4 +114,5 @@ def main():
             shutil.move(src, shared_seafiledir)
 
 if __name__ == '__main__':
+    # TODO: validate the content of bootstrap.conf is valid
     main()

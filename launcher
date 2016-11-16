@@ -9,6 +9,7 @@ local_image=local_seafile/server:latest
 dockerdir=$(cd "$(dirname $0)"; pwd -P)
 sharedir=$dockerdir/shared
 installdir=/opt/seafile/seafile-server-$version
+bootstrap_conf=$dockerdir/bootstrap/bootstrap.conf
 
 cd $dockerdir
 
@@ -37,8 +38,11 @@ init_shared() {
 }
 
 set_ports() {
-    ports="-p 80:80 -p 443:443"
-    ports=""
+    ports=$(docker run --rm -it \
+                   -v ${dockerdir}/scripts:/scripts \
+                   -v ${dockerdir}/bootstrap:/bootstrap:ro \
+                   $image \
+                   /scripts/bootstrap.py --parse-ports)
 }
 
 set_bootstrap_volumes() {
@@ -80,7 +84,6 @@ set_volumes() {
 }
 
 bootstrap() {
-    local bootstrap_conf=$dockerdir/bootstrap/bootstrap.conf
     if [[ ! -e $bootstrap_conf  ]]; then
         err_and_quit "The file $bootstrap_conf doesn't exist. Have you run seafile-server-setup?"
     fi
