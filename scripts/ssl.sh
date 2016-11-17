@@ -42,3 +42,5 @@ curl -sSL -o intermediate.pem https://letsencrypt.org/certs/lets-encrypt-x3-cros
 cat signed.crt intermediate.pem > ${ssl_crt}
 
 nginx -s reload
+
+echo "Nginx reloaded."
