@@ -236,3 +236,8 @@ def render_template(template, target, context):
     content = env.get_template(basename(template)).render(**context)
     with open(target, 'w') as fp:
         fp.write(content)
+
+def show_progress(msg):
+    eprint('---------------------')
+    eprint(msg)
+    eprint('---------------------')

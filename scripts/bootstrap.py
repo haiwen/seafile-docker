@@ -15,7 +15,10 @@ import sys
 import uuid
 import time
 
-from utils import call, get_conf, get_install_dir, get_script, render_template, get_seafile_version
+from utils import (
+    call, get_conf, get_install_dir, show_progress
+    get_script, render_template, get_seafile_version, eprint
+)
 
 seafile_version = get_seafile_version()
 installdir = get_install_dir()
@@ -25,6 +28,7 @@ ssl_dir = '/shared/ssl'
 generated_dir = '/bootstrap/generated'
 
 def init_letsencrypt():
+    show_progress('Preparing for letsencrypt ...')
     if not exists(ssl_dir):
         os.mkdir(ssl_dir)
 
@@ -39,6 +43,10 @@ def init_letsencrypt():
                     '/etc/nginx/sites-enabled/seafile.nginx.conf', context)
     call('nginx -s reload')
     call('/scripts/ssl.sh {0} {1}'.format(ssl_dir, domain))
+    # if call('/scripts/ssl.sh {0} {1}'.format(ssl_dir, domain), check_call=False) != 0:
+    #     eprint('Now waiting 1000s for postmortem')
+    #     time.sleep(1000)
+    #     sys.exit(1)
 
     # Now create the final nginx configuratin
     context = {
@@ -65,6 +73,7 @@ def is_https():
     return get_conf('server.https', '').lower() == 'true'
 
 def generate_local_dockerfile():
+    show_progress('Generating local Dockerfile ...')
     context = {
         'seafile_version': seafile_version,
         'https': is_https(),
@@ -89,28 +98,12 @@ def do_parse_ports():
         sys.stdout.write(' '.join(['-p {}'.format(part.strip()) for part in conf.split(',')]))
         sys.stdout.flush()
 
-def main():
-    args = parse_args()
-    if args.parse_ports:
-        do_parse_ports()
-        return
-    if not exists(shared_seafiledir):
-        os.mkdir(shared_seafiledir)
-    if not exists(generated_dir):
-        os.mkdir(generated_dir)
-
-    generate_local_dockerfile()
-
-    if is_https():
-        init_letsencrypt()
-
-    init_seafile_server()
-
 def init_seafile_server():
     if exists(join(shared_seafiledir, 'seafile-data')):
-        print 'Skipping running setup-seafile-mysql.py because there is existing seafile-data folder.'
+        show_progress('Skipping running setup-seafile-mysql.py because there is existing seafile-data folder.')
         return
 
+    show_progress('Now running setup-seafile-mysql.py in auto mode.')
     env = {
         'SERVER_NAME': 'seafile',
         'SERVER_IP': get_conf('server.hostname'),
@@ -134,6 +127,26 @@ def init_seafile_server():
         dst = join(shared_seafiledir, fn)
         if not exists(dst) and exists(src):
             shutil.move(src, shared_seafiledir)
+
+def main():
+    args = parse_args()
+    if args.parse_ports:
+        do_parse_ports()
+        return
+    if not exists(shared_seafiledir):
+        os.mkdir(shared_seafiledir)
+    if not exists(generated_dir):
+        os.mkdir(generated_dir)
+
+    generate_local_dockerfile()
+
+    if is_https():
+        init_letsencrypt()
+
+    init_seafile_server()
+
+    show_progress('bootstrap done.')
+
 
 if __name__ == '__main__':
     # TODO: validate the content of bootstrap.conf is valid
