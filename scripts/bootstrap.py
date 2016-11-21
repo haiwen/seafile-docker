@@ -16,7 +16,7 @@ import uuid
 import time
 
 from utils import (
-    call, get_conf, get_install_dir, show_progress
+    call, get_conf, get_install_dir, show_progress,
     get_script, render_template, get_seafile_version, eprint
 )
 
