@@ -14,11 +14,11 @@ if [[ ! -d /var/lib/mysql/mysql ]]; then
     rm -rf /var/run/mysqld/*
 
     echo 'Starting mysqld'
-    # The sleep 1 is there to make sure that inotifywait starts up before the socket is created
-    mysqld_safe >>/var/log/bootstrap-mysql.log &
+    mysqld_safe >>/var/log/mysql-bootstrap.log 2>&1 &
 
     echo 'Waiting for mysqld to come online'
-    while [[ ! -x /var/run/mysqld/mysqld.sock ]]; do
+    # The sleep 1 is there to make sure that inotifywait starts up before the socket is created
+    while [[ ! -S /var/run/mysqld/mysqld.sock ]]; do
         sleep 1
     done
 
@@ -38,4 +38,10 @@ if [[ ! -d /var/lib/mysql/mysql ]]; then
 
     echo 'Shutting down mysqld'
     mysqladmin -uroot  shutdown
+
+    retry=0 maxretry=10
+    while [[ -e /var/run/mysqld/mysqld.sock && $retry -le $maxretry ]]; do
+        retry=$((retry+1))
+        sleep 1
+    done
 fi

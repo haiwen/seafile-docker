@@ -70,7 +70,7 @@ def init_letsencrypt():
     )
 
 def is_https():
-    return get_conf('server.https', '').lower() == 'true'
+    return get_conf('server.letsencrypt', '').lower() == 'true'
 
 def generate_local_dockerfile():
     show_progress('Generating local Dockerfile ...')

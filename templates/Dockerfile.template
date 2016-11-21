@@ -10,9 +10,8 @@ ADD bootstrap /bootstrap
 ADD scripts/tmp/check_init_admin.py /opt/seafile/seafile-server-{{ seafile_version }}/check_init_admin.py
 {%- endif %}
 
-ADD bootstrap/generated/seafile.nginx.conf /etc/nginx/sites-enabled/seafile.nginx.conf
-
 {%- if https %}
+ADD bootstrap/generated/seafile.nginx.conf /etc/nginx/sites-enabled/seafile.nginx.conf
 ADD bootstrap/generated/letsencrypt.cron /etc/cron.d/letsencrypt.cron
 {%- endif %}
 

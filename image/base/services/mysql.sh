@@ -3,7 +3,7 @@
 set -e
 
 shutdown_mysql() {
-    if [[ -d /var/run/mysqld/mysqld.sock ]]; then
+    if [[ -S /var/run/mysqld/mysqld.sock ]]; then
         mysqladmin -u root shutdown || true
     fi
 }
