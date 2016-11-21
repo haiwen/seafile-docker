@@ -1,9 +1,21 @@
-version=6.0.5
+server_version=6.0.5
+
+base_image=seafileorg/base:16.04
+server_image=seafileorg/server:$(server_version)
 
 all:
-	cd seafile && docker build -t seafileorg/server:$(version) .
+	@echo
+	@echo Pleaes use '"make base"' or '"make server"' or '"make push"'.
+	@echo
 
 base:
-	cd base && docker build -t seafileorg/base:16.04 .
+	cd base && docker build -t $(base_image) .
 
-.PHONY: base
+server:
+	cd seafile && docker build -t $(server_image) .
+
+push:
+	docker push $(base_image)
+	docker push $(server_image)
+
+.PHONY: base server push
