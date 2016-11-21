@@ -12,4 +12,7 @@ script:
   - cd image && make base && make && cd ..
   - cp samples/server.conf bootstrap/bootstrap.conf
   - sudo ./launcher bootstrap
-  - sudo ./launcher start
+  - sudo ./launcher start && sleep 10
+  - sudo ./launcher stop --skip-prereqs
+  - sudo ./launcher start --docker-args="-h seafile-server" && sleep 10
+  - sudo ./launcher restart
