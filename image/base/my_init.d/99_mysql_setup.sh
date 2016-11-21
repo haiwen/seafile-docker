@@ -22,7 +22,7 @@ if [[ ! -d /var/lib/mysql/mysql ]]; then
         sleep 1
     done
 
-    echo 'Setting root password to root'
+    echo 'Fixing root password'
     /usr/bin/mysqladmin -u root password ''
 
     # if [ -d /var/lib/mysql/setup ]; then
