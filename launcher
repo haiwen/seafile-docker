@@ -201,7 +201,7 @@ restart() {
 }
 
 check_prereqs() {
-    if [[ $skip_prereqs == "true" ]]; then
+    if [[ $SKIP_PREREQS == "true" ]]; then
         return 0
     fi
 
@@ -232,7 +232,7 @@ main() {
             bootstrap|oldstart|start|stop|restart|enter|destroy|logs|rebuild)
                                                 action=$1           ; shift 1 ;;
             --debug)                            debug=true          ; shift 1 ;;
-            --skip-prereqs)                     skip_prereqs=true   ; shift 1 ;;
+            --skip-prereqs)                     SKIP_PREREQS=true   ; shift 1 ;;
             --docker-args)                      user_args=$2        ; shift 2 ;;
             *)                                  err_and_quit "Argument error. Please see help." ;;
         esac
