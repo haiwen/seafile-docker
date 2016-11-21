@@ -1,5 +1,25 @@
 #!/bin/bash
 
+usage () {
+  echo "Usage: launcher COMMAND CONFIG [--skip-prereqs] [--docker-args STRING]"
+  echo "Commands:"
+  echo "    start:      Start/initialize a container"
+  echo "    stop:       Stop a running container"
+  echo "    restart:    Restart a container"
+  echo "    destroy:    Stop and remove a container"
+  echo "    enter:      Open a shell to run commands inside the container"
+  echo "    logs:       View the Docker logs for a container"
+  echo "    bootstrap:  Bootstrap a container for the config based on a template"
+  echo "    rebuild:    Rebuild a container (destroy old, bootstrap, start new)"
+  echo "    cleanup:    Remove all containers that have stopped for > 24 hours"
+  echo
+  echo "Options:"
+  echo "    --skip-prereqs             Don't check launcher prerequisites"
+  echo "    --docker-args              Extra arguments to pass when running docker"
+  echo "    --skip-mac-address         Don't assign a mac address"
+  exit 1
+}
+
 set -e
 set -o pipefail
 
@@ -17,6 +37,12 @@ dbg() {
     if [[ $debug == "true" ]]; then
         echo "dbg: $1"
     fi
+}
+
+install_docker() {
+  echo "Docker is not installed, you will need to install Docker in order to run Launcher"
+  echo "See https://docs.docker.com/installation/"
+  exit 1
 }
 
 err_and_quit () {
@@ -83,6 +109,10 @@ set_volumes() {
     done
 }
 
+set_existing_container() {
+  existing=$(docker ps -a | awk '{ print $1, $(NF) }' | grep " seafile$" | awk '{ print $1 }' || true)
+}
+
 bootstrap() {
     if [[ ! -e $bootstrap_conf  ]]; then
         err_and_quit "The file $bootstrap_conf doesn't exist. Have you run seafile-server-setup?"
@@ -106,13 +136,66 @@ oldstart() {
 }
 
 start() {
+    existing=$(docker ps | awk '{ print $1, $(NF) }' | grep " seafile$" | awk '{ print $1 }' || true)
+    if [[ $existing != "" ]]; then
+        echo "Nothing to do, your container has already started!"
+        exit 0
+    fi
+
+    set_existing_container
+    if [[ $existing != "" ]]; then
+        echo "starting up existing container"
+        (
+            set -x
+            docker start seafile
+        )
+        exit 0
+    fi
+
     set_volumes
     set_ports
-    docker run --rm -it --name seafile $volumes $ports $local_image
+
+    (
+        set -x
+        docker run -d -it --name seafile $volumes $ports $local_image
+    )
+}
+
+stop() {
+    set_existing_container
+    if [[ $existing != "" ]]; then
+        (
+            set -x
+            docker stop -t 10 seafile
+        )
+    else
+        echo "seafile was not started !"
+        exit 1
+    fi
 }
 
 enter() {
-    err_and_quit "Not implemented yet"
+    set_existing_container
+    if [[ $existing != "" ]]; then
+        (
+            set -x
+            docker exec -it seafile /bin/bash
+        )
+    else
+        echo "seafile was not started !"
+        exit 1
+    fi
+}
+
+restart() {
+    stop
+    start
+}
+
+check_prereqs() {
+    if ! which docker >/dev/null; then
+        install_docker
+    fi
 }
 
 main() {
@@ -120,13 +203,15 @@ main() {
     while [[ $# -gt 0 ]]
     do
         case "$1" in
-            bootstrap|oldstart|start|enter)    action=$1            ; shift 1 ;;
+            bootstrap|oldstart|start|stop|restart|enter)
+                                                action=$1           ; shift 1 ;;
             --debug)                            debug=true          ; shift 1 ;;
-            --dummy)                            dummy=$2            ; shift 2 ;;
+            # --dummy)                            dummy=$2            ; shift 2 ;;
             *)                                  err_and_quit "Argument error. Please see help." ;;
         esac
     done
     "$action"
 }
 
+check_prereqs
 main "$@"

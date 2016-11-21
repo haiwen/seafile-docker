@@ -4,6 +4,7 @@ FROM seafileorg/server:{{ seafile_version }}
 
 CMD ["/sbin/my_init", "--", "/scripts/start.py"]
 
+# shared/ are ignored in .dockerignore
 ADD . /app
 
 RUN cp -rp /app/scripts /scripts && \

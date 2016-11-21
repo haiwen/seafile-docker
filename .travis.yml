@@ -11,5 +11,5 @@ install:
 script:
   - cd image && make base && make && cd ..
   - cp samples/server.conf bootstrap/bootstrap.conf
-  - ./launcher bootstrap
-  - ./launcher start
+  - sudo ./launcher bootstrap
+  - sudo ./launcher start
