@@ -14,5 +14,5 @@ script:
   - sudo ./launcher bootstrap
   - sudo ./launcher start && sleep 10
   - sudo ./launcher stop --skip-prereqs
-  - sudo ./launcher start --docker-args "-h seafile-server" && sleep 10
+  - sudo ./launcher start --docker-args "--memory 1g" && sleep 10
   - sudo ./launcher restart
