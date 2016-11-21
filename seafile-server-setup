@@ -104,4 +104,4 @@ admin.email = $admin_email
 admin.password = $admin_passwd
 EOF
 
-# ./launcher bootstrap && ./launcher start
+./launcher bootstrap && ./launcher start
