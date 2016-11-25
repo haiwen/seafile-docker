@@ -48,17 +48,6 @@ def init_letsencrypt():
     #     time.sleep(1000)
     #     sys.exit(1)
 
-    # Now create the final nginx configuratin
-    context = {
-        'https': True,
-        'domain': domain,
-    }
-    render_template(
-        '/templates/seafile.nginx.conf.template',
-        join(generated_dir, 'seafile.nginx.conf'),
-        context
-    )
-
     context = {
         'ssl_dir': ssl_dir,
         'domain': domain,
@@ -68,6 +57,20 @@ def init_letsencrypt():
         join(generated_dir, 'letsencrypt.cron'),
         context
     )
+
+def generate_local_nginx_conf():
+    # Now create the final nginx configuratin
+    domain = get_conf('server.hostname')
+    context = {
+        'https': is_https(),
+        'domain': domain,
+    }
+    render_template(
+        '/templates/seafile.nginx.conf.template',
+        join(generated_dir, 'seafile.nginx.conf'),
+        context
+    )
+
 
 def is_https():
     return get_conf('server.letsencrypt', '').lower() == 'true'
@@ -142,10 +145,11 @@ def main():
 
     if is_https():
         init_letsencrypt()
+    generate_local_nginx_conf()
 
     init_seafile_server()
 
-    show_progress('bootstrap done.')
+    show_progress('Generated local config.')
 
 
 if __name__ == '__main__':

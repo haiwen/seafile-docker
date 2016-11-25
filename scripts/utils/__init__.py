@@ -238,6 +238,5 @@ def render_template(template, target, context):
         fp.write(content)
 
 def show_progress(msg):
-    eprint('---------------------')
+    msg = '[{}] {}'.format(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), green(msg))
     eprint(msg)
-    eprint('---------------------')

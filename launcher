@@ -38,6 +38,14 @@ dbg() {
     fi
 }
 
+show_progress() {
+    if [[ -t 1 ]]; then
+        >&2 printf "[$(date +'%Y-%m-%d %H:%M:%S')] \033[32m%s\033[m\n" "$1"
+    else
+        >&2 echo "[$(date +'%Y-%m-%d %H:%M:%S')] " "$1"
+    fi
+}
+
 install_docker() {
   echo "---------------------------------------------------------------------------------"
   echo "Docker is not installed, you will need to install Docker in order to run Launcher"
@@ -47,7 +55,11 @@ install_docker() {
 }
 
 err_and_quit () {
-    printf "\n\n\033[33mError: %s\033[m\n\n" "$1"
+    if [[ -t 1 ]]; then
+        >&2 printf "\n\n\033[33mError: %s\033[m\n\n" "$1"
+    else
+        >&2 echo "$1"
+    fi
     exit 1
 }
 
@@ -125,19 +137,21 @@ bootstrap() {
 
     docker run $user_args --rm -it --name seafile-bootstrap -e SEAFILE_BOOTSRAP=1 $volumes $ports $image /sbin/my_init -- /scripts/bootstrap.py
 
-    docker build -f bootstrap/generated/Dockerfile -t local_seafile/server:latest  .
+    show_progress "Now building the local docker image."
+    docker build -f bootstrap/generated/Dockerfile -t local_seafile/server:latest  . >/dev/null
+    show_progress "Image built."
 }
 
 start() {
     existing=$(docker ps | awk '{ print $1, $(NF) }' | grep " seafile$" | awk '{ print $1 }' || true)
     if [[ $existing != "" ]]; then
-        echo "Nothing to do, your container has already started!"
+        show_progress "Nothing to do, your container has already started!"
         exit 0
     fi
 
     set_existing_container
     if [[ $existing != "" ]]; then
-        echo "starting up existing container"
+        show_progress "starting up existing container"
         (
             set -x
             docker start seafile
@@ -156,6 +170,7 @@ start() {
         attach_on_run="-d"
     fi
 
+    show_progress "Starting up new seafile server container"
     (
         set -x
         docker run $user_args $attach_on_run $restart_policy --name seafile -h seafile $volumes $ports $local_image
@@ -170,8 +185,7 @@ stop() {
             docker stop -t 10 seafile
         )
     else
-        echo "seafile was not started !"
-        exit 1
+        err_and_quit "seafile was not started !"
     fi
 }
 
@@ -183,8 +197,7 @@ enter() {
             docker exec -it seafile /bin/bash
         )
     else
-        echo "seafile was not started !"
-        exit 1
+        err_and_quit "seafile was not started !"
     fi
 }
 
@@ -215,7 +228,7 @@ destroy() {
 
 rebuild() {
     if [[ "$(git symbolic-ref --short HEAD)" == "master" ]]; then
-        echo "Ensuring launcher is up to date"
+        show_progress "Ensuring launcher is up to date"
 
         git remote update
 
@@ -224,10 +237,10 @@ rebuild() {
         BASE=$(git merge-base @ "@{u}")
 
         if [[ $LOCAL = "$REMOTE" ]]; then
-            echo "Launcher is up-to-date"
+            show_progress "Launcher is up-to-date"
 
         elif [[ $LOCAL = "$BASE" ]]; then
-            echo "Updating Launcher"
+            show_progress "Updating Launcher"
             git pull || (echo 'failed to update' && exit 1)
 
             for (( i=${#BASH_ARGV[@]}-1,j=0; i>=0,j<${#BASH_ARGV[@]}; i--,j++ ))
@@ -237,9 +250,9 @@ rebuild() {
             exec /bin/bash $0 "${args[@]}" # $@ is empty, because of shift at the beginning. Use BASH_ARGV instead.
 
         elif [[ $REMOTE = "$BASE" ]]; then
-            echo "Your version of Launcher is ahead of origin"
+            show_progress "Your version of Launcher is ahead of origin"
         else
-            echo "Launcher has diverged source, this is only expected in Dev mode"
+            show_progress "Launcher has diverged source, this is only expected in Dev mode"
         fi
 
     fi
@@ -247,7 +260,7 @@ rebuild() {
     set_existing_container
 
     if [[ $existing != "" ]]; then
-        echo "Stopping old container"
+        show_progress "Stopping old container"
         (
             set -x
             docker stop -t 10 seafile
@@ -255,9 +268,10 @@ rebuild() {
     fi
 
     bootstrap
+    show_progress "Rebuilt successfullly."
 
     if [[ $existing != "" ]]; then
-        echo "Removing old container"
+        show_progress "Removing old container"
         (
             set -x
             docker rm seafile
@@ -265,6 +279,8 @@ rebuild() {
     fi
 
     start
+
+    show_progress "Your seafile server is now running."
     exit 0
 }
 
