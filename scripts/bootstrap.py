@@ -17,7 +17,8 @@ import time
 
 from utils import (
     call, get_conf, get_install_dir, show_progress,
-    get_script, render_template, get_seafile_version, eprint
+    get_script, render_template, get_seafile_version, eprint,
+    cert_has_valid_days
 )
 
 seafile_version = get_seafile_version()
@@ -33,12 +34,30 @@ def init_letsencrypt():
         os.mkdir(ssl_dir)
 
     domain = get_conf('server.hostname')
+
+    context = {
+        'ssl_dir': ssl_dir,
+        'domain': domain,
+    }
+    render_template(
+        '/templates/letsencrypt.cron.template',
+        join(generated_dir, 'letsencrypt.cron'),
+        context
+    )
+
+    ssl_crt = '/shared/ssl/{}.crt'.format(domain)
+    if exists(ssl_crt):
+        show_progress('Found existing cert file {}'.format(ssl_crt))
+        if cert_has_valid_days(ssl_crt, 30):
+            show_progress('Skip letsencrypt verification since we have a valid certificate')
+            return
+
+    show_progress('Starting letsencrypt verification')
+    # Create a temporary nginx conf to start a server, which would accessed by letsencrypt
     context = {
         'https': False,
         'domain': domain,
     }
-
-    # Create a temporary nginx conf to start a server, which would accessed by letsencrypt
     render_template('/templates/seafile.nginx.conf.template',
                     '/etc/nginx/sites-enabled/seafile.nginx.conf', context)
 
@@ -53,15 +72,6 @@ def init_letsencrypt():
     #     time.sleep(1000)
     #     sys.exit(1)
 
-    context = {
-        'ssl_dir': ssl_dir,
-        'domain': domain,
-    }
-    render_template(
-        '/templates/letsencrypt.cron.template',
-        join(generated_dir, 'letsencrypt.cron'),
-        context
-    )
 
 def generate_local_nginx_conf():
     # Now create the final nginx configuratin

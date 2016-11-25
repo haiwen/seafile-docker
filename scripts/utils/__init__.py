@@ -240,3 +240,10 @@ def render_template(template, target, context):
 def show_progress(msg):
     msg = '[{}] {}'.format(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), green(msg))
     eprint(msg)
+
+def cert_has_valid_days(cert, days):
+    assert exists(cert)
+
+    secs = 86400 * int(days)
+    retcode = call('openssl x509 -checkend {} -noout -in {}'.format(secs, cert), check_call=False)
+    return retcode == 0
