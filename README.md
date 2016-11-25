@@ -92,7 +92,7 @@ server.port_mappings = 80:80,443:443
 
 If you want to use your own SSL certificate:
 - create a folder 'shared/ssl', and put your certificate and private key under the ssl directory.
-- Your certificate must have the name "seafile.example.com.crt", and the private key must have the name "seafile.example.com.key".
+- Assume your site name is "seafile.example.com", then your certificate must have the name "seafile.example.com.crt", and the private key must have the name "seafile.example.com.key".
 
 ### Upgrading Seafile Server
 
