@@ -88,8 +88,6 @@ set_bootstrap_volumes() {
     local mounts
     init_shared
 
-    chmod 0700 $sharedir $dockerdir/bootstrap/
-
     mounts=(
         $sharedir:/shared
         $sharedir/logs/var-log:/var/log
@@ -156,6 +154,8 @@ start() {
         show_progress "Nothing to do, your container has already started!"
         exit 0
     fi
+
+    chmod 0700 $dockerdir/bootstrap $sharedir/seafile/conf
 
     set_existing_container
     if [[ $existing != "" ]]; then
