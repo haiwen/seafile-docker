@@ -43,7 +43,7 @@ def init_letsencrypt():
                     '/etc/nginx/sites-enabled/seafile.nginx.conf', context)
 
     # TODO: The 5 seconds heuristic is not good, how can we know for sure nginx is ready?
-    print 'waiting for mysql server to be ready'
+    print 'waiting for nginx server to be ready'
     time.sleep(5)
     call('nginx -s reload')
 
