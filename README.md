@@ -10,7 +10,7 @@
 
 ### Getting Started
 
-The simplest way to get started is via the **simple** template, which can be installed within servera minutes.
+The simplest way to get started is via the **samples/server.conf** template, which can be installed within several minutes.
 
 ```
 sudo git clone https://github.com/haiwen/seafile-docker.git /var/seafile/
