@@ -9,11 +9,11 @@ pip install docker-squash
     make base squash-base server
 )
 
-cp samples/server.conf bootstrap/bootstrap.conf
+sudo cp samples/server.conf bootstrap/bootstrap.conf
 
-./launcher bootstrap
-./launcher start && sleep 10
-./launcher stop --skip-prereqs
-./launcher start --docker-args "--memory 1g" && sleep 10
-./launcher restart
-./launcher rebuild --docker-args "--memory 1g"
+sudo ./launcher bootstrap
+sudo ./launcher start && sleep 10
+sudo ./launcher stop --skip-prereqs
+sudo ./launcher start --docker-args "--memory 1g" && sleep 10
+sudo ./launcher restart
+sudo ./launcher rebuild --docker-args "--memory 1g"
