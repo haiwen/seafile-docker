@@ -1,6 +1,7 @@
 server_version=6.0.5
 
 base_image=seafileorg/base:16.04
+base_image_squashed=seafileorg/base:16.04-squashed
 server_image=seafileorg/server:$(server_version)
 
 all:
@@ -13,6 +14,10 @@ base:
 
 server:
 	cd seafile && docker build -t $(server_image) .
+
+squash-base:
+	docker-squash --verbose --tag $(base_image_squashed) $(base_image)
+	docker tag $(base_image_squashed) $(base_image)
 
 push:
 	docker push $(base_image)

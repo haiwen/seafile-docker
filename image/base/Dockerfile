@@ -38,7 +38,21 @@ RUN mkdir -p /etc/service/mysql && \
 RUN mkdir -p /etc/my_init.d && rm -f /etc/my_init.d/00_regen_ssh_host_keys.sh
 ADD my_init.d/99_mysql_setup.sh /etc/my_init.d/
 
+# clean up for docker squash
+RUN rm -rf \
+    /root/.cache \
+    /root/.npm \
+    /root/.pip \
+    /usr/local/share/doc \
+    /usr/share/doc \
+    /usr/share/man \
+    /usr/share/vim/vim74/doc \
+    /usr/share/vim/vim74/lang \
+    /usr/share/vim/vim74/spell/en*
+    /usr/share/vim/vim74/tutor \
+    /var/lib/apt/lists/* \
+    /tmp/* \
+
 CMD ["/sbin/my_init", "--", "bash", "-l"]
 
-# TODO: clean up & squash layers with docker-squash
-# See https://github.com/jwilder/docker-squash
+# Docker squash
