@@ -185,28 +185,27 @@ start() {
     )
 }
 
-stop() {
+ensure_container_running() {
     set_existing_container
-    if [[ $existing != "" ]]; then
-        (
-            set -x
-            docker stop -t 10 seafile
-        )
-    else
+    if [[ $existing == "" ]]; then
         err_and_quit "seafile was not started !"
     fi
 }
 
+stop() {
+    ensure_container_running
+    (
+        set -x
+        docker stop -t 10 seafile
+    )
+}
+
 enter() {
-    set_existing_container
-    if [[ $existing != "" ]]; then
-        (
-            set -x
-            docker exec -it seafile /bin/bash
-        )
-    else
-        err_and_quit "seafile was not started !"
-    fi
+    ensure_container_running
+    (
+        set -x
+        docker exec -it seafile /bin/bash
+    )
 }
 
 restart() {
@@ -227,7 +226,11 @@ check_prereqs() {
 }
 
 logs() {
-    err_and_quit "Not implemented yet"
+    ensure_container_running
+    (
+        set -x
+        docker logs --tail=20 -f seafile
+    )
 }
 
 destroy() {
