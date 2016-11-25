@@ -39,8 +39,10 @@ dbg() {
 }
 
 install_docker() {
+  echo "---------------------------------------------------------------------------------"
   echo "Docker is not installed, you will need to install Docker in order to run Launcher"
   echo "See https://docs.docker.com/installation/"
+  echo "---------------------------------------------------------------------------------"
   exit 1
 }
 

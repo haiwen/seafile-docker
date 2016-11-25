@@ -18,7 +18,7 @@ cd /var/seafile/
 
 sudo cp samples/server.conf bootstrap/bootstrap.conf
 # Edit the options according to your use case
-vim bootstrap/bootstrap.conf
+sudo vim bootstrap/bootstrap.conf
 
 sudo ./launcher bootstrap
 sudo ./launcher start
