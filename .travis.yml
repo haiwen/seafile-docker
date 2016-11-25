@@ -16,3 +16,4 @@ script:
   - sudo ./launcher stop --skip-prereqs
   - sudo ./launcher start --docker-args "--memory 1g" && sleep 10
   - sudo ./launcher restart
+  - sudo ./launcher rebuild --docker-args "--memory 1g"
