@@ -214,7 +214,58 @@ destroy() {
 }
 
 rebuild() {
-    err_and_quit "Not implemented yet"
+    if [[ "$(git symbolic-ref --short HEAD)" == "master" ]]; then
+        echo "Ensuring launcher is up to date"
+
+        git remote update
+
+        LOCAL=$(git rev-parse @)
+        REMOTE=$(git rev-parse "@{u}")
+        BASE=$(git merge-base @ "@{u}")
+
+        if [[ $LOCAL = "$REMOTE" ]]; then
+            echo "Launcher is up-to-date"
+
+        elif [[ $LOCAL = "$BASE" ]]; then
+            echo "Updating Launcher"
+            git pull || (echo 'failed to update' && exit 1)
+
+            for (( i=${#BASH_ARGV[@]}-1,j=0; i>=0,j<${#BASH_ARGV[@]}; i--,j++ ))
+            do
+                args[$j]=${BASH_ARGV[$i]}
+            done
+            exec /bin/bash $0 "${args[@]}" # $@ is empty, because of shift at the beginning. Use BASH_ARGV instead.
+
+        elif [[ $REMOTE = "$BASE" ]]; then
+            echo "Your version of Launcher is ahead of origin"
+        else
+            echo "Launcher has diverged source, this is only expected in Dev mode"
+        fi
+
+    fi
+
+    set_existing_container
+
+    if [[ $existing != "" ]]; then
+        echo "Stopping old container"
+        (
+            set -x
+            docker stop -t 10 seafile
+        )
+    fi
+
+    bootstrap
+
+    if [[ $existing != "" ]]; then
+        echo "Removing old container"
+        (
+            set -x
+            docker rm seafile
+        )
+    fi
+
+    start
+    exit 0
 }
 
 main() {
