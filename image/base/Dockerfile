@@ -2,8 +2,10 @@
 # See https://hub.docker.com/r/phusion/baseimage/tags/
 FROM phusion/baseimage:0.9.19
 
-ENV UPDATED_AT=20161110 \
+ENV UPDATED_AT=20161124 \
     DEBIAN_FRONTEND=noninteractive
+
+CMD ["/sbin/my_init", "--", "bash", "-l"]
 
 RUN apt-get update -qq && apt-get -qq -y install memcached mariadb-server nginx
 
@@ -38,7 +40,8 @@ RUN mkdir -p /etc/service/mysql && \
 RUN mkdir -p /etc/my_init.d && rm -f /etc/my_init.d/00_regen_ssh_host_keys.sh
 ADD my_init.d/99_mysql_setup.sh /etc/my_init.d/
 
-# clean up for docker squash
+# Clean up for docker squash
+# See https://github.com/goldmann/docker-squash
 RUN rm -rf \
     /root/.cache \
     /root/.npm \
@@ -48,11 +51,7 @@ RUN rm -rf \
     /usr/share/man \
     /usr/share/vim/vim74/doc \
     /usr/share/vim/vim74/lang \
-    /usr/share/vim/vim74/spell/en*
+    /usr/share/vim/vim74/spell/en* \
     /usr/share/vim/vim74/tutor \
     /var/lib/apt/lists/* \
-    /tmp/* \
-
-CMD ["/sbin/my_init", "--", "bash", "-l"]
-
-# Docker squash
+    /tmp/*
