@@ -76,13 +76,24 @@ If the environment variable "SUPERVISED" is set to true, the container won't be 
 
 ### Container Configuration
 
-The beginning of the container definition can contain the following "special" sections:
-
 #### port mapping:
 
 ```conf
 server.port_mappings = 80:80,443:443
 ```
+
+#### Let's encrypt SSL certificate
+
+If you set `server.letsencrypt` to `true`, the bootstrap script would request a letsencrypt-signed SSL certificate for you.
+
+```conf
+server.letsencrypt = true
+server.port_mappings = 80:80,443:443
+```
+
+If you want to use your own SSL certificate:
+- create a folder 'shared/ssl', and put your certificate and private key under the ssl directory.
+- Your certificate must have the name "seafile.example.com.crt", and the private key must have the name "seafile.example.com.key".
 
 ### Troubleshooting
 
