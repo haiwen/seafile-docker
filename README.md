@@ -107,6 +107,9 @@ with `sudo -i`, and then you're right to go. Your live git repo is already
 available at `/var/seafile`, so you can just `cd /var/seafile` and then start
 running `launcher`.
 
+### Special Thanks
+
+Lots of the design of this repo is borrowed from the excellent [discourse-docker](https://github.com/discourse/discourse_docker) project. Thanks for their insipiration!
 
 License
 ===
