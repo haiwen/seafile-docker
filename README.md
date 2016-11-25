@@ -95,6 +95,10 @@ If you want to use your own SSL certificate:
 - create a folder 'shared/ssl', and put your certificate and private key under the ssl directory.
 - Your certificate must have the name "seafile.example.com.crt", and the private key must have the name "seafile.example.com.key".
 
+### Upgrading
+
+Simple run `./launcher rebuild`, which would keep your seafile server up to date.
+
 ### Troubleshooting
 
 View the container logs: `./launcher logs`
