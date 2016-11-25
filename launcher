@@ -11,7 +11,6 @@ usage () {
   echo "    logs:       View the Docker logs for a container"
   echo "    bootstrap:  Bootstrap a container for the config based on a template"
   echo "    rebuild:    Rebuild a container (destroy old, bootstrap, start new)"
-  echo "    cleanup:    Remove all containers that have stopped for > 24 hours"
   echo
   echo "Options:"
   echo "    --skip-prereqs             Don't check launcher prerequisites"
