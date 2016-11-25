@@ -29,4 +29,9 @@ if [[ ! -e /opt/seafile/seafile-server-latest ]]; then
     ln -sf /opt/seafile/seafile-server-$SEAFILE_VERSION /opt/seafile/seafile-server-latest
 fi
 
+source_avatars_dir=/opt/seafile/seafile-server-${SEAFILE_VERSION}/seahub/media/avatars
+rm -rf $source_avatars_dir
+
+ln -sf /shared/seafile/seahub-data/avatars $source_avatars_dir
+
 # TODO: create avatars link
