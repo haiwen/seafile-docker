@@ -40,7 +40,8 @@ def main():
         json.dump(admin_pw, fp)
 
     while not exists('/var/run/mysqld/mysqld.sock'):
-        time.sleep(1)
+        print 'waiting for mysql server to be ready'
+        time.sleep(2)
     print 'mysql server is ready'
 
     try:

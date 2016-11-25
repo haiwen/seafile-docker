@@ -134,7 +134,7 @@ bootstrap() {
     docker history $image >/dev/null 2>&1 || {
         show_progress "Pulling Seafile server image $version, this may take a while."
         docker pull $image
-        show_progress "Seafile server image $version pulled"
+        show_progress "Seafile server image $version pulled. Now bootstrapping the server ..."
     }
 
     # First initialize seafile server and letsencrypt
