@@ -118,7 +118,7 @@ def do_parse_ports():
 
 def init_seafile_server():
     if exists(join(shared_seafiledir, 'seafile-data')):
-        show_progress('Skipping running setup-seafile-mysql.py because there is existing seafile-data folder.')
+        show_progress('Skip running setup-seafile-mysql.py because there is existing seafile-data folder.')
         return
 
     show_progress('Now running setup-seafile-mysql.py in auto mode.')
