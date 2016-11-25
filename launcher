@@ -131,6 +131,12 @@ bootstrap() {
         err_and_quit "The file $bootstrap_conf doesn't exist. Have you run seafile-server-setup?"
     fi
 
+    docker history $image >/dev/null 2>&1 || {
+        show_progress "Pulling Seafile server image $version, this may take a while."
+        docker pull $image
+        show_progress "Seafile server image $version pulled"
+    }
+
     # First initialize seafile server and letsencrypt
     set_bootstrap_volumes
     set_ports
