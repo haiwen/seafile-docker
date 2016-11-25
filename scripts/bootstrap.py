@@ -139,6 +139,13 @@ def init_seafile_server():
     setup_script = get_script('setup-seafile-mysql.sh')
     call('{} auto -n seafile'.format(setup_script), env=env)
 
+    domain = get_conf('server.hostname')
+    proto = 'https' if is_https() else 'http'
+    with open(join(topdir, 'conf', 'seahub_settings.py'), 'a+') as fp:
+        fp.write('\n')
+        fp.write('FILE_SERVER_ROOT = "{proto}://{domain}/seafhttp"'.format(proto=proto, domain=domain))
+        fp.write('\n')
+
     files_to_copy = ['conf', 'ccnet', 'seafile-data', 'seahub-data',]
     for fn in files_to_copy:
         src = join(topdir, fn)

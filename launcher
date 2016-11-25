@@ -234,7 +234,11 @@ logs() {
 }
 
 destroy() {
-    err_and_quit "Not implemented yet"
+    (
+        set -x
+        docker stop -t 10 seafile || true
+        docker rm seafile
+    )
 }
 
 rebuild() {
