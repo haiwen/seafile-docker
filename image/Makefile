@@ -12,12 +12,12 @@ all:
 base:
 	cd base && docker build -t $(base_image) .
 
-server:
-	cd seafile && docker build -t $(server_image) .
-
 squash-base:
 	docker-squash --verbose --tag $(base_image_squashed) $(base_image)
 	docker tag $(base_image_squashed) $(base_image)
+
+server:
+	cd seafile && docker build -t $(server_image) .
 
 push:
 	docker push $(base_image)

@@ -9,7 +9,7 @@ install:
   - echo "Nothing to install"
 
 script:
-  - cd image && make base && make server && cd ..
+  - cd image && make base squash-base server && cd ..
   - cp samples/server.conf bootstrap/bootstrap.conf
   - sudo ./launcher bootstrap
   - sudo ./launcher start && sleep 10
