@@ -88,6 +88,8 @@ set_bootstrap_volumes() {
     local mounts
     init_shared
 
+    chmod 0700 $sharedir $dockerdir/bootstrap/
+
     mounts=(
         $sharedir:/shared
         $sharedir/logs/var-log:/var/log
