@@ -32,10 +32,10 @@ Now visit `http://hostname` or `https://hostname` to open Seafile Web UI.
 
 The config files are under `shared/seafile/conf`. You can modify the configurations according to [Seafile manual](https://manual.seafile.com/)
 
-After modification, restart the docker instance:
+After modification, restart the docker container:
 
 ```
-./launcher restart
+sudo ./launcher restart
 ```
 
 #### Find logs

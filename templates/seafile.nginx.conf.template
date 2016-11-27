@@ -71,7 +71,6 @@ server {
 
     location /media {
         root /opt/seafile/seafile-server-latest/seahub;
-        autoindex off;
     }
 
     # For letsencrypt
