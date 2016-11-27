@@ -35,8 +35,7 @@ The config files are under `shared/seafile/conf`. You can modify the configurati
 After modification, restart the docker instance:
 
 ```
-./launcher stop
-./launcher start
+./launcher restart
 ```
 
 #### Find logs
