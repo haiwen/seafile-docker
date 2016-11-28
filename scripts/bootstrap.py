@@ -18,7 +18,7 @@ import time
 from utils import (
     call, get_conf, get_install_dir, show_progress,
     get_script, render_template, get_seafile_version, eprint,
-    cert_has_valid_days
+    cert_has_valid_days, get_version_stamp_file, update_version_stamp
 )
 
 seafile_version = get_seafile_version()
@@ -117,7 +117,10 @@ def do_parse_ports():
         sys.stdout.flush()
 
 def init_seafile_server():
+    version_stamp_file = get_version_stamp_file()
     if exists(join(shared_seafiledir, 'seafile-data')):
+        if not exists(version_stamp_file):
+            update_version_stamp(version_stamp_file, os.environ['SEAFILE_VERSION'])
         show_progress('Skip running setup-seafile-mysql.py because there is existing seafile-data folder.')
         return
 
@@ -152,6 +155,8 @@ def init_seafile_server():
         dst = join(shared_seafiledir, fn)
         if not exists(dst) and exists(src):
             shutil.move(src, shared_seafiledir)
+
+    update_version_stamp(version_stamp_file, os.environ['SEAFILE_VERSION'])
 
 def main():
     args = parse_args()

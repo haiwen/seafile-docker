@@ -247,3 +247,15 @@ def cert_has_valid_days(cert, days):
     secs = 86400 * int(days)
     retcode = call('openssl x509 -checkend {} -noout -in {}'.format(secs, cert), check_call=False)
     return retcode == 0
+
+def get_version_stamp_file():
+    return '/shared/seafile/seafile-data/current_version'
+
+def read_version_stamp(fn):
+    assert exists(fn), 'version stamp file {} does not exist!'.format(fn)
+    with open(fn, 'r') as fp:
+        return fp.read().strip()
+
+def update_version_stamp(fn, version):
+    with open(fn, 'w') as fp:
+        fp.write(version + '\n')
