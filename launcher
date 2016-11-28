@@ -282,7 +282,7 @@ rebuild() {
     fi
 
     bootstrap
-    show_progress "Rebuilt successfullly."
+    show_progress "Rebuilt successfully."
 
     if [[ $existing != "" ]]; then
         show_progress "Removing old container"
