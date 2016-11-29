@@ -9,6 +9,7 @@ from os.path import abspath, basename, exists, dirname, join, isdir, expanduser
 import platform
 import sys
 import subprocess
+import time
 import logging
 import logging.config
 import click
@@ -251,11 +252,23 @@ def cert_has_valid_days(cert, days):
 def get_version_stamp_file():
     return '/shared/seafile/seafile-data/current_version'
 
-def read_version_stamp(fn):
+def read_version_stamp(fn=get_version_stamp_file()):
     assert exists(fn), 'version stamp file {} does not exist!'.format(fn)
     with open(fn, 'r') as fp:
         return fp.read().strip()
 
-def update_version_stamp(fn, version):
+def update_version_stamp(version, fn=get_version_stamp_file()):
     with open(fn, 'w') as fp:
         fp.write(version + '\n')
+
+def wait_for_mysql():
+    while not exists('/var/run/mysqld/mysqld.sock'):
+        print('waiting for mysql server to be ready')
+        time.sleep(2)
+    print('mysql server is ready')
+
+def replace_file_pattern(fn, pattern, replacement):
+    with open(fn, 'r') as fp:
+        content = fp.read()
+    with open(fn, 'w') as fp:
+        fp.write(content.replace(pattern, replacement))

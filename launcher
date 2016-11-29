@@ -3,14 +3,14 @@
 usage () {
   echo "Usage: launcher COMMAND [--skip-prereqs] [--docker-args STRING]"
   echo "Commands:"
-  echo "    start:      Start/initialize a container"
+  echo "    start:      Start/initialize the container"
   echo "    stop:       Stop a running container"
-  echo "    restart:    Restart a container"
-  echo "    destroy:    Stop and remove a container"
+  echo "    restart:    Restart the container"
+  echo "    destroy:    Stop and remove the container"
   echo "    enter:      Open a shell to run commands inside the container"
-  echo "    logs:       View the Docker logs for a container"
-  echo "    bootstrap:  Bootstrap a container for the config based on a template"
-  echo "    rebuild:    Rebuild a container (destroy old, bootstrap, start new)"
+  echo "    logs:       View the Docker container logs"
+  echo "    bootstrap:  Bootstrap the container based on a template"
+  echo "    rebuild:    Rebuild the container (destroy old, bootstrap, start new)"
   echo
   echo "Options:"
   echo "    --skip-prereqs             Don't check launcher prerequisites"
@@ -21,13 +21,14 @@ usage () {
 set -e
 set -o pipefail
 
-version=6.0.5
+version=6.1.0
 image=seafileorg/server:$version
 local_image=local_seafile/server:latest
 dockerdir=$(cd "$(dirname $0)"; pwd -P)
 sharedir=$dockerdir/shared
 installdir=/opt/seafile/seafile-server-$version
 bootstrap_conf=$dockerdir/bootstrap/bootstrap.conf
+version_stamp_file=$sharedir/seafile/seafile-data/current_version
 
 cd $dockerdir
 
@@ -154,6 +155,8 @@ start() {
         exit 0
     fi
 
+    check_version_match
+
     chmod 0700 $dockerdir/bootstrap $sharedir/seafile/conf
 
     set_existing_container
@@ -240,6 +243,68 @@ destroy() {
     )
 }
 
+get_major_version() {
+    echo $1| awk -F . '{printf "%s.%s", $1, $2}'
+}
+
+check_version_match() {
+    local last_version last_major_version current_major_version
+    last_version=$(cat $version_stamp_file)
+    last_major_version=$(get_major_version $last_version)
+    current_major_version=$(get_major_version $version)
+
+    if [[ $last_major_version != "$current_major_version" ]]; then
+        show_progress "******* Major upgrade detected *******"
+        show_progress "You have $last_version, latest is $version"
+        show_progress "Please run './launcher rebuild' to upgrade"
+        exit 1
+    fi
+}
+
+check_upgrade() {
+    show_progress "Checking if there is major version upgrade"
+
+    local last_version last_major_version current_major_version
+    last_version=$(cat $version_stamp_file)
+    last_major_version=$(get_major_version $last_version)
+    current_major_version=$(get_major_version $version)
+
+    if [[ $last_major_version == "$current_major_version" ]]; then
+        return
+    else
+        show_progress "********************************"
+        show_progress "Major upgrade detected: You have $last_version, latest is $version"
+        show_progress "********************************"
+
+        # use_manual_upgrade=true
+        if [[ $use_manual_upgrade == "true" ]]; then
+            show_progress "Now you can run './launcher manual-upgrade' to do manual upgrade."
+            exit 0
+        else
+            show_progress "Going to launch the docker container for manual upgrade"
+            _launch_for_upgrade --auto
+        fi
+    fi
+}
+
+_launch_for_upgrade() {
+    local cmd
+    if [[ $1 == "--auto" ]]; then
+        cmd="/scripts/upgrade.py"
+    else
+        cmd="/bin/bash"
+    fi
+
+    set_volumes
+    (
+        set -x
+        docker run $user_args \
+               -it --rm --name seafile-upgrade -h seafile \
+               $volumes $local_image \
+               /sbin/my_init -- $cmd
+    )
+}
+
 rebuild() {
     if [[ "$(git symbolic-ref --short HEAD)" == "master" ]]; then
         show_progress "Ensuring launcher is up to date"
@@ -292,10 +357,16 @@ rebuild() {
         )
     fi
 
+    check_upgrade
+
     start
 
     show_progress "Your seafile server is now running."
     exit 0
+}
+
+manual_upgrade() {
+    _launch_for_upgrade
 }
 
 main() {
@@ -303,14 +374,15 @@ main() {
     while [[ $# -gt 0 ]]
     do
         case "$1" in
-            bootstrap|start|stop|restart|enter|destroy|logs|rebuild)
-                                                action=$1           ; shift 1 ;;
-            --debug)                            debug=true          ; shift 1 ;;
-            --skip-prereqs)                     SKIP_PREREQS=true   ; shift 1 ;;
-            --docker-args)                      user_args=$2        ; shift 2 ;;
+            bootstrap|start|stop|restart|enter|destroy|logs|rebuild|manual-upgrade)
+                                                action=${1//-/_}            ; shift 1 ;;
+            --skip-prereqs)                     SKIP_PREREQS=true           ; shift 1 ;;
+            --docker-args)                      user_args=$2                ; shift 2 ;;
+            --manual-upgrade)                   use_manual_upgrade=true     ; shift 1 ;;
             *)                                  err_and_quit "Argument error. Please see help." ;;
         esac
     done
+
     "$action"
 }
 
