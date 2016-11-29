@@ -379,6 +379,11 @@ rebuild() {
 
 manual_upgrade() {
     _launch_for_upgrade
+    loginfo "If you have manually upgraded the server, please update the version stamp by:"
+    loginfo
+    loginfo "       echo $version | sudo tee $version_stamp_file"
+    loginfo "       sudo ./launcher start"
+    loginfo
 }
 
 main() {

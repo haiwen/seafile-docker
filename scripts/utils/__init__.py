@@ -18,6 +18,8 @@ import colorlog
 
 logger = logging.getLogger('.utils')
 
+DEBUG_ENABLED = os.environ.get('SEAFILE_DOCKER_VERBOSE', '').lower() in ('true', '1', 'yes')
+
 def eprint(*a, **kw):
     kw['file'] = sys.stderr
     print(*a, **kw)
@@ -48,7 +50,7 @@ def _find_flag(args, *opts, **kw):
 
 def call(*a, **kw):
     dry_run = kw.pop('dry_run', False)
-    quiet = kw.pop('quiet', False)
+    quiet = kw.pop('quiet', DEBUG_ENABLED)
     cwd = kw.get('cwd', os.getcwd())
     check_call = kw.pop('check_call', True)
     reduct_args = kw.pop('reduct_args', [])
@@ -242,8 +244,6 @@ def logdbg(msg):
     if DEBUG_ENABLED:
         msg = '[debug] ' + msg
         loginfo(msg)
-
-DEBUG_ENABLED = os.environ.get('SEAFILE_DOCKER_VERBOSE', '').lower() in ('true', '1', 'yes')
 
 def loginfo(msg):
     msg = '[{}] {}'.format(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), green(msg))
