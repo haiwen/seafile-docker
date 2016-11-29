@@ -32,13 +32,13 @@ version_stamp_file=$sharedir/seafile/seafile-data/current_version
 
 cd $dockerdir
 
-dlog() {
+logdbg() {
     if [[ $verbose == "true" ]]; then
-        show_progress "[debug] $1"
+        loginfo "[debug] $1"
     fi
 }
 
-show_progress() {
+loginfo() {
     if [[ -t 1 ]]; then
         >&2 printf "[$(date +'%Y-%m-%d %H:%M:%S')] \033[32m%s\033[m\n" "$1"
     else
@@ -139,9 +139,9 @@ bootstrap() {
     fi
 
     docker history $image >/dev/null 2>&1 || {
-        show_progress "Pulling Seafile server image $version, this may take a while."
+        loginfo "Pulling Seafile server image $version, this may take a while."
         docker pull $image
-        show_progress "Seafile server image $version pulled. Now bootstrapping the server ..."
+        loginfo "Seafile server image $version pulled. Now bootstrapping the server ..."
     }
 
     # First initialize seafile server and letsencrypt
@@ -151,15 +151,15 @@ bootstrap() {
 
     docker run $user_args --rm -it --name seafile-bootstrap -e SEAFILE_BOOTSRAP=1 $envs $volumes $ports $image /sbin/my_init $quiet -- /scripts/bootstrap.py
 
-    show_progress "Now building the local docker image."
+    loginfo "Now building the local docker image."
     docker build -f bootstrap/generated/Dockerfile -t local_seafile/server:latest  . >/dev/null
-    show_progress "Image built."
+    loginfo "Image built."
 }
 
 start() {
     existing=$(docker ps | awk '{ print $1, $(NF) }' | grep " seafile$" | awk '{ print $1 }' || true)
     if [[ $existing != "" ]]; then
-        show_progress "Nothing to do, your container has already started!"
+        loginfo "Nothing to do, your container has already started!"
         exit 0
     fi
 
@@ -169,7 +169,7 @@ start() {
 
     set_existing_container
     if [[ $existing != "" ]]; then
-        show_progress "starting up existing container"
+        loginfo "starting up existing container"
         (
             set -x
             docker start seafile
@@ -189,7 +189,7 @@ start() {
         attach_on_run="-d"
     fi
 
-    show_progress "Starting up new seafile server container"
+    loginfo "Starting up new seafile server container"
     (
         set -x
         docker run $user_args $attach_on_run $restart_policy --name seafile -h seafile $envs $volumes $ports $local_image
@@ -262,18 +262,18 @@ check_version_match() {
     last_major_version=$(get_major_version $last_version)
     current_major_version=$(get_major_version $version)
 
-    dlog "Your version: ${last_version}, latest version: ${version}"
+    logdbg "Your version: ${last_version}, latest version: ${version}"
 
     if [[ $last_major_version != "$current_major_version" ]]; then
-        show_progress "******* Major upgrade detected *******"
-        show_progress "You have $last_version, latest is $version"
-        show_progress "Please run './launcher rebuild' to upgrade"
+        loginfo "******* Major upgrade detected *******"
+        loginfo "You have $last_version, latest is $version"
+        loginfo "Please run './launcher rebuild' to upgrade"
         exit 1
     fi
 }
 
 check_upgrade() {
-    show_progress "Checking if there is major version upgrade"
+    loginfo "Checking if there is major version upgrade"
 
     local last_version last_major_version current_major_version
     last_version=$(cat $version_stamp_file)
@@ -283,16 +283,16 @@ check_upgrade() {
     if [[ $last_major_version == "$current_major_version" ]]; then
         return
     else
-        show_progress "********************************"
-        show_progress "Major upgrade detected: You have $last_version, latest is $version"
-        show_progress "********************************"
+        loginfo "********************************"
+        loginfo "Major upgrade detected: You have $last_version, latest is $version"
+        loginfo "********************************"
 
         # use_manual_upgrade=true
         if [[ $use_manual_upgrade == "true" ]]; then
-            show_progress "Now you can run './launcher manual-upgrade' to do manual upgrade."
+            loginfo "Now you can run './launcher manual-upgrade' to do manual upgrade."
             exit 0
         else
-            show_progress "Going to launch the docker container for manual upgrade"
+            loginfo "Going to launch the docker container for manual upgrade"
             _launch_for_upgrade --auto
         fi
     fi
@@ -319,7 +319,7 @@ _launch_for_upgrade() {
 
 rebuild() {
     if [[ "$(git symbolic-ref --short HEAD)" == "master" ]]; then
-        show_progress "Ensuring launcher is up to date"
+        loginfo "Ensuring launcher is up to date"
 
         git remote update
 
@@ -328,10 +328,10 @@ rebuild() {
         BASE=$(git merge-base @ "@{u}")
 
         if [[ $LOCAL = "$REMOTE" ]]; then
-            show_progress "Launcher is up-to-date"
+            loginfo "Launcher is up-to-date"
 
         elif [[ $LOCAL = "$BASE" ]]; then
-            show_progress "Updating Launcher"
+            loginfo "Updating Launcher"
             git pull || (echo 'failed to update' && exit 1)
 
             for (( i=${#BASH_ARGV[@]}-1,j=0; i>=0,j<${#BASH_ARGV[@]}; i--,j++ ))
@@ -341,9 +341,9 @@ rebuild() {
             exec /bin/bash $0 "${args[@]}" # $@ is empty, because of shift at the beginning. Use BASH_ARGV instead.
 
         elif [[ $REMOTE = "$BASE" ]]; then
-            show_progress "Your version of Launcher is ahead of origin"
+            loginfo "Your version of Launcher is ahead of origin"
         else
-            show_progress "Launcher has diverged source, this is only expected in Dev mode"
+            loginfo "Launcher has diverged source, this is only expected in Dev mode"
         fi
 
     fi
@@ -351,7 +351,7 @@ rebuild() {
     set_existing_container
 
     if [[ $existing != "" ]]; then
-        show_progress "Stopping old container"
+        loginfo "Stopping old container"
         (
             set -x
             docker stop -t 10 seafile
@@ -359,10 +359,10 @@ rebuild() {
     fi
 
     bootstrap
-    show_progress "Rebuilt successfully."
+    loginfo "Rebuilt successfully."
 
     if [[ $existing != "" ]]; then
-        show_progress "Removing old container"
+        loginfo "Removing old container"
         (
             set -x
             docker rm seafile
@@ -373,7 +373,7 @@ rebuild() {
 
     start
 
-    show_progress "Your seafile server is now running."
+    loginfo "Your seafile server is now running."
     exit 0
 }
 

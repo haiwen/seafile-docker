@@ -18,7 +18,7 @@ import time
 
 from utils import (
     call, get_install_dir, get_script, get_command_output, replace_file_pattern,
-    read_version_stamp, wait_for_mysql, update_version_stamp, show_progress
+    read_version_stamp, wait_for_mysql, update_version_stamp, loginfo
 )
 
 installdir = get_install_dir()
@@ -62,7 +62,7 @@ def check_upgrade():
 
     scripts_to_run = collect_upgrade_scripts(from_version=last_version, to_version=current_version)
     for script in scripts_to_run:
-        show_progress('Running scripts {}'.format(script))
+        loginfo('Running scripts {}'.format(script))
         new_version = parse_upgrade_script_version(script)[1] + '.0'
 
         replace_file_pattern(script, 'read dummy', '')

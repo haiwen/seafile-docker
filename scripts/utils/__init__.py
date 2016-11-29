@@ -58,8 +58,8 @@ def call(*a, **kw):
         for arg in reduct_args:
             value = _find_flag(args, arg)
             toprint = toprint.replace(value, '{}**reducted**'.format(value[:3]))
-        eprint('calling: ', green(toprint))
-        eprint('cwd:     ', green(cwd))
+        logdbg('calling: ' + green(toprint))
+        logdbg('cwd:     ' + green(cwd))
     kw.setdefault('shell', True)
     if not dry_run:
         if check_call:
@@ -238,7 +238,14 @@ def render_template(template, target, context):
     with open(target, 'w') as fp:
         fp.write(content)
 
-def show_progress(msg):
+def logdbg(msg):
+    if DEBUG_ENABLED:
+        msg = '[debug] ' + msg
+        loginfo(msg)
+
+DEBUG_ENABLED = os.environ.get('SEAFILE_DOCKER_VERBOSE', '').lower() in ('true', '1', 'yes')
+
+def loginfo(msg):
     msg = '[{}] {}'.format(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), green(msg))
     eprint(msg)
 
@@ -263,16 +270,17 @@ def update_version_stamp(version, fn=get_version_stamp_file()):
 
 def wait_for_mysql():
     while not exists('/var/run/mysqld/mysqld.sock'):
-        print('waiting for mysql server to be ready')
+        logdbg('waiting for mysql server to be ready')
         time.sleep(2)
-    print('mysql server is ready')
+    logdbg('mysql server is ready')
 
 def wait_for_nginx():
     while True:
-        print('waiting for nginx server to be ready')
+        logdbg('waiting for nginx server to be ready')
         output = get_command_output('netstat -nltp')
         if ':80 ' in output:
-            print('nginx is ready')
+            logdbg(output)
+            logdbg('nginx is ready')
             return
         time.sleep(2)
 
