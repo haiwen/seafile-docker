@@ -2,9 +2,8 @@
 #coding: UTF-8
 
 """
-This script calls the appropriate seafile init scripts (e.g.
-setup-seafile.sh or setup-seafile-mysql.sh. It's supposed to run inside the
-container.
+Starts the seafile/seahub server and watches the controller process. It is
+the entrypoint command of the docker container.
 """
 
 import json
@@ -29,7 +28,9 @@ def watch_controller():
         controller_pid = get_command_output('ps aux | grep seafile-controller |grep -v grep || true').strip()
         if not controller_pid:
             retry += 1
-        time.sleep(2)
+        else:
+            retry = 0
+        time.sleep(5)
     print 'seafile controller exited unexpectedly.'
     sys.exit(1)
 

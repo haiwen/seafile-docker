@@ -2,9 +2,7 @@
 #coding: UTF-8
 
 """
-This script calls the appropriate seafile init scripts (e.g.
-setup-seafile.sh or setup-seafile-mysql.sh. It's supposed to run inside the
-container.
+This script is used to run proper upgrade scripts automatically.
 """
 
 import json

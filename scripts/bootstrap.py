@@ -2,9 +2,7 @@
 #coding: UTF-8
 
 """
-This script calls the appropriate seafile init scripts (e.g.
-setup-seafile.sh or setup-seafile-mysql.sh. It's supposed to run inside the
-container.
+Bootstraping seafile server, letsencrypt (verification & cron job).
 """
 
 import argparse
