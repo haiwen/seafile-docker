@@ -42,6 +42,10 @@ sudo ./launcher restart
 
 The logs are under `shared/logs/seafile`.
 
+#### Enable debug logs of launcher
+
+Pass `-v` to launcher script (for example `sudo ./launcher -v rebuild` would make it print more verbose information
+
 
 ### Directory Structure
 
@@ -115,13 +119,13 @@ If you want to use your own SSL certificate:
 
 ### Upgrading Seafile Server
 
-Simple run `./launcher rebuild`, which would keep your seafile server up to date.
+Simple run `sudo ./launcher rebuild`, which would keep your seafile server up to date.
 
 ### Troubleshooting
 
-View the container logs: `./launcher logs`
+View the container logs: `sudo ./launcher logs`
 
-Spawn a shell inside your container using `./launcher enter`. This is the most foolproof method if you have host root access.
+Spawn a shell inside your container using `sudo ./launcher enter`. This is the most foolproof method if you have host root access.
 
 ### Developing with Vagrant
 

@@ -9,6 +9,7 @@ from os.path import abspath, basename, exists, dirname, join, isdir, expanduser
 import platform
 import sys
 import subprocess
+import time
 import logging
 import logging.config
 import click
@@ -16,6 +17,8 @@ import termcolor
 import colorlog
 
 logger = logging.getLogger('.utils')
+
+DEBUG_ENABLED = os.environ.get('SEAFILE_DOCKER_VERBOSE', '').lower() in ('true', '1', 'yes')
 
 def eprint(*a, **kw):
     kw['file'] = sys.stderr
@@ -47,7 +50,7 @@ def _find_flag(args, *opts, **kw):
 
 def call(*a, **kw):
     dry_run = kw.pop('dry_run', False)
-    quiet = kw.pop('quiet', False)
+    quiet = kw.pop('quiet', DEBUG_ENABLED)
     cwd = kw.get('cwd', os.getcwd())
     check_call = kw.pop('check_call', True)
     reduct_args = kw.pop('reduct_args', [])
@@ -57,8 +60,8 @@ def call(*a, **kw):
         for arg in reduct_args:
             value = _find_flag(args, arg)
             toprint = toprint.replace(value, '{}**reducted**'.format(value[:3]))
-        eprint('calling: ', green(toprint))
-        eprint('cwd:     ', green(cwd))
+        logdbg('calling: ' + green(toprint))
+        logdbg('cwd:     ' + green(cwd))
     kw.setdefault('shell', True)
     if not dry_run:
         if check_call:
@@ -237,7 +240,12 @@ def render_template(template, target, context):
     with open(target, 'w') as fp:
         fp.write(content)
 
-def show_progress(msg):
+def logdbg(msg):
+    if DEBUG_ENABLED:
+        msg = '[debug] ' + msg
+        loginfo(msg)
+
+def loginfo(msg):
     msg = '[{}] {}'.format(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), green(msg))
     eprint(msg)
 
@@ -251,11 +259,33 @@ def cert_has_valid_days(cert, days):
 def get_version_stamp_file():
     return '/shared/seafile/seafile-data/current_version'
 
-def read_version_stamp(fn):
+def read_version_stamp(fn=get_version_stamp_file()):
     assert exists(fn), 'version stamp file {} does not exist!'.format(fn)
     with open(fn, 'r') as fp:
         return fp.read().strip()
 
-def update_version_stamp(fn, version):
+def update_version_stamp(version, fn=get_version_stamp_file()):
     with open(fn, 'w') as fp:
         fp.write(version + '\n')
+
+def wait_for_mysql():
+    while not exists('/var/run/mysqld/mysqld.sock'):
+        logdbg('waiting for mysql server to be ready')
+        time.sleep(2)
+    logdbg('mysql server is ready')
+
+def wait_for_nginx():
+    while True:
+        logdbg('waiting for nginx server to be ready')
+        output = get_command_output('netstat -nltp')
+        if ':80 ' in output:
+            logdbg(output)
+            logdbg('nginx is ready')
+            return
+        time.sleep(2)
+
+def replace_file_pattern(fn, pattern, replacement):
+    with open(fn, 'r') as fp:
+        content = fp.read()
+    with open(fn, 'w') as fp:
+        fp.write(content.replace(pattern, replacement))

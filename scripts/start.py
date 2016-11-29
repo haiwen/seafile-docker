@@ -2,9 +2,8 @@
 #coding: UTF-8
 
 """
-This script calls the appropriate seafile init scripts (e.g.
-setup-seafile.sh or setup-seafile-mysql.sh. It's supposed to run inside the
-container.
+Starts the seafile/seahub server and watches the controller process. It is
+the entrypoint command of the docker container.
 """
 
 import json
@@ -14,7 +13,10 @@ import shutil
 import sys
 import time
 
-from utils import call, get_conf, get_install_dir, get_script, get_command_output, render_template
+from utils import (
+    call, get_conf, get_install_dir, get_script, get_command_output,
+    render_template, wait_for_mysql
+)
 
 installdir = get_install_dir()
 topdir = dirname(installdir)
@@ -26,7 +28,9 @@ def watch_controller():
         controller_pid = get_command_output('ps aux | grep seafile-controller |grep -v grep || true').strip()
         if not controller_pid:
             retry += 1
-        time.sleep(2)
+        else:
+            retry = 0
+        time.sleep(5)
     print 'seafile controller exited unexpectedly.'
     sys.exit(1)
 
@@ -39,10 +43,7 @@ def main():
     with open(password_file, 'w') as fp:
         json.dump(admin_pw, fp)
 
-    while not exists('/var/run/mysqld/mysqld.sock'):
-        print 'waiting for mysql server to be ready'
-        time.sleep(2)
-    print 'mysql server is ready'
+    wait_for_mysql()
 
     try:
         call('{} start'.format(get_script('seafile.sh')))

@@ -2,9 +2,7 @@
 #coding: UTF-8
 
 """
-This script calls the appropriate seafile init scripts (e.g.
-setup-seafile.sh or setup-seafile-mysql.sh. It's supposed to run inside the
-container.
+Bootstraping seafile server, letsencrypt (verification & cron job).
 """
 
 import argparse
@@ -16,9 +14,10 @@ import uuid
 import time
 
 from utils import (
-    call, get_conf, get_install_dir, show_progress,
+    call, get_conf, get_install_dir, loginfo,
     get_script, render_template, get_seafile_version, eprint,
-    cert_has_valid_days, get_version_stamp_file, update_version_stamp
+    cert_has_valid_days, get_version_stamp_file, update_version_stamp,
+    wait_for_mysql, wait_for_nginx
 )
 
 seafile_version = get_seafile_version()
@@ -29,12 +28,13 @@ ssl_dir = '/shared/ssl'
 generated_dir = '/bootstrap/generated'
 
 def init_letsencrypt():
-    show_progress('Preparing for letsencrypt ...')
+    loginfo('Preparing for letsencrypt ...')
+    wait_for_nginx()
+
     if not exists(ssl_dir):
         os.mkdir(ssl_dir)
 
     domain = get_conf('server.hostname')
-
     context = {
         'ssl_dir': ssl_dir,
         'domain': domain,
@@ -47,12 +47,12 @@ def init_letsencrypt():
 
     ssl_crt = '/shared/ssl/{}.crt'.format(domain)
     if exists(ssl_crt):
-        show_progress('Found existing cert file {}'.format(ssl_crt))
+        loginfo('Found existing cert file {}'.format(ssl_crt))
         if cert_has_valid_days(ssl_crt, 30):
-            show_progress('Skip letsencrypt verification since we have a valid certificate')
+            loginfo('Skip letsencrypt verification since we have a valid certificate')
             return
 
-    show_progress('Starting letsencrypt verification')
+    loginfo('Starting letsencrypt verification')
     # Create a temporary nginx conf to start a server, which would accessed by letsencrypt
     context = {
         'https': False,
@@ -61,10 +61,8 @@ def init_letsencrypt():
     render_template('/templates/seafile.nginx.conf.template',
                     '/etc/nginx/sites-enabled/seafile.nginx.conf', context)
 
-    # TODO: The 5 seconds heuristic is not good, how can we know for sure nginx is ready?
-    print 'waiting for nginx server to be ready'
-    time.sleep(5)
     call('nginx -s reload')
+    time.sleep(2)
 
     call('/scripts/ssl.sh {0} {1}'.format(ssl_dir, domain))
     # if call('/scripts/ssl.sh {0} {1}'.format(ssl_dir, domain), check_call=False) != 0:
@@ -91,7 +89,7 @@ def is_https():
     return get_conf('server.letsencrypt', '').lower() == 'true'
 
 def generate_local_dockerfile():
-    show_progress('Generating local Dockerfile ...')
+    loginfo('Generating local Dockerfile ...')
     context = {
         'seafile_version': seafile_version,
         'https': is_https(),
@@ -121,10 +119,10 @@ def init_seafile_server():
     if exists(join(shared_seafiledir, 'seafile-data')):
         if not exists(version_stamp_file):
             update_version_stamp(version_stamp_file, os.environ['SEAFILE_VERSION'])
-        show_progress('Skip running setup-seafile-mysql.py because there is existing seafile-data folder.')
+        loginfo('Skip running setup-seafile-mysql.py because there is existing seafile-data folder.')
         return
 
-    show_progress('Now running setup-seafile-mysql.py in auto mode.')
+    loginfo('Now running setup-seafile-mysql.py in auto mode.')
     env = {
         'SERVER_NAME': 'seafile',
         'SERVER_IP': get_conf('server.hostname'),
@@ -156,7 +154,8 @@ def init_seafile_server():
         if not exists(dst) and exists(src):
             shutil.move(src, shared_seafiledir)
 
-    update_version_stamp(version_stamp_file, os.environ['SEAFILE_VERSION'])
+    loginfo('Updating version stamp')
+    update_version_stamp(os.environ['SEAFILE_VERSION'])
 
 def main():
     args = parse_args()
@@ -174,9 +173,10 @@ def main():
         init_letsencrypt()
     generate_local_nginx_conf()
 
+    wait_for_mysql()
     init_seafile_server()
 
-    show_progress('Generated local config.')
+    loginfo('Generated local config.')
 
 
 if __name__ == '__main__':

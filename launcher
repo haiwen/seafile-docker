@@ -3,14 +3,14 @@
 usage () {
   echo "Usage: launcher COMMAND [--skip-prereqs] [--docker-args STRING]"
   echo "Commands:"
-  echo "    start:      Start/initialize a container"
+  echo "    start:      Start/initialize the container"
   echo "    stop:       Stop a running container"
-  echo "    restart:    Restart a container"
-  echo "    destroy:    Stop and remove a container"
+  echo "    restart:    Restart the container"
+  echo "    destroy:    Stop and remove the container"
   echo "    enter:      Open a shell to run commands inside the container"
-  echo "    logs:       View the Docker logs for a container"
-  echo "    bootstrap:  Bootstrap a container for the config based on a template"
-  echo "    rebuild:    Rebuild a container (destroy old, bootstrap, start new)"
+  echo "    logs:       View the Docker container logs"
+  echo "    bootstrap:  Bootstrap the container based on a template"
+  echo "    rebuild:    Rebuild the container (destroy old, bootstrap, start new)"
   echo
   echo "Options:"
   echo "    --skip-prereqs             Don't check launcher prerequisites"
@@ -28,16 +28,17 @@ dockerdir=$(cd "$(dirname $0)"; pwd -P)
 sharedir=$dockerdir/shared
 installdir=/opt/seafile/seafile-server-$version
 bootstrap_conf=$dockerdir/bootstrap/bootstrap.conf
+version_stamp_file=$sharedir/seafile/seafile-data/current_version
 
 cd $dockerdir
 
-dbg() {
-    if [[ $debug == "true" ]]; then
-        echo "dbg: $1"
+logdbg() {
+    if [[ $verbose == "true" ]]; then
+        loginfo "[debug] $1"
     fi
 }
 
-show_progress() {
+loginfo() {
     if [[ -t 1 ]]; then
         >&2 printf "[$(date +'%Y-%m-%d %H:%M:%S')] \033[32m%s\033[m\n" "$1"
     else
@@ -72,6 +73,13 @@ init_shared() {
     local bash_history=$sharedir/.bash_history
     if [[ ! -e $bash_history ]]; then
         touch $bash_history
+    fi
+}
+
+set_envs() {
+    envs=""
+    if [[ $verbose == "true" ]]; then
+        envs="$envs -e SEAFILE_DOCKER_VERBOSE=true"
     fi
 }
 
@@ -131,34 +139,37 @@ bootstrap() {
     fi
 
     docker history $image >/dev/null 2>&1 || {
-        show_progress "Pulling Seafile server image $version, this may take a while."
+        loginfo "Pulling Seafile server image $version, this may take a while."
         docker pull $image
-        show_progress "Seafile server image $version pulled. Now bootstrapping the server ..."
+        loginfo "Seafile server image $version pulled. Now bootstrapping the server ..."
     }
 
     # First initialize seafile server and letsencrypt
+    set_envs
     set_bootstrap_volumes
     set_ports
 
-    docker run $user_args --rm -it --name seafile-bootstrap -e SEAFILE_BOOTSRAP=1 $volumes $ports $image /sbin/my_init -- /scripts/bootstrap.py
+    docker run $user_args --rm -it --name seafile-bootstrap -e SEAFILE_BOOTSRAP=1 $envs $volumes $ports $image /sbin/my_init $quiet -- /scripts/bootstrap.py
 
-    show_progress "Now building the local docker image."
+    loginfo "Now building the local docker image."
     docker build -f bootstrap/generated/Dockerfile -t local_seafile/server:latest  . >/dev/null
-    show_progress "Image built."
+    loginfo "Image built."
 }
 
 start() {
     existing=$(docker ps | awk '{ print $1, $(NF) }' | grep " seafile$" | awk '{ print $1 }' || true)
     if [[ $existing != "" ]]; then
-        show_progress "Nothing to do, your container has already started!"
+        loginfo "Nothing to do, your container has already started!"
         exit 0
     fi
+
+    check_version_match
 
     chmod 0700 $dockerdir/bootstrap $sharedir/seafile/conf
 
     set_existing_container
     if [[ $existing != "" ]]; then
-        show_progress "starting up existing container"
+        loginfo "starting up existing container"
         (
             set -x
             docker start seafile
@@ -166,6 +177,7 @@ start() {
         exit 0
     fi
 
+    set_envs
     set_volumes
     set_ports
 
@@ -177,10 +189,10 @@ start() {
         attach_on_run="-d"
     fi
 
-    show_progress "Starting up new seafile server container"
+    loginfo "Starting up new seafile server container"
     (
         set -x
-        docker run $user_args $attach_on_run $restart_policy --name seafile -h seafile $volumes $ports $local_image
+        docker run $user_args $attach_on_run $restart_policy --name seafile -h seafile $envs $volumes $ports $local_image
     )
 }
 
@@ -240,9 +252,74 @@ destroy() {
     )
 }
 
+get_major_version() {
+    echo $1| awk -F . '{printf "%s.%s", $1, $2}'
+}
+
+check_version_match() {
+    local last_version last_major_version current_major_version
+    last_version=$(cat $version_stamp_file)
+    last_major_version=$(get_major_version $last_version)
+    current_major_version=$(get_major_version $version)
+
+    logdbg "Your version: ${last_version}, latest version: ${version}"
+
+    if [[ $last_major_version != "$current_major_version" ]]; then
+        loginfo "******* Major upgrade detected *******"
+        loginfo "You have $last_version, latest is $version"
+        loginfo "Please run './launcher rebuild' to upgrade"
+        exit 1
+    fi
+}
+
+check_upgrade() {
+    loginfo "Checking if there is major version upgrade"
+
+    local last_version last_major_version current_major_version
+    last_version=$(cat $version_stamp_file)
+    last_major_version=$(get_major_version $last_version)
+    current_major_version=$(get_major_version $version)
+
+    if [[ $last_major_version == "$current_major_version" ]]; then
+        return
+    else
+        loginfo "********************************"
+        loginfo "Major upgrade detected: You have $last_version, latest is $version"
+        loginfo "********************************"
+
+        # use_manual_upgrade=true
+        if [[ $use_manual_upgrade == "true" ]]; then
+            loginfo "Now you can run './launcher manual-upgrade' to do manual upgrade."
+            exit 0
+        else
+            loginfo "Going to launch the docker container for manual upgrade"
+            _launch_for_upgrade --auto
+        fi
+    fi
+}
+
+_launch_for_upgrade() {
+    local cmd
+    if [[ $1 == "--auto" ]]; then
+        cmd="/scripts/upgrade.py"
+    else
+        cmd="/bin/bash"
+    fi
+
+    set_envs
+    set_volumes
+    (
+        set -x
+        docker run $user_args \
+               -it --rm --name seafile-upgrade -h seafile \
+               $envs $volumes $local_image \
+               /sbin/my_init $quiet -- $cmd
+    )
+}
+
 rebuild() {
     if [[ "$(git symbolic-ref --short HEAD)" == "master" ]]; then
-        show_progress "Ensuring launcher is up to date"
+        loginfo "Ensuring launcher is up to date"
 
         git remote update
 
@@ -251,10 +328,10 @@ rebuild() {
         BASE=$(git merge-base @ "@{u}")
 
         if [[ $LOCAL = "$REMOTE" ]]; then
-            show_progress "Launcher is up-to-date"
+            loginfo "Launcher is up-to-date"
 
         elif [[ $LOCAL = "$BASE" ]]; then
-            show_progress "Updating Launcher"
+            loginfo "Updating Launcher"
             git pull || (echo 'failed to update' && exit 1)
 
             for (( i=${#BASH_ARGV[@]}-1,j=0; i>=0,j<${#BASH_ARGV[@]}; i--,j++ ))
@@ -264,9 +341,9 @@ rebuild() {
             exec /bin/bash $0 "${args[@]}" # $@ is empty, because of shift at the beginning. Use BASH_ARGV instead.
 
         elif [[ $REMOTE = "$BASE" ]]; then
-            show_progress "Your version of Launcher is ahead of origin"
+            loginfo "Your version of Launcher is ahead of origin"
         else
-            show_progress "Launcher has diverged source, this is only expected in Dev mode"
+            loginfo "Launcher has diverged source, this is only expected in Dev mode"
         fi
 
     fi
@@ -274,7 +351,7 @@ rebuild() {
     set_existing_container
 
     if [[ $existing != "" ]]; then
-        show_progress "Stopping old container"
+        loginfo "Stopping old container"
         (
             set -x
             docker stop -t 10 seafile
@@ -282,20 +359,31 @@ rebuild() {
     fi
 
     bootstrap
-    show_progress "Rebuilt successfully."
+    loginfo "Rebuilt successfully."
 
     if [[ $existing != "" ]]; then
-        show_progress "Removing old container"
+        loginfo "Removing old container"
         (
             set -x
             docker rm seafile
         )
     fi
 
+    check_upgrade
+
     start
 
-    show_progress "Your seafile server is now running."
+    loginfo "Your seafile server is now running."
     exit 0
+}
+
+manual_upgrade() {
+    _launch_for_upgrade
+    loginfo "If you have manually upgraded the server, please update the version stamp by:"
+    loginfo
+    loginfo "       echo $version | sudo tee $version_stamp_file"
+    loginfo "       sudo ./launcher start"
+    loginfo
 }
 
 main() {
@@ -303,14 +391,24 @@ main() {
     while [[ $# -gt 0 ]]
     do
         case "$1" in
-            bootstrap|start|stop|restart|enter|destroy|logs|rebuild)
-                                                action=$1           ; shift 1 ;;
-            --debug)                            debug=true          ; shift 1 ;;
-            --skip-prereqs)                     SKIP_PREREQS=true   ; shift 1 ;;
-            --docker-args)                      user_args=$2        ; shift 2 ;;
+            bootstrap|start|stop|restart|enter|destroy|logs|rebuild|manual-upgrade)
+                                                action=${1//-/_}            ; shift 1 ;;
+            -h|--help)                          ( usage ; exit 1)           ; shift 1 ;;
+            -v|--verbose)                       verbose=true                ; shift 1 ;;
+            --skip-prereqs)                     SKIP_PREREQS=true           ; shift 1 ;;
+            --docker-args)                      user_args=$2                ; shift 2 ;;
+            --manual-upgrade)                   use_manual_upgrade=true     ; shift 1 ;;
             *)                                  err_and_quit "Argument error. Please see help." ;;
         esac
     done
+
+    # By default we suppress the verbose logs like "Running
+    # /etc/my_init.d/99_mysql_setup.sh". Use "./launcher -v <cmd>" to enable
+    # printing of these verbose logs.
+    quiet="--quiet"
+    if [[ $verbose == "true" ]]; then
+        quiet=""
+    fi
     "$action"
 }
 
