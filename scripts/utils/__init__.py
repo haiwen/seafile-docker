@@ -267,6 +267,15 @@ def wait_for_mysql():
         time.sleep(2)
     print('mysql server is ready')
 
+def wait_for_nginx():
+    while True:
+        print('waiting for nginx server to be ready')
+        output = get_command_output('netstat -nltp')
+        if ':80 ' in output:
+            print('nginx is ready')
+            return
+        time.sleep(2)
+
 def replace_file_pattern(fn, pattern, replacement):
     with open(fn, 'r') as fp:
         content = fp.read()

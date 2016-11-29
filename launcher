@@ -21,7 +21,7 @@ usage () {
 set -e
 set -o pipefail
 
-version=6.1.0
+version=6.0.5
 image=seafileorg/server:$version
 local_image=local_seafile/server:latest
 dockerdir=$(cd "$(dirname $0)"; pwd -P)
@@ -32,9 +32,9 @@ version_stamp_file=$sharedir/seafile/seafile-data/current_version
 
 cd $dockerdir
 
-dbg() {
-    if [[ $debug == "true" ]]; then
-        echo "dbg: $1"
+dlog() {
+    if [[ $verbose == "true" ]]; then
+        show_progress "[debug] $1"
     fi
 }
 
@@ -73,6 +73,13 @@ init_shared() {
     local bash_history=$sharedir/.bash_history
     if [[ ! -e $bash_history ]]; then
         touch $bash_history
+    fi
+}
+
+set_envs() {
+    envs=""
+    if [[ $verbose == "true" ]]; then
+        envs="$envs -e SEAFILE_DOCKER_VERBOSE=true"
     fi
 }
 
@@ -138,10 +145,11 @@ bootstrap() {
     }
 
     # First initialize seafile server and letsencrypt
+    set_envs
     set_bootstrap_volumes
     set_ports
 
-    docker run $user_args --rm -it --name seafile-bootstrap -e SEAFILE_BOOTSRAP=1 $volumes $ports $image /sbin/my_init -- /scripts/bootstrap.py
+    docker run $user_args --rm -it --name seafile-bootstrap -e SEAFILE_BOOTSRAP=1 $envs $volumes $ports $image /sbin/my_init $quiet -- /scripts/bootstrap.py
 
     show_progress "Now building the local docker image."
     docker build -f bootstrap/generated/Dockerfile -t local_seafile/server:latest  . >/dev/null
@@ -169,6 +177,7 @@ start() {
         exit 0
     fi
 
+    set_envs
     set_volumes
     set_ports
 
@@ -183,7 +192,7 @@ start() {
     show_progress "Starting up new seafile server container"
     (
         set -x
-        docker run $user_args $attach_on_run $restart_policy --name seafile -h seafile $volumes $ports $local_image
+        docker run $user_args $attach_on_run $restart_policy --name seafile -h seafile $envs $volumes $ports $local_image
     )
 }
 
@@ -253,6 +262,8 @@ check_version_match() {
     last_major_version=$(get_major_version $last_version)
     current_major_version=$(get_major_version $version)
 
+    dlog "Your version: ${last_version}, latest version: ${version}"
+
     if [[ $last_major_version != "$current_major_version" ]]; then
         show_progress "******* Major upgrade detected *******"
         show_progress "You have $last_version, latest is $version"
@@ -295,13 +306,14 @@ _launch_for_upgrade() {
         cmd="/bin/bash"
     fi
 
+    set_envs
     set_volumes
     (
         set -x
         docker run $user_args \
                -it --rm --name seafile-upgrade -h seafile \
-               $volumes $local_image \
-               /sbin/my_init -- $cmd
+               $envs $volumes $local_image \
+               /sbin/my_init $quiet -- $cmd
     )
 }
 
@@ -376,6 +388,8 @@ main() {
         case "$1" in
             bootstrap|start|stop|restart|enter|destroy|logs|rebuild|manual-upgrade)
                                                 action=${1//-/_}            ; shift 1 ;;
+            -h|--help)                          ( usage ; exit 1)           ; shift 1 ;;
+            -v|--verbose)                       verbose=true                ; shift 1 ;;
             --skip-prereqs)                     SKIP_PREREQS=true           ; shift 1 ;;
             --docker-args)                      user_args=$2                ; shift 2 ;;
             --manual-upgrade)                   use_manual_upgrade=true     ; shift 1 ;;
@@ -383,6 +397,13 @@ main() {
         esac
     done
 
+    # By default we suppress the verbose logs like "Running
+    # /etc/my_init.d/99_mysql_setup.sh". Use "./launcher -v <cmd>" to enable
+    # printing of these verbose logs.
+    quiet="--quiet"
+    if [[ $verbose == "true" ]]; then
+        quiet=""
+    fi
     "$action"
 }
 

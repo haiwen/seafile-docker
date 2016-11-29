@@ -18,7 +18,8 @@ import time
 from utils import (
     call, get_conf, get_install_dir, show_progress,
     get_script, render_template, get_seafile_version, eprint,
-    cert_has_valid_days, get_version_stamp_file, update_version_stamp
+    cert_has_valid_days, get_version_stamp_file, update_version_stamp,
+    wait_for_mysql, wait_for_nginx
 )
 
 seafile_version = get_seafile_version()
@@ -61,9 +62,7 @@ def init_letsencrypt():
     render_template('/templates/seafile.nginx.conf.template',
                     '/etc/nginx/sites-enabled/seafile.nginx.conf', context)
 
-    # TODO: The 5 seconds heuristic is not good, how can we know for sure nginx is ready?
-    print 'waiting for nginx server to be ready'
-    time.sleep(5)
+    wait_for_nginx()
     call('nginx -s reload')
 
     call('/scripts/ssl.sh {0} {1}'.format(ssl_dir, domain))
@@ -156,6 +155,7 @@ def init_seafile_server():
         if not exists(dst) and exists(src):
             shutil.move(src, shared_seafiledir)
 
+    show_progress('Updating version stamp')
     update_version_stamp(version_stamp_file, os.environ['SEAFILE_VERSION'])
 
 def main():
@@ -174,6 +174,7 @@ def main():
         init_letsencrypt()
     generate_local_nginx_conf()
 
+    wait_for_mysql()
     init_seafile_server()
 
     show_progress('Generated local config.')
