@@ -118,7 +118,7 @@ def init_seafile_server():
     version_stamp_file = get_version_stamp_file()
     if exists(join(shared_seafiledir, 'seafile-data')):
         if not exists(version_stamp_file):
-            update_version_stamp(version_stamp_file, os.environ['SEAFILE_VERSION'])
+            update_version_stamp(os.environ['SEAFILE_VERSION'])
         loginfo('Skip running setup-seafile-mysql.py because there is existing seafile-data folder.')
         return
 
