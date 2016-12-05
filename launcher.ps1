@@ -1,0 +1,412 @@
+# -*- buffer-file-coding-system: utf-8-unix -*-
+<#
+
+This is the powershell version of the launcher script to be used on windows.
+you should use it instead of the linux 'launcher' script.
+
+#>
+
+Param(
+    [Parameter(Position=1)]
+    [string]$action,
+
+    [switch]$skipPrereqs,
+
+    [switch]$v
+)
+
+# Always verbose before we reach a stable release.
+$v = $true
+
+$ErrorActionPreference = "Stop"
+
+$version = "6.0.5"
+$image = "seafileorg/server:$version"
+$local_image = "local_seafile/server:latest"
+
+$dockerdir = $PSScriptRoot.Replace("\", "/")
+$sharedir = "$dockerdir/shared"
+$installdir = "/opt/seafile/seafile-server-$version"
+
+$bootstrap_conf="$dockerdir/bootstrap/bootstrap.conf"
+$version_stamp_file="$sharedir/seafile/seafile-data/current_version"
+$bash_history="$sharedir/.bash_history"
+
+$usage = {
+    Write-Host "Usage: launcher COMMAND [--skip-prereqs] [--docker-args STRING]"
+    Write-Host "Commands:"
+    Write-Host "    start:      Start/initialize the container"
+    Write-Host "    stop:       Stop a running container"
+    Write-Host "    restart:    Restart the container"
+    Write-Host "    destroy:    Stop and remove the container"
+    Write-Host "    enter:      Open a shell to run commands inside the container"
+    Write-Host "    logs:       View the Docker container logs"
+    Write-Host "    bootstrap:  Bootstrap the container based on a template"
+    Write-Host "    rebuild:    Rebuild the container (destroy old, bootstrap, start new)"
+    Write-Host ""
+    Write-Host "Options:"
+    Write-Host "    --skipPrereqs             Don't check launcher prerequisites"
+    Write-Host "    --dockerArgs              Extra arguments to pass when running docker"
+    exit 1
+}
+
+function main() {
+    check_is_system_supported
+
+    if (!$action) {
+        & $usage
+    }
+
+    # loginfo "action = $action"
+    if (!$skipPrereqs) {
+        check_prereqs
+    }
+
+    switch ($action) {
+        "bootstrap" { do_bootstrap }
+        "start" { do_start }
+        default { & $usage }
+    }
+}
+
+<# A Powershell version of the following bash code:
+
+[[ $a == "1" ]] || {
+    # do something else when a != 1
+}
+
+Use it like:
+
+do_if_not { where.exe docker } { loginfo "docker program doesn't exist"}
+
+Currently the first branch must be a subprocess call.
+
+#>
+function do_if_not([scriptblock]$block_1, [scriptblock]$block_2) {
+    $failed = $false
+    try {
+        & $block_1
+    } catch [System.Management.Automation.RemoteException] {
+        $failed = $true
+    }
+    if ($failed) {
+        & $block_2
+    }
+}
+
+function do_if([scriptblock]$block_1, [scriptblock]$block_2) {
+    $failed = $false
+    try {
+        & $block_1
+    } catch [System.Management.Automation.RemoteException] {
+        $failed = $true
+    }
+    if (!($failed)) {
+        & $block_2
+    }
+}
+
+<#
+Mimics python's `subproess.check_output`: Run the given command, capture the
+output, and terminate the script if the command fails. For example:
+
+check_output docker run ...
+
+Code borrowed from http://stackoverflow.com/a/11549817/1467959
+#>
+function check_output($cmd) {
+    $pinfo = New-Object System.Diagnostics.ProcessStartInfo
+    $pinfo.FileName = $cmd
+    $pinfo.RedirectStandardError = $false
+    $pinfo.RedirectStandardOutput = $true
+    $pinfo.UseShellExecute = $false
+    $pinfo.WorkingDirectory = $PSScriptRoot
+    if ($args) {
+        $pinfo.Arguments = $args
+    }
+    $p = New-Object System.Diagnostics.Process
+    $p.StartInfo = $pinfo
+    $p.Start() | Out-Null
+    $stdout = $p.StandardOutput.ReadToEnd()
+    $p.WaitForExit()
+    echo "$stdout"
+    if (!($p.ExitCode -eq 0)) {
+        err_and_quit "The command $cmd $args failed"
+    }
+}
+
+<#
+
+Mimics python's `subprocess.check_call`: Run the given command, capture the
+output, and terminate the script if the command fails. For example:
+
+check_call docker run ...
+
+#>
+function check_call($cmd) {
+    if ($args) {
+        $process = Start-Process -NoNewWindow -Wait -FilePath "$cmd" -ArgumentList $args -PassThru
+    } else {
+        $process = Start-Process -NoNewWindow -Wait -FilePath "$cmd" -PassThru
+    }
+    if (!($process.ExitCode -eq 0)) {
+        err_and_quit "The command $cmd $args failed with code $LASTEXITCODE"
+    }
+}
+
+function get_date_str() {
+    Get-Date -format "yyyy-MM-dd hh:mm:ss"
+}
+
+function err_and_quit($msg) {
+    Write-Host -BackgroundColor Black -ForegroundColor Yellow -Object "[$(get_date_str)] Error: $msg"
+    exit 1
+}
+
+function loginfo($msg) {
+    Write-Host -ForegroundColor Green -Object "[$(get_date_str)] $msg"
+}
+
+function program_exists($exe) {
+    cmd.exe /c where.exe "$exe" 2>&1>$null
+    return $LASTEXITCODE -eq 0
+}
+
+function to_unix_path($path) {
+    $path -replace '^|\\+','/' -replace ':'
+}
+
+$sharedir_u = $(to_unix_path $sharedir)
+$dockerdir_u = $(to_unix_path $dockerdir)
+
+function check_prereqs() {
+    if (!(program_exists "git.exe")) {
+        err_and_quit "You need to install git first. Check https://git-scm.com/download/win".
+    }
+
+    if (!(program_exists "docker.exe")) {
+        err_and_quit "You need to install docker first. Check https://docs.docker.com/docker-for-windows/."
+    }
+}
+
+function check_is_system_supported() {
+    $ver = [Environment]::OSVersion
+    if (!($ver.Version.Major -eq 10)) {
+        err_and_quit "Only Windows 10 is supported."
+    }
+}
+
+function set_envs() {
+    $script:envs = @()
+    if ($v) {
+        $script:envs += "-e"
+        $script:envs += "SEAFILE_DOCKER_VERBOSE=true"
+    }
+}
+
+# Call powershell mkdir, but only create the directory when it doesn't exist
+function makedir($path) {
+    if (!(Test-Path $path)) {
+        New-Item -ItemType "Directory" -Force -Path $path 2>&1>$null
+    }
+}
+
+function touch($path) {
+    if (!(Test-Path $path)) {
+        New-Item -ItemType "file" -Path $path 2>&1>$null
+    }
+}
+
+
+function init_shared() {
+    makedir "$sharedir/seafile"
+    makedir "$sharedir/db"
+    makedir "$sharedir/logs/seafile"
+    makedir "$sharedir/logs/var-log"
+
+    makedir "$sharedir/logs/var-log/nginx"
+    touch "$sharedir/logs/var-log/syslog"
+    touch $bash_history
+}
+
+function set_bootstrap_volumes() {
+    init_shared
+
+    $mounts = @(
+        "${sharedir_u}:/shared",
+        "${sharedir_u}/logs/var-log:/var/log",
+        "${sharedir_u}/db:/var/lib/mysql",
+        "${dockerdir_u}/bootstrap:/bootstrap",
+        "${dockerdir_u}/scripts:/scripts:ro",
+        "${dockerdir_u}/templates:/templates:ro",
+        "${dockerdir_u}/scripts/tmp/check_init_admin.py:$installdir/check_init_admin.py:ro",
+        "${sharedir_u}/.bash_history:/root/.bash_history"
+    )
+    $script:volumes = @()
+    foreach($m in $mounts) {
+        $script:volumes += "-v"
+        $script:volumes += "$m"
+    }
+}
+
+function set_volumes() {
+    init_shared
+
+    $mounts = @(
+        "${sharedir_u}:/shared",
+        "${sharedir_u}/logs/var-log:/var/log",
+        "${sharedir_u}/db:/var/lib/mysql",
+        "${sharedir_u}/.bash_history:/root/.bash_history"
+    )
+    $script:volumes=@()
+    foreach($m in $mounts) {
+        $script:volumes += "-v"
+        $script:volumes += "$m"
+    }
+}
+
+function set_ports() {
+    $ports = $(check_output "docker" "run" "--rm" "-it" `
+      "-v" "${dockerdir_u}/scripts:/scripts" `
+      "-v" "${dockerdir_u}/bootstrap:/bootstrap:ro" `
+      $image `
+      "/scripts/bootstrap.py" "--parse-ports")
+
+    # The output is like "-p 80:80 -p 443:443", we need to split it into an array
+    $script:ports = $(-split $ports)
+}
+
+function set_my_init() {
+    $script:my_init = @("/sbin/my_init")
+    if (!($v)) {
+        $script:my_init += "--quiet"
+    }
+}
+
+function parse_seafile_container([array]$lines) {
+    foreach($line in $lines) {
+        $fields = $(-split $line)
+        if ("seafile".Equals($fields[-1])) {
+            echo $fields[0]
+            break
+        }
+    }
+
+    ## We can write it using more elegant "ForEach-Object" using the following
+    ## code, but someone says that "break" works like "continue" in the
+    ## ForEach-Object's script block.
+    ##
+    ## See ## http://stackoverflow.com/a/7763698/1467959
+    ##
+    ## Anway, we use a foreach loop to keep the code
+    ## simple.
+    ##
+    # $lines | ForEach-Object {
+    #     $fields =$(-split $_)
+    #     if ("seafile".Equals($fields[-1])) {
+    #         echo $fields[0]
+    #         break
+    #     }
+    # }
+}
+
+# Equivalent of `docker ps | awk '{ print $1, $(NF) }' | grep " seafile$" | awk '{ print $1 }' || true`
+function set_running_container() {
+    try {
+        $script:existing = $(parse_seafile_container $(docker ps))
+    } catch [System.Management.Automation.RemoteException] {
+        $script:existing = ""
+    }
+}
+
+# Equivalent of `docker ps -a |awk '{ print $1, $(NF) }' | grep " seafile$" | awk '{ print $1 }' || true`
+function set_existing_container() {
+    try {
+        $script:existing = $(parse_seafile_container $(docker ps -a))
+    } catch [System.Management.Automation.RemoteException] {
+        $script:existing = ""
+    }
+}
+
+function ignore_error($cmd) {
+    if ($args) {
+        Start-Process -NoNewWindow -Wait -FilePath "$cmd" -ArgumentList $args
+    } else {
+        Start-Process -NoNewWindow -Wait -FilePath "$cmd"
+    }
+}
+
+function remove_container($container) {
+    do_if { docker inspect $container 2>&1>$null } {
+        docker rm -f $container 2>&1>$null
+    }
+}
+
+function do_bootstrap() {
+    if (!(Test-Path $bootstrap_conf)) {
+        err_and_quit "The file $bootstrap_conf doesn't exist. Have you run seafile-server-setup?"
+    }
+
+    do_if_not { docker history $image 2>&1>$null } {
+        loginfo "Pulling Seafile server image $version, this may take a while."
+        check_call docker pull $image
+        loginfo "Seafile server image $version pulled. Now bootstrapping the server ..."
+    }
+
+    set_envs
+    set_bootstrap_volumes
+    set_ports
+    set_my_init
+
+    # loginfo "ports is $script:ports"
+    remove_container "seafile-bootstrap"
+
+    check_call "docker" "run" "--rm" "-it" "--name" "seafile-bootstrap" `
+      "-e" "SEAFILE_BOOTSRAP=1" `
+      @script:envs `
+      @script:volumes `
+      @script:ports `
+      $image `
+      @script:my_init "--" "/scripts/bootstrap.py"
+      # @script:my_init "--" "/bin/bash"
+
+    loginfo "Now building the local docker image."
+    check_call "docker" "build" "-f" "bootstrap/generated/Dockerfile" "-t" "local_seafile/server:latest" "." 2>$null
+    loginfo "Image built."
+}
+
+function do_start() {
+    set_running_container
+    if ($script:running) {
+        loginfo "Nothing to do, your container has already started!"
+        exit 0
+    }
+
+    # check_version_match
+
+    set_existing_container
+    if ($script:existing) {
+        loginfo "starting up existing container"
+        check_call docker start seafile
+        exit 0
+    }
+
+    set_envs
+    set_volumes
+    set_ports
+
+    $attach_on_run = @()
+    $restart_policy = @()
+    if ("true".Equals($SUPERVISED)) {
+        $restart_policy = @("--restart=no")
+        $attach_on_run = @("-a", "stdout", "-a", "stderr")
+    } else {
+        $attach_on_run = @("-d")
+    }
+
+    loginfo "Starting up new seafile server container"
+    remove_container "seafile"
+    docker run @attach_on_run @restart_policy --name seafile -h seafile @envs @volumes @ports $local_image
+}
+
+. main
