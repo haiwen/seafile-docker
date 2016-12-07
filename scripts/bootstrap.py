@@ -147,6 +147,18 @@ def init_seafile_server():
         fp.write('FILE_SERVER_ROOT = "{proto}://{domain}/seafhttp"'.format(proto=proto, domain=domain))
         fp.write('\n')
 
+    # But default ccnet-server binds to the unix socket file
+    # "/opt/seafile/ccnet/ccnet.sock", but /opt/seafile/ccnet/ is a mounted
+    # volume from the docker host, and on windows and some linux environment
+    # it's not possible to create unix sockets in an external-mounted
+    # directories. So we change the unix socket file path to
+    # "/opt/seafile/ccnet.sock" to avoid this problem.
+    with open(join(topdir, 'conf', 'ccnet.conf'), 'a+') as fp:
+        fp.write('\n')
+        fp.write('[Client]\n')
+        fp.write('UNIX_SOCKET = /opt/seafile/ccnet.sock\n')
+        fp.write('\n')
+
     files_to_copy = ['conf', 'ccnet', 'seafile-data', 'seahub-data',]
     for fn in files_to_copy:
         src = join(topdir, fn)
