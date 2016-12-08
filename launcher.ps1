@@ -6,18 +6,6 @@ you should use it instead of the linux 'launcher' script.
 
 #>
 
-Param(
-    [Parameter(Position=1)]
-    [string]$action,
-
-    [switch]$skipPrereqs,
-
-    [switch]$v
-)
-
-# Always verbose before we reach a stable release.
-$v = $true
-
 $ErrorActionPreference = "Stop"
 
 $version = "6.0.5"
@@ -32,8 +20,8 @@ $bootstrap_conf="$dockerdir/bootstrap/bootstrap.conf"
 $version_stamp_file="$sharedir/seafile/seafile-data/current_version"
 $bash_history="$sharedir/.bash_history"
 
-$usage = {
-    Write-Host "Usage: launcher COMMAND [--skip-prereqs] [--docker-args STRING]"
+function usage() {
+    Write-Host "Usage: launcher COMMAND [-skipPrereqs]"
     Write-Host "Commands:"
     Write-Host "    start:      Start/initialize the container"
     Write-Host "    stop:       Stop a running container"
@@ -46,15 +34,28 @@ $usage = {
     Write-Host ""
     Write-Host "Options:"
     Write-Host "    --skipPrereqs             Don't check launcher prerequisites"
-    Write-Host "    --dockerArgs              Extra arguments to pass when running docker"
     exit 1
 }
 
 function main() {
+    Param(
+        [Parameter(Position=1)]
+        [string]$action,
+
+        [switch]$skipPrereqs,
+
+        [switch]$v
+    )
+
+    $script:action = $action
+    $script:skipPrereqs = $skipPrereqs
+    # Always verbose before we reach a stable release.
+    $script:v = $true
+
     check_is_system_supported
 
     if (!$action) {
-        & $usage
+        usage
     }
 
     # loginfo "action = $action"
@@ -63,9 +64,10 @@ function main() {
     }
 
     switch ($action) {
-        "bootstrap" { do_bootstrap }
-        "start" { do_start }
-        default { & $usage }
+        "bootstrap"         { do_bootstrap }
+        "start"             { do_start }
+        "rebuild"           { do_rebuild }
+        default             { usage }
     }
 }
 
@@ -84,12 +86,13 @@ Currently the first branch must be a subprocess call.
 #>
 function do_if_not([scriptblock]$block_1, [scriptblock]$block_2) {
     $failed = $false
+    $LASTEXITCODE = 0
     try {
         & $block_1
     } catch [System.Management.Automation.RemoteException] {
         $failed = $true
     }
-    if ($failed) {
+    if ($failed -or !($LASTEXITCODE -eq 0)) {
         & $block_2
     }
 }
@@ -409,4 +412,104 @@ function do_start() {
     docker run @attach_on_run @restart_policy --name seafile -h seafile @envs @volumes @ports $local_image
 }
 
-. main
+function do_rebuild() {
+    $branch=(check_output git symbolic-ref --short HEAD).Trim()
+    if ("master".Equals($branch)) {
+        loginfo "Ensuring launcher is up to date"
+
+        check_call git remote update
+
+        $LOCAL=(check_output git rev-parse "@").Trim()
+        $REMOTE=(check_output git rev-parse "@{u}").Trim()
+        $BASE=(check_output git merge-base "@" "@{u}").Trim()
+
+        if ($LOCAL.Equals($REMOTE)) {
+            loginfo "Launcher is up-to-date"
+
+        } elseif ($LOCAL.Equals($BASE)) {
+            loginfo "Updating Launcher"
+            do_if_not { git pull } {
+                err_and_quit "failed to update"
+            }
+
+            Start-Process -NoNewWindow -FilePath $script:MyInvocation.ScriptName -ArgumentList $script:args
+            exit 0
+
+        } elseif ($REMOTE.Equals($BASE)) {
+            loginfo "Your version of Launcher is ahead of origin"
+
+        } else {
+            loginfo "Launcher has diverged source, this is only expected in Dev mode"
+        }
+    }
+
+    set_existing_container
+
+    if ($script:existing) {
+        loginfo "Stopping old container"
+        check_call docker stop -t 10 seafile
+    }
+
+    do_bootstrap
+    loginfo "Rebuilt successfully."
+
+    if ($script:existing) {
+        loginfo "Removing old container"
+        check_call docker rm seafile
+    }
+
+    check_upgrade
+
+    do_start
+
+    loginfo "Your seafile server is now running."
+}
+
+function get_major_version($ver) {
+    echo "$($ver.Split(".")[0..1] -join ".")"
+}
+
+function check_upgrade() {
+    loginfo "Checking if there is major version upgrade"
+
+    $last_version=(Get-Content $version_stamp_file).Trim()
+    $last_major_version=$(get_major_version $last_version)
+    $current_major_version=$(get_major_version $version)
+
+    if ($last_major_version.Equals($current_major_version)) {
+        return
+    } else {
+        loginfo "********************************"
+        loginfo "Major upgrade detected: You have $last_version, latest is $version"
+        loginfo "********************************"
+
+        # use_manual_upgrade=true
+        if ("true".Equals($use_manual_upgrade)) {
+            loginfo "Now you can run './launcher manual-upgrade' to do manual upgrade."
+            exit 0
+        } else {
+            loginfo "Going to launch the docker container for manual upgrade"
+            _launch_for_upgrade -auto
+        }
+    }
+}
+
+function _launch_for_upgrade([switch]$auto) {
+    if ($auto) {
+        $cmd="/scripts/upgrade.py"
+    } else {
+        $cmd="/bin/bash"
+    }
+
+    set_envs
+    set_volumes
+
+    do_if_not { docker run `
+      -it --rm --name seafile-upgrade -h seafile `
+      @script:envs @script:volumes $local_image `
+      @script:my_init -- $cmd } {
+      err_and_quit 'Failed to upgrade to latest version. You can try run it manually by "./launcher.ps1 manual-upgrade"'
+    }
+}
+
+main @args
