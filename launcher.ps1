@@ -66,7 +66,13 @@ function main() {
     switch ($action) {
         "bootstrap"         { do_bootstrap }
         "start"             { do_start }
+        "stop"              { do_stop }
+        "restart"           { do_restart }
+        "enter"             { do_enter }
+        "destroy"           { do_destroy }
+        "logs"              { do_logs }
         "rebuild"           { do_rebuild }
+        "manual-upgrade"    { do_manual_upgrade }
         default             { usage }
     }
 }
@@ -322,7 +328,7 @@ function parse_seafile_container([array]$lines) {
 # Equivalent of `docker ps | awk '{ print $1, $(NF) }' | grep " seafile$" | awk '{ print $1 }' || true`
 function set_running_container() {
     try {
-        $script:existing = $(parse_seafile_container $(docker ps))
+        $script:existing = $(parse_seafile_container $(check_output docker ps))
     } catch [System.Management.Automation.RemoteException] {
         $script:existing = ""
     }
@@ -334,6 +340,13 @@ function set_existing_container() {
         $script:existing = $(parse_seafile_container $(docker ps -a))
     } catch [System.Management.Automation.RemoteException] {
         $script:existing = ""
+    }
+}
+
+function ensure_container_running() {
+    set_existing_container
+    if (!($script:existing)) {
+        err_and_quit "seafile was not started !"
     }
 }
 
@@ -491,7 +504,7 @@ function check_upgrade() {
 
         # use_manual_upgrade=true
         if ("true".Equals($use_manual_upgrade)) {
-            loginfo "Now you can run './launcher manual-upgrade' to do manual upgrade."
+            loginfo "Now you can run './launcher.ps1 manual-upgrade' to do manual upgrade."
             exit 0
         } else {
             loginfo "Going to launch the docker container for manual upgrade"
@@ -502,8 +515,10 @@ function check_upgrade() {
 
 function _launch_for_upgrade([switch]$auto) {
     if ($auto) {
+        $script:on_call_error = 'Failed to upgrade to latest version. You can try run it manually by "./launcher.ps1 manual-upgrade"'
         $cmd="/scripts/upgrade.py"
     } else {
+        $script:on_call_error = "Upgrade failed"
         $cmd="/bin/bash"
     }
 
@@ -512,11 +527,48 @@ function _launch_for_upgrade([switch]$auto) {
 
     remove_container seafile-upgrade
 
-    $script:on_call_error = 'Failed to upgrade to latest version. You can try run it manually by "./launcher.ps1 manual-upgrade"'
     check_call docker run `
       -it -rm --name seafile-upgrade -h seafile `
       @script:envs @script:volumes $local_image `
       @script:my_init -- $cmd
+}
+
+function do_manual_upgrade() {
+    _launch_for_upgrade
+
+    loginfo "If you have manually upgraded the server, please update the version stamp by:"
+    loginfo
+    loginfo "       Set-Content -Path ""$version_stamp_file"" -Value $version"
+    loginfo "       ./launcher.ps1 start"
+    loginfo
+}
+
+function do_stop() {
+    ensure_container_running
+    loginfo "Stopping seafile container"
+    check_call docker stop -t 10 seafile
+}
+
+function do_restart() {
+    do_stop
+    do_start
+}
+
+function do_enter() {
+    ensure_container_running
+    loginfo "Launching a linux bash shell in the seafile container"
+    docker exec -it seafile /bin/bash
+}
+
+function do_destroy() {
+    loginfo "Stopping seafile container"
+    ignore_error docker stop -t 10 seafile
+    ignore_error docker rm seafile
+}
+
+function do_logs() {
+    ensure_container_running
+    docker logs --tail=20 -f seafile
 }
 
 main @args
