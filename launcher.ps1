@@ -86,25 +86,26 @@ Currently the first branch must be a subprocess call.
 #>
 function do_if_not([scriptblock]$block_1, [scriptblock]$block_2) {
     $failed = $false
-    $LASTEXITCODE = 0
+    $script:LASTEXITCODE = 0
     try {
         & $block_1
     } catch [System.Management.Automation.RemoteException] {
         $failed = $true
     }
-    if ($failed -or !($LASTEXITCODE -eq 0)) {
+    if ($failed -or !($script:LASTEXITCODE -eq 0)) {
         & $block_2
     }
 }
 
 function do_if([scriptblock]$block_1, [scriptblock]$block_2) {
     $failed = $false
+    $script:LASTEXITCODE = 0
     try {
         & $block_1
     } catch [System.Management.Automation.RemoteException] {
         $failed = $true
     }
-    if (!($failed)) {
+    if (!($failed) -and ($script:LASTEXITCODE -eq 0)) {
         & $block_2
     }
 }
@@ -153,7 +154,12 @@ function check_call($cmd) {
         $process = Start-Process -NoNewWindow -Wait -FilePath "$cmd" -PassThru
     }
     if (!($process.ExitCode -eq 0)) {
-        err_and_quit "The command $cmd $args failed with code $LASTEXITCODE"
+        if ($script:on_call_error) {
+            err_and_quit $script:on_call_error
+            $script:on_call_error = $null
+        } else {
+            err_and_quit "The command $cmd $args failed with code $LASTEXITCODE"
+        }
     }
 }
 
@@ -504,12 +510,13 @@ function _launch_for_upgrade([switch]$auto) {
     set_envs
     set_volumes
 
-    do_if_not { docker run `
-      -it --rm --name seafile-upgrade -h seafile `
+    remove_container seafile-upgrade
+
+    $script:on_call_error = 'Failed to upgrade to latest version. You can try run it manually by "./launcher.ps1 manual-upgrade"'
+    check_call docker run `
+      -it -rm --name seafile-upgrade -h seafile `
       @script:envs @script:volumes $local_image `
-      @script:my_init -- $cmd } {
-      err_and_quit 'Failed to upgrade to latest version. You can try run it manually by "./launcher.ps1 manual-upgrade"'
-    }
+      @script:my_init -- $cmd
 }
 
 main @args
