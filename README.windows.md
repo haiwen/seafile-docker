@@ -4,7 +4,7 @@
 
 Only Windows 10 is supported.
 
-At this time(2016/12/5) windows server 2016 doesn't support running linux containers yet. We'll add the support for windows server 2016 once it support running linux containers.
+At this time(2016/12/5) windows server 2016 doesn't support running linux containers yet. We'll add the support for windows server 2016 once it supports running linux containers.
 
 ## Install the Requirements
 
