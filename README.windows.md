@@ -52,7 +52,7 @@ Close the powershell window, and open a new one **as the normal user**.
 
 Now run the following commands:
 
-(Note that if you're using another drive than "C:", say "D:" ,you should change the "/c/seafile" in the following commands to "/d/seafile" instead.)
+(Note that if you're using another drive than "C:", say "D:", you should change the "/c/seafile" in the following commands to "/d/seafile" instead.)
 
 ```sh
 git clone https://github.com/haiwen/seafile-docker.git /c/seafile/

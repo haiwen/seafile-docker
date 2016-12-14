@@ -21,7 +21,7 @@ $version_stamp_file="$sharedir/seafile/seafile-data/current_version"
 $bash_history="$sharedir/.bash_history"
 
 function usage() {
-    Write-Host "Usage: launcher COMMAND [-skipPrereqs]"
+    Write-Host "Usage: launcher.ps1 COMMAND [-skipPrereqs]"
     Write-Host "Commands:"
     Write-Host "    start:      Start/initialize the container"
     Write-Host "    stop:       Stop a running container"
@@ -33,7 +33,7 @@ function usage() {
     Write-Host "    rebuild:    Rebuild the container (destroy old, bootstrap, start new)"
     Write-Host ""
     Write-Host "Options:"
-    Write-Host "    --skipPrereqs             Don't check launcher prerequisites"
+    Write-Host "    -skipPrereqs             Don't check launcher prerequisites"
     exit 1
 }
 
