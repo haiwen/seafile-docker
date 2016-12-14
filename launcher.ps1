@@ -51,6 +51,7 @@ function main() {
     $script:skipPrereqs = $skipPrereqs
     # Always verbose before we reach a stable release.
     $script:v = $true
+    $script:verbose = $script:v
 
     check_is_system_supported
 
@@ -178,6 +179,12 @@ function err_and_quit($msg) {
     exit 1
 }
 
+function logdbg($msg) {
+    if ($script:verbose) {
+        loginfo "[debug] $msg"
+    }
+}
+
 function loginfo($msg) {
     Write-Host -ForegroundColor Green -Object "[$(get_date_str)] $msg"
 }
@@ -213,7 +220,7 @@ function check_is_system_supported() {
 
 function set_envs() {
     $script:envs = @()
-    if ($v) {
+    if ($script:v) {
         $script:envs += "-e"
         $script:envs += "SEAFILE_DOCKER_VERBOSE=true"
     }
@@ -293,7 +300,7 @@ function set_ports() {
 
 function set_my_init() {
     $script:my_init = @("/sbin/my_init")
-    if (!($v)) {
+    if (!($script:v)) {
         $script:my_init += "--quiet"
     }
 }
@@ -404,7 +411,7 @@ function do_start() {
         exit 0
     }
 
-    # check_version_match
+    check_version_match
 
     set_existing_container
     if ($script:existing) {
@@ -488,6 +495,21 @@ function get_major_version($ver) {
     echo "$($ver.Split(".")[0..1] -join ".")"
 }
 
+function check_version_match() {
+    $last_version=(Get-Content $version_stamp_file).Trim()
+    $last_major_version=$(get_major_version $last_version)
+    $current_major_version=$(get_major_version $version)
+
+    logdbg "Your version: ${last_version}, latest version: ${version}"
+
+    if (!($last_major_version.Equals($current_major_version))) {
+        loginfo "******* Major upgrade detected *******"
+        loginfo "You have $last_version, latest is $version"
+        loginfo "Please run './launcher.ps1 rebuild' to upgrade"
+        exit 1
+    }
+}
+
 function check_upgrade() {
     loginfo "Checking if there is major version upgrade"
 
@@ -502,7 +524,7 @@ function check_upgrade() {
         loginfo "Major upgrade detected: You have $last_version, latest is $version"
         loginfo "********************************"
 
-        # use_manual_upgrade=true
+        # $use_manual_upgrade="true"
         if ("true".Equals($use_manual_upgrade)) {
             loginfo "Now you can run './launcher.ps1 manual-upgrade' to do manual upgrade."
             exit 0
