@@ -461,7 +461,10 @@ function do_rebuild() {
                 err_and_quit "failed to update"
             }
 
-            Start-Process -NoNewWindow -FilePath $script:MyInvocation.MyCommand -ArgumentList $script:args
+            $myself = Join-Path $PSScriptRoot $script:MyInvocation.MyCommand
+            $newargs = @($myself) + $script:args
+            # logdbg "Running: Start-Process -NoNewWindow -FilePath powershell.exe -ArgumentList $($newargs)"
+            Start-Process -NoNewWindow -FilePath powershell.exe -ArgumentList $newargs -Wait
             exit 0
 
         } elseif ($REMOTE.Equals($BASE)) {
