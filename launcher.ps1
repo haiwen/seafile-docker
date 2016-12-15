@@ -190,8 +190,11 @@ function loginfo($msg) {
 }
 
 function program_exists($exe) {
-    cmd.exe /c where.exe "$exe" 2>&1>$null
-    return $LASTEXITCODE -eq 0
+    try {
+        Get-Command "$exe" -CommandType Application 2>&1>$null
+    } catch [CommandNotFoundException] {
+    }
+    return $?
 }
 
 function to_unix_path($path) {
