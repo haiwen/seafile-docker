@@ -461,7 +461,7 @@ function do_rebuild() {
                 err_and_quit "failed to update"
             }
 
-            Start-Process -NoNewWindow -FilePath $script:MyInvocation.ScriptName -ArgumentList $script:args
+            Start-Process -NoNewWindow -FilePath $script:MyInvocation.MyCommand -ArgumentList $script:args
             exit 0
 
         } elseif ($REMOTE.Equals($BASE)) {
