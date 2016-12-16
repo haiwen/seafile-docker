@@ -93,26 +93,26 @@ Currently the first branch must be a subprocess call.
 #>
 function do_if_not([scriptblock]$block_1, [scriptblock]$block_2) {
     $failed = $false
-    $script:LASTEXITCODE = 0
+    $global:LASTEXITCODE = $null
     try {
         & $block_1
     } catch [System.Management.Automation.RemoteException] {
         $failed = $true
     }
-    if ($failed -or !($script:LASTEXITCODE -eq 0)) {
+    if ($failed -or !($global:LASTEXITCODE -eq 0)) {
         & $block_2
     }
 }
 
 function do_if([scriptblock]$block_1, [scriptblock]$block_2) {
     $failed = $false
-    $script:LASTEXITCODE = 0
+    $global:LASTEXITCODE = $null
     try {
         & $block_1
     } catch [System.Management.Automation.RemoteException] {
         $failed = $true
     }
-    if (!($failed) -and ($script:LASTEXITCODE -eq 0)) {
+    if (!($failed) -and ($global:LASTEXITCODE -eq 0)) {
         & $block_2
     }
 }
