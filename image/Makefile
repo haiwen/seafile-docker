@@ -1,4 +1,4 @@
-server_version=6.0.5
+server_version=6.0.7
 
 base_image=seafileorg/base:16.04
 base_image_squashed=seafileorg/base:16.04-squashed
@@ -19,8 +19,12 @@ squash-base:
 server:
 	cd seafile && docker build -t $(server_image) .
 
-push:
+push-base:
 	docker push $(base_image)
+
+push-server:
 	docker push $(server_image)
 
-.PHONY: base server push
+push: push-base push-server
+
+.PHONY: base server push push-base push-server
