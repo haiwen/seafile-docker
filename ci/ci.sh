@@ -18,3 +18,7 @@ sudo ./launcher start --docker-args "--memory 1g" && sleep 10
 sudo ./launcher restart
 sudo ./launcher -v rebuild
 sudo ./launcher -v rebuild --docker-args "--memory 1g"
+
+if [[ $TRAVIS_TAG != "" ]]; then
+    ci/publish-image.sh
+fi

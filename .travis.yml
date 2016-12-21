@@ -16,4 +16,3 @@ install:
 
 script:
   - ci/ci.sh
-  - [[ $TRAVIS_TAG == "" ]] || ci/publish-image.sh
