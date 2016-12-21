@@ -1,12 +1,6 @@
 sudo: required
 language: python
 
-env:
-  global:
-    - secure: cOQ0S8mSipRPkbzhFFZFiP5kpAQY/6C2LLU2vx0DNpjlVEDEI1IKRoL4Em4m+Q0+XEypprMuEtwtTVoyBxCsRmmR1B7WbZCwJAvRTyFHL7R9CRe1VaHLXkdOrvh2QN4RtGaVsQEF4GWY3y7r8PzXE4WWkvFhdWCAP1qn5IHEpHc=
-    - secure: NyEO+wZcFT9p5gMFucKU5wL8oCd9ISVAudMJ1SzKctg+ysEValj0BonTIsC0H8Wrg90DyWm0hEXHNnKfufco9RnlZo5MAAtVTP+jWsR0LH0rf2B+IFAkOcBxZSJ4lJVamSUu0Tbq7eHO1FHhHvtv0gFEZFdtgWGI7DKhBIiX25Y=
-    - secure: a7Rzwf67nNJIPZGSPlOlQ8gsLBsnE1A0WFZ0tQZMt/4eoKTztsMu5uMZ8nokbF1BFCcQQH00MVRn77aE25ptkUk1M5oiGZYjAL1Bn6L1wspvhPYqNybAP6zZGhqYcA4VapBCW8vCKeOeRyipUpzYbxEzmE+meoqCGEVM2prYd1w=
-
 services:
   - docker
 
