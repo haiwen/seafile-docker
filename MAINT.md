@@ -21,3 +21,7 @@ git push origin v6.0.7
 ```
 git push origin unstable:master
 ```
+* Delete the unstable branch
+```sh
+git push origin :unstable
+```
