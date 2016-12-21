@@ -21,4 +21,6 @@ sudo ./launcher -v rebuild --docker-args "--memory 1g"
 
 if [[ $TRAVIS_TAG != "" ]]; then
     ci/publish-image.sh
+else
+    echo "Not going to push the image to docker hub, since it's not a build triggered by a tag"
 fi
