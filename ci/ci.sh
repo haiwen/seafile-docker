@@ -2,11 +2,12 @@
 
 set -e -x
 
-pip install docker-squash
 
 (
     cd image
-    make base squash-base server
+    # pip install docker-squash
+    # make base squash-base server
+    make server
 )
 
 sudo cp samples/server.conf bootstrap/bootstrap.conf
