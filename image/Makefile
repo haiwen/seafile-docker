@@ -1,7 +1,7 @@
 server_version=6.0.7
 
-base_image=seafileltd/seafile:16.04
-base_image_squashed=seafileltd/seafile:16.04-squashed
+base_image=seafileltd/base:16.04
+base_image_squashed=seafileltd/base:16.04-squashed
 server_image=seafileltd/seafile:$(server_version)
 
 all:
