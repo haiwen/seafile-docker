@@ -1,4 +1,4 @@
-FROM seafileorg/base:16.04
+FROM seafileltd/seafile:16.04
 WORKDIR /opt/seafile
 
 ENV SEAFILE_VERSION=6.0.7

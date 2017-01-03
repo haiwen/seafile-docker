@@ -9,7 +9,7 @@ you should use it instead of the linux 'launcher' script.
 $ErrorActionPreference = "Stop"
 
 $version = "6.0.7"
-$image = "seafileorg/server:$version"
+$image = "seafileltd/seafile:$version"
 $local_image = "local_seafile/server:latest"
 
 $dockerdir = $PSScriptRoot.Replace("\", "/")

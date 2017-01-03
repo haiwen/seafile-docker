@@ -1,4 +1,4 @@
-FROM seafileorg/server:6.0.7
+FROM seafileltd/seafile:6.0.7
 
 ENV SEAFILE_VERSION=6.1.0
 

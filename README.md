@@ -75,7 +75,7 @@ Various jinja2 templates used for seafile server configuration.
 
 Dockerfiles for Seafile.
 
-The Docker repository will always contain the latest built version at: https://hub.docker.com/r/seafileorg/server/, you should not need to build the base image.
+The Docker repository will always contain the latest built version at: https://hub.docker.com/r/seafileltd/seafile/, you should not need to build the base image.
 
 ### Launcher
 

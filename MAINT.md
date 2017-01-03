@@ -11,12 +11,12 @@ git checkout unstable
 ```sh
 git push origin unstable:unstable
 ```
-* Create a tag "v6.0.7" and push it to github. Wait for travis ci to finish: this time it would push the image seafileorg/server:6.0.7 to docker hub since it's triggered by a tag.
+* Create a tag "v6.0.7" and push it to github. Wait for travis ci to finish: this time it would push the image seafileltd/seafile:6.0.7 to docker hub since it's triggered by a tag.
 ```sh
 git tag v6.0.7
 git push origin v6.0.7
 ```
-* Ensure the new image is available in https://hub.docker.com/r/seafileorg/server/tags/
+* Ensure the new image is available in https://hub.docker.com/r/seafileltd/seafile/tags/
 * Now update the master branch.
 ```
 git push origin unstable:master

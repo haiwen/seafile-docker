@@ -1,6 +1,6 @@
 # -*- mode: dockerfile -*-
 # This is a jinja2 template to generate the real Dockerfile to build the local image
-FROM seafileorg/server:{{ seafile_version }}
+FROM seafileltd/seafile:{{ seafile_version }}
 
 CMD ["/sbin/my_init", "--", "/scripts/start.py"]
 
