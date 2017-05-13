@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ######################################
-# Publish the seafile server image (e.g. seafileltd/seafile:6.0.7) to docker
+# Publish the seafile server image (e.g. seafileltd/seafile:6.0.9) to docker
 # registry. This script should only be called during a travis build trigger by a tag.
 ######################################
 

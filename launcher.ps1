@@ -8,7 +8,7 @@ you should use it instead of the linux 'launcher' script.
 
 $ErrorActionPreference = "Stop"
 
-$version = "6.0.7"
+$version = "6.0.9"
 $image = "seafileltd/seafile:$version"
 $local_image = "local_seafile/server:latest"
 
