@@ -92,6 +92,7 @@ Commands:
     enter:      Use docker exec to enter a container
     logs:       Docker logs for container
     rebuild:    Rebuild a container (destroy old, bootstrap, start new)
+    gc:         Start the seafile garbage collector (stops seafile, starts gc, restarts seafile)
 ```
 
 If the environment variable "SUPERVISED" is set to true, the container won't be detached, allowing a process monitoring tool to manage the restart behaviour of the container.
