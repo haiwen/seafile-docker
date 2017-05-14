@@ -11,7 +11,7 @@ usage () {
   echo "    logs:       View the Docker container logs"
   echo "    bootstrap:  Bootstrap the container based on a template"
   echo "    rebuild:    Rebuild the container (destroy old, bootstrap, start new)"
-  echo "    gc:         Start the seafile garbage collector (stops seafile, starts gc, restarts container)"
+  echo "    gc:         Start the seafile garbage collector (stops seafile, starts gc, restarts seafile)"
   echo
   echo "Options:"
   echo "    --skip-prereqs             Don't check launcher prerequisites"
@@ -228,19 +228,9 @@ restart() {
 gc() {
     ensure_container_running
     (
-        loginfo "Stop seafile and start garbage collector"
-        docker exec -it seafile /bin/bash -c "\
-            /opt/seafile/seafile-server-latest/seafile.sh stop; \
-            sleep 10; \
-            /opt/seafile/seafile-server-latest/seaf-gc.sh >> /var/log/gc.log; \
-            sleep 3"
-        loginfo "Garbage collector finished! Restart container..."
-        running=$(docker ps | awk '{ print $1, $(NF) }' | grep " seafile$" | awk '{ print $1 }' || true)
-        if [[ $running == "" ]]; then
-            start
-        else
-            restart
-        fi
+        loginfo "Stop seafile and start the garbage collector"
+        docker exec -it seafile /scripts/gc.sh
+        loginfo "Garbage collector finished!"
     )
 }
 
