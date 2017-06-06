@@ -229,8 +229,14 @@ gc() {
     ensure_container_running
     (
         loginfo "Stop seafile and start the garbage collector"
+        set +e +x
         docker exec -it seafile /scripts/gc.sh
-        loginfo "Garbage collector finished!"
+        gc_error=$?
+        if [[ $gc_error -eq 0 ]]; then
+            loginfo "Garbage collector finished!"
+        else
+            err_and_quit "Garbage collector exited with code $gc_error"
+        fi
     )
 }
 
