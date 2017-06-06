@@ -25,8 +25,9 @@ def watch_controller():
     maxretry = 4
     retry = 0
     while retry < maxretry:
-        controller_pid = get_command_output('ps aux | grep seafile-controller |grep -v grep || true').strip()
-        if not controller_pid:
+        controller_pid = get_command_output('ps aux | grep seafile-controller | grep -v grep || true').strip()
+        garbage_collector_pid = get_command_output('ps aux | grep /scripts/gc.sh | grep -v grep || true').strip()
+        if not controller_pid and not garbage_collector_pid:
             retry += 1
         else:
             retry = 0

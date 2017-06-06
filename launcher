@@ -11,6 +11,7 @@ usage () {
   echo "    logs:       View the Docker container logs"
   echo "    bootstrap:  Bootstrap the container based on a template"
   echo "    rebuild:    Rebuild the container (destroy old, bootstrap, start new)"
+  echo "    gc:         Start the seafile garbage collector (stops seafile, starts gc, restarts seafile)"
   echo
   echo "Options:"
   echo "    --skip-prereqs             Don't check launcher prerequisites"
@@ -224,6 +225,21 @@ restart() {
     start
 }
 
+gc() {
+    ensure_container_running
+    (
+        loginfo "Stop seafile and start the garbage collector"
+        set +e +x
+        docker exec -it seafile /scripts/gc.sh
+        gc_error=$?
+        if [[ $gc_error -eq 0 ]]; then
+            loginfo "Garbage collector finished!"
+        else
+            err_and_quit "Garbage collector exited with code $gc_error"
+        fi
+    )
+}
+
 check_prereqs() {
     if [[ $SKIP_PREREQS == "true" ]]; then
         return 0
@@ -391,7 +407,7 @@ main() {
     while [[ $# -gt 0 ]]
     do
         case "$1" in
-            bootstrap|start|stop|restart|enter|destroy|logs|rebuild|manual-upgrade)
+            bootstrap|start|stop|restart|enter|destroy|logs|rebuild|manual-upgrade|gc)
                                                 action=${1//-/_}            ; shift 1 ;;
             -h|--help)                          ( usage ; exit 1)           ; shift 1 ;;
             -v|--verbose)                       verbose=true                ; shift 1 ;;
