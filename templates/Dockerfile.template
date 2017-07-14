@@ -6,7 +6,7 @@ CMD ["/sbin/my_init", "--", "/scripts/start.py"]
 
 # shared/ are ignored in .dockerignore
 ADD . /app
-
+EXPOSE 80 443
 RUN cp -rp /app/scripts /scripts && \
     cp -rp /app/bootstrap /bootstrap && \
 {%- if seafile_version <= '6.0.6' %}
