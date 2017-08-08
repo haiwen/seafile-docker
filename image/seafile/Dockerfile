@@ -1,7 +1,7 @@
 FROM seafileltd/base:16.04
 WORKDIR /opt/seafile
 
-ENV SEAFILE_VERSION=6.0.9
+ENV SEAFILE_VERSION=6.1.1
 
 # syslog-ng and syslog-forwarder would mess up the container stdout, not good
 # when debugging/upgrading.
