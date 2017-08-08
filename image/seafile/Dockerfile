@@ -9,7 +9,7 @@ RUN sed -i -e 's|\(^exec syslog-ng.*$\)|\1 >>/var/log/syslog-ng.log 2>\&1|g' /et
     rm -rf /etc/service/syslog-forwarder
 
 RUN mkdir -p /opt/seafile/ && \
-    curl -sSL -o - https://bintray.com/artifact/download/seafile-org/seafile/seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz \
+    curl -sSL -o - https://download.seadrive.org/seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz \
     | tar xzf - -C /opt/seafile/
 
 RUN mkdir -p /etc/my_init.d
