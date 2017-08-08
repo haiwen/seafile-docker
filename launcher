@@ -31,6 +31,13 @@ installdir=/opt/seafile/seafile-server-$version
 bootstrap_conf=$dockerdir/bootstrap/bootstrap.conf
 version_stamp_file=$sharedir/seafile/seafile-data/current_version
 
+# Run launcher by root
+docker_executable="docker"
+touch_executable="touch"
+# Run launcher by user (experimental)
+#docker_executable="sudo docker"
+#touch_executable="sudo touch"
+
 cd $dockerdir
 
 logdbg() {
@@ -69,7 +76,7 @@ init_shared() {
     mkdir -p $sharedir/logs/{seafile,var-log}
 
     mkdir -p $sharedir/logs/var-log/nginx
-    touch $sharedir/logs/var-log/syslog
+    $touch_executable $sharedir/logs/var-log/syslog
 
     local bash_history=$sharedir/.bash_history
     if [[ ! -e $bash_history ]]; then
@@ -85,7 +92,7 @@ set_envs() {
 }
 
 set_ports() {
-    ports=$(docker run $user_args --rm -it \
+    ports=$($docker_executable run $user_args --rm -it \
                    -v ${dockerdir}/scripts:/scripts \
                    -v ${dockerdir}/bootstrap:/bootstrap:ro \
                    $image \
@@ -131,7 +138,7 @@ set_volumes() {
 }
 
 set_existing_container() {
-  existing=$(docker ps -a | awk '{ print $1, $(NF) }' | grep " seafile$" | awk '{ print $1 }' || true)
+  existing=$($docker_executable ps -a | awk '{ print $1, $(NF) }' | grep " seafile$" | awk '{ print $1 }' || true)
 }
 
 bootstrap() {
@@ -139,9 +146,9 @@ bootstrap() {
         err_and_quit "The file $bootstrap_conf doesn't exist. Have you run seafile-server-setup?"
     fi
 
-    docker history $image >/dev/null 2>&1 || {
-        loginfo "Pulling Seafile server image $version, this may take a while."
-        docker pull $image
+    $docker_executable history $image >/dev/null 2>&1 || {
+        loginfo "Pulling Seafile server image $version ($image), this may take a while."
+        $docker_executable pull $image
         loginfo "Seafile server image $version pulled. Now bootstrapping the server ..."
     }
 
@@ -150,15 +157,15 @@ bootstrap() {
     set_bootstrap_volumes
     set_ports
 
-    docker run $user_args --rm -it --name seafile-bootstrap -e SEAFILE_BOOTSRAP=1 $envs $volumes $ports $image /sbin/my_init $quiet -- /scripts/bootstrap.py
+    $docker_executable run $user_args --rm -it --name seafile-bootstrap -e SEAFILE_BOOTSRAP=1 $envs $volumes $ports $image /sbin/my_init $quiet -- /scripts/bootstrap.py
 
     loginfo "Now building the local docker image."
-    docker build -f bootstrap/generated/Dockerfile -t local_seafile/server:latest  . >/dev/null
+    $docker_executable build -f bootstrap/generated/Dockerfile -t local_seafile/server:latest  . >/dev/null
     loginfo "Image built."
 }
 
 start() {
-    existing=$(docker ps | awk '{ print $1, $(NF) }' | grep " seafile$" | awk '{ print $1 }' || true)
+    existing=$($docker_executable ps | awk '{ print $1, $(NF) }' | grep " seafile$" | awk '{ print $1 }' || true)
     if [[ $existing != "" ]]; then
         loginfo "Nothing to do, your container has already started!"
         exit 0
@@ -173,7 +180,7 @@ start() {
         loginfo "starting up existing container"
         (
             set -x
-            docker start seafile
+            $docker_executable start seafile
         )
         exit 0
     fi
@@ -193,7 +200,7 @@ start() {
     loginfo "Starting up new seafile server container"
     (
         set -x
-        docker run $user_args $attach_on_run $restart_policy --name seafile -h seafile $envs $volumes $ports $local_image
+        $docker_executable run $user_args $attach_on_run $restart_policy --name seafile -h seafile $envs $volumes $ports $local_image
     )
 }
 
@@ -208,7 +215,7 @@ stop() {
     ensure_container_running
     (
         set -x
-        docker stop -t 10 seafile
+        $docker_executable stop -t 10 seafile
     )
 }
 
@@ -216,7 +223,7 @@ enter() {
     ensure_container_running
     (
         set -x
-        docker exec -it seafile /bin/bash
+        $docker_executable exec -it seafile /bin/bash
     )
 }
 
@@ -230,7 +237,7 @@ gc() {
     (
         loginfo "Stop seafile and start the garbage collector"
         set +e +x
-        docker exec -it seafile /scripts/gc.sh
+        $docker_executable exec -it seafile /scripts/gc.sh
         gc_error=$?
         if [[ $gc_error -eq 0 ]]; then
             loginfo "Garbage collector finished!"
@@ -256,15 +263,15 @@ logs() {
     ensure_container_running
     (
         set -x
-        docker logs --tail=20 -f seafile
+        $docker_executable logs --tail=20 -f seafile
     )
 }
 
 destroy() {
     (
         set -x
-        docker stop -t 10 seafile || true
-        docker rm seafile
+        $docker_executable stop -t 10 seafile || true
+        $docker_executable rm seafile
     )
 }
 
@@ -326,7 +333,7 @@ _launch_for_upgrade() {
     set_volumes
     (
         set -x
-        docker run $user_args \
+        $docker_executable run $user_args \
                -it --rm --name seafile-upgrade -h seafile \
                $envs $volumes $local_image \
                /sbin/my_init $quiet -- $cmd
@@ -370,7 +377,7 @@ rebuild() {
         loginfo "Stopping old container"
         (
             set -x
-            docker stop -t 10 seafile
+            $docker_executable stop -t 10 seafile
         )
     fi
 
@@ -381,7 +388,7 @@ rebuild() {
         loginfo "Removing old container"
         (
             set -x
-            docker rm seafile
+            $docker_executable rm seafile
         )
     fi
 
