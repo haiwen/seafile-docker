@@ -103,6 +103,7 @@ If the environment variable "SUPERVISED" is set to true, the container won't be 
 
 ```conf
 server.port_mappings = 80:80,443:443
+server.port_mappings = XXXX:80,XXXX:443
 ```
 
 #### Let's encrypt SSL certificate
