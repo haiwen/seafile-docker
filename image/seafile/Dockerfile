@@ -8,7 +8,7 @@ RUN sed -i -e 's|\(^exec syslog-ng.*$\)|\1 >>/var/log/syslog-ng.log 2>\&1|g' /et
 
 RUN mkdir -p /etc/my_init.d
 
-ENV SEAFILE_VERSION=6.1.1
+ENV SEAFILE_VERSION=6.2.2
 
 RUN mkdir -p /opt/seafile/ && \
     curl -sSL -o - https://download.seadrive.org/seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz \
