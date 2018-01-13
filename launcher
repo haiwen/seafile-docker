@@ -22,7 +22,7 @@ usage () {
 set -e
 set -o pipefail
 
-version=6.2.2
+version=6.2.3
 image=seafileltd/seafile:$version
 local_image=local_seafile/server:latest
 dockerdir=$(cd "$(dirname $0)"; pwd -P)
