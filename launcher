@@ -171,9 +171,13 @@ start() {
     set_existing_container
     if [[ $existing != "" ]]; then
         loginfo "starting up existing container"
+
+        local attach_on_start
+        [[ "${SUPERVISED}" = "true" ]] && attach_on_start="-a"
+        
         (
             set -x
-            docker start seafile
+            docker start $attach_on_start seafile
         )
         exit 0
     fi

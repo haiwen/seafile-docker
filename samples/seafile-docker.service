@@ -1,0 +1,15 @@
+[Unit]
+Description=Seafile Docker
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+RestartSec=10s
+
+Environment=SUPERVISED=true
+ExecStart=-/var/seafile/launcher start
+ExecStop=/var/seafile/launcher stop
+
+[Install]
+WantedBy=default.target
