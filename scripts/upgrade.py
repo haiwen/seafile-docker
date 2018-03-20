@@ -61,6 +61,8 @@ def check_upgrade():
     scripts_to_run = collect_upgrade_scripts(from_version=last_version, to_version=current_version)
     for script in scripts_to_run:
         loginfo('Running scripts {}'.format(script))
+        # Here we use a trick: use a version stamp like 6.1.0 to prevent running
+        # all upgrade scripts before 6.1 again (because 6.1 < 6.1.0 in python)
         new_version = parse_upgrade_script_version(script)[1] + '.0'
 
         replace_file_pattern(script, 'read dummy', '')
