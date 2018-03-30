@@ -14,14 +14,11 @@ The simplest way to get started is via the **samples/server.conf** template, whi
 
 ```
 sudo git clone https://github.com/haiwen/seafile-docker.git /var/seafile/
-cd /var/seafile/
+cd /var/seafile/image
 
-sudo cp samples/server.conf bootstrap/bootstrap.conf
-# Edit the options according to your use case
-sudo vim bootstrap/bootstrap.conf
-
-sudo ./launcher bootstrap
-sudo ./launcher start
+make base
+make server
+docker run --rm -it -d --name seafile-server-latest -v /root/seafile:/shared -p 0.0.0.0:80:80 seafileltd/seafile:6.2.1
 ```
 
 Now visit `http://hostname` or `https://hostname` to open Seafile Web UI.
@@ -35,16 +32,15 @@ The config files are under `shared/seafile/conf`. You can modify the configurati
 After modification, restart the docker container:
 
 ```
-sudo ./launcher restart
+docker stop seafile-server-latest
+docker run --rm -it -d --name seafile-server-latest -v /root/seafile:/shared -p 0.0.0.0:80:80 seafileltd/seafile:6.2.1 
 ```
 
 #### Find logs
 
-The logs are under `shared/logs/seafile`.
+The seafile logs are under `shared/logs/seafile`.
 
-#### Enable debug logs of launcher
-
-Pass `-v` to launcher script (for example `sudo ./launcher -v rebuild` would make it print more verbose information
+The system logs are under `shared/logs/var-log`.
 
 
 ### Directory Structure
@@ -66,6 +62,7 @@ Placeholder spot for shared volumes. You may elect to store certain persistent i
 - /shared/logs: This is the directory for logs.
     - /shared/logs/var-log: This is the directory that would be mounted as `/var/log` inside the container. For example, you can find the nginx logs in `shared/logs/var-log/nginx/`.
     - /shared/logs/seafile: This is the directory that would contain the log files of seafile server processes. For example, you can find seaf-server logs in `shared/logs/seafile/seafile.log`.
+- /shared/bootstrap.conf: This file does not exist by default. You can create it by your self, and write the configuration of files similar to the `samples` folder.
 
 #### `/templates`
 
@@ -77,33 +74,7 @@ Dockerfiles for Seafile.
 
 The Docker repository will always contain the latest built version at: https://hub.docker.com/r/seafileltd/seafile/, you should not need to build the base image.
 
-### Launcher
-
-The base directory contains a single bash script which is used to manage containers. You can use it to "bootstrap" a new container, enter, start, stop and destroy a container.
-
-```
-Usage: launcher COMMAND
-Commands:
-    bootstrap:  Bootstrap a container for the config based on a template
-    start:      Start/initialize a container
-    stop:       Stop a running container
-    restart:    Restart a container
-    destroy:    Stop and remove a container
-    enter:      Use docker exec to enter a container
-    logs:       Docker logs for container
-    rebuild:    Rebuild a container (destroy old, bootstrap, start new)
-    gc:         Start the seafile garbage collector (stops seafile, starts gc, restarts seafile)
-```
-
-If the environment variable "SUPERVISED" is set to true, the container won't be detached, allowing a process monitoring tool to manage the restart behaviour of the container.
-
 ### Container Configuration
-
-#### port mapping:
-
-```conf
-server.port_mappings = 80:80,443:443
-```
 
 #### Let's encrypt SSL certificate
 
@@ -111,7 +82,6 @@ If you set `server.letsencrypt` to `true`, the bootstrap script would request a 
 
 ```conf
 server.letsencrypt = true
-server.port_mappings = 80:80,443:443
 ```
 
 If you want to use your own SSL certificate:
@@ -120,13 +90,11 @@ If you want to use your own SSL certificate:
 
 ### Upgrading Seafile Server
 
-Simple run `sudo ./launcher rebuild`, which would keep your seafile server up to date.
+ensure same version of the repo, and run start command`docker run --rm -it -d --name seafile-server-latest -v /root/seafile:/shared -p 0.0.0.0:80:80 seafileltd/seafile:6.2.1 `, which would keep your seafile server up to date.
 
 ### Troubleshooting
 
-View the container logs: `sudo ./launcher logs`
-
-Spawn a shell inside your container using `sudo ./launcher enter`. This is the most foolproof method if you have host root access.
+You can run the command as "docker logs" or "docker exec" to find errors.
 
 ### Developing with Vagrant
 

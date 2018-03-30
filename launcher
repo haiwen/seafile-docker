@@ -150,6 +150,8 @@ bootstrap() {
     set_bootstrap_volumes
     set_ports
 
+    echo "docker run $user_args --rm -it --name seafile-bootstrap -e SEAFILE_BOOTSRAP=1 $envs $volumes $ports $image /sbin/my_init $quiet -- /scripts/bootstrap.py"
+    return
     docker run $user_args --rm -it --name seafile-bootstrap -e SEAFILE_BOOTSRAP=1 $envs $volumes $ports $image /sbin/my_init $quiet -- /scripts/bootstrap.py
 
     loginfo "Now building the local docker image."
