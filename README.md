@@ -8,69 +8,92 @@
 
 - The base image configures Seafile with the Seafile team's recommended optimal defaults.
 
+If you are not familiar with docker commands, please refer to [docker documentation](https://docs.docker.com/engine/reference/commandline/cli/).
+
 ### Getting Started
 
-Download seafile image, and run the image.
+To run the seafile server container:
 
+```sh
+docker run -d --name seafile \
+  -e SEAFILE_SERVER_HOSTNAME=seafile.example.com \
+  -v /opt/seafile-data:/shared \
+  -p 80:80 \
+  seafileltd/seafile:latest
 ```
-docker pull seafileltd/seafile:6.2.1
-docker run -d --name seafile-server -v /root/seafile:/shared -p 80:80 seafileltd/seafile:6.2.1
+
+Wait for a few minutes for the first time initialization, then visit `http://seafile.example.com` to open Seafile Web UI.
+
+This command will mount folder `/opt/seafile-data` at the local server to the docker instance. You can find logs and other data under this folder.
+
+### More configuration Options
+
+#### Custom Admin Username and Password
+
+The default admin account is `me@example.com` and the password is `asecret`. You can use a different password  by setting the container's environment variables:
+e.g.
+
+```sh
+docker run -d --name seafile \
+  -e SEAFILE_SERVER_HOSTNAME=seafile.example.com \
+  -e SEAFILE_ADMIN_EMAIL=me@example.com \
+  -e SEAFILE_ADMIN_PASSWORD=a_very_secret_password \
+  -v /opt/seafile-data:/shared \
+  -p 80:80 \
+  seafileltd/seafile:latest
 ```
 
-Now visit `http://hostname` or `https://hostname` to open Seafile Web UI.
-
-If you are not familiar with docker commands, refer to [docker documentation](https://docs.docker.com/engine/reference/commandline/cli/).
-
-### How to use
-
-#### Password and plan B
-
-The default account is `me@example.com` and the password is `asecret`.
-You must change the password when you first run the seafile server.
 If you forget the admin password, you can add a new admin account and then go to the sysadmin panel to reset user password.
 
-#### Domain
+#### Let's encrypt SSL certificate
 
-You can create `/shared/bootstrap.conf`, write the following lines.
+If you set `SEAFILE_SERVER_LETSENCRYPT` to `true`, the container would request a letsencrypt-signed SSL certificate for you automatically.
 
-    [server]
-    server.hostname = seafile.example.com
+e.g.
 
-And then restart service, nginx will update up config.
+```
+docker run -d --name seafile \
+  -e SEAFILE_SERVER_LETSENCRYPT=true \
+  -e SEAFILE_SERVER_HOSTNAME=seafile.example.com \
+  -e SEAFILE_ADMIN_EMAIL=me@example.com \
+  -e SEAFILE_ADMIN_PASSWORD=a_very_secret_password \
+  -v /opt/seafile-data:/shared \
+  -p 80:80 \
+  -p 443:443 \
+  seafileltd/seafile:latest
+```
 
-#### Modify configurations
+If you want to use your own SSL certificate:
+- create a folder `/opt/seafile-data/ssl`, and put your certificate and private key under the ssl directory.
+- Assume your site name is `seafile.example.com`, then your certificate must have the name `seafile.example.com.crt`, and the private key must have the name `seafile.example.com.key`.
+
+#### Modify Seafile Server Configurations
 
 The config files are under `shared/seafile/conf`. You can modify the configurations according to [Seafile manual](https://manual.seafile.com/)
 
-After modification, run the new docker container:
+After modification, you need to restart the container:
 
 ```
-docker rm seafile-server
-docker run -d --name seafile-server -v /root/seafile:/shared -p 80:80 seafileltd/seafile:6.2.1
+docker restart seafile
 ```
 
 #### Find logs
 
-The seafile logs are under `shared/logs/seafile`.
+The seafile logs are under `shared/logs/seafile` in the docker, or `/opt/seafile-data/logs/seafile` in the server that run the docker.
 
-The system logs are under `shared/logs/var-log`.
-
+The system logs are under `shared/logs/var-log`, or `/opt/seafile-data/logs/var-log` in the server that run the docker.
 
 #### Add a new Admin
 
-Enter the command below.
+Ensure the container is running, then enter this command:
 
 ```
-docker exec -it seafile-server /opt/seafile/seafile-server-latest/reset-admin.sh
+docker exec -it seafile /opt/seafile/seafile-server-latest/reset-admin.sh
 ```
 
-Enter the username and password according to the prompts.You now have a new admin account.
+Enter the username and password according to the prompts. You now have a new admin account.
 
 ### Directory Structure
-
-#### `/samples`
-
-Sample container definitions you may use to bootstrap your environment. You can copy templates from here into the bootstrap directory.
 
 #### `/shared`
 
@@ -85,38 +108,32 @@ Placeholder spot for shared volumes. You may elect to store certain persistent i
 - /shared/bootstrap.conf: This file does not exist by default. You can create it by your self, and write the configuration of files similar to the `samples` folder.
 
 
-#### `/image`
-
-Dockerfiles for Seafile.
-
-The Docker repository will always contain the latest built version at: https://hub.docker.com/r/seafileltd/seafile/, you should not need to build the base image.
-
-### Container Configuration
-
-#### Let's encrypt SSL certificate
-
-If you set `server.letsencrypt` to `true`, the bootstrap script would request a letsencrypt-signed SSL certificate for you.
-
-```conf
-server.letsencrypt = true
-```
-
-If you want to use your own SSL certificate:
-- create a folder 'shared/ssl', and put your certificate and private key under the ssl directory.
-- Assume your site name is "seafile.example.com", then your certificate must have the name "seafile.example.com.crt", and the private key must have the name "seafile.example.com.key".
-
 ### Upgrading Seafile Server
 
-ensure same version of the repo, and run start command`docker run -d --name seafile-server -v /root/seafile:/shared -p 80:80 seafileltd/seafile:6.2.1 `, which would keep your seafile server up to date.
+TO upgrade to latest version of seafile server:
+
+```sh
+docker pull seafileltd/seafile:latest
+docker rm -f seafile
+docker run -d --name seafile \
+  -e SEAFILE_SERVER_LETSENCRYPT=true \
+  -e SEAFILE_SERVER_HOSTNAME=seafile.example.com \
+  -e SEAFILE_ADMIN_EMAIL=me@example.com \
+  -e SEAFILE_ADMIN_PASSWORD=a_very_secret_password \
+  -v /opt/seafile-data:/shared \
+  -p 80:80 \
+  -p 443:443 \
+  seafileltd/seafile:latest
+```
+
+If you are one of the early users who use the `launcher` script, you should refer to [upgrade from old format](https://github.com/haiwen/seafile-docker/upgrade_from_old_format.md) document.
 
 ### Troubleshooting
 
-You can run the command as "docker logs" or "docker exec" to find errors.
+You can run docker commands like "docker logs" or "docker exec" to find errors.
 
-### Special Thanks
-
-Lots of the design of this repo is borrowed from the excellent [discourse-docker](https://github.com/discourse/discourse_docker) project. Thanks for their insipiration!
-
-License
-===
-Apache
+```sh
+docker logs -f seafile
+# or
+docker exec -it seafile bash
+```
