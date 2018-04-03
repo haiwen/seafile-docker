@@ -12,7 +12,6 @@ set -e -x
 
 sudo cp samples/server.conf bootstrap/bootstrap.conf
 
-sudo ./launcher -v bootstrap
 sudo ./launcher -v start && sleep 10
 sudo ./launcher stop --skip-prereqs
 sudo ./launcher start --docker-args "--memory 1g" && sleep 10

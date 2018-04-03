@@ -86,8 +86,7 @@ set_envs() {
 
 set_ports() {
     ports=$(docker run $user_args --rm -it \
-                   -v ${dockerdir}/scripts:/scripts \
-                   -v ${dockerdir}/bootstrap:/bootstrap:ro \
+                   -v ${dockerdir}/shared:/shared \
                    $image \
                    /scripts/bootstrap.py --parse-ports)
 }
@@ -119,9 +118,6 @@ set_volumes() {
 
     mounts=(
         $sharedir:/shared
-        $sharedir/logs/var-log:/var/log
-        $sharedir/db:/var/lib/mysql
-        $sharedir/.bash_history:/root/.bash_history
     )
     volumes=""
     local m
@@ -166,11 +162,9 @@ start() {
         exit 0
     fi
 
-    check_version_match
-
-    chmod 0700 $dockerdir/bootstrap $sharedir/seafile/conf
 
     set_existing_container
+    set_volumes
     if [[ $existing != "" ]]; then
         loginfo "starting up existing container"
         (
@@ -195,7 +189,7 @@ start() {
     loginfo "Starting up new seafile server container"
     (
         set -x
-        docker run $user_args $attach_on_run $restart_policy --name seafile -h seafile $envs $volumes $ports $local_image
+        docker run $user_args $attach_on_run $restart_policy --name seafile -h seafile $envs $volumes $ports $image
     )
 }
 
@@ -376,7 +370,8 @@ rebuild() {
         )
     fi
 
-    bootstrap
+    cd image/seafile
+    docker build -t local_seafile/server:latest  . >/dev/null
     loginfo "Rebuilt successfully."
 
     if [[ $existing != "" ]]; then
