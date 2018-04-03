@@ -1,5 +1,7 @@
-FROM seafileltd/base:16.04
+FROM seafileltd/pro-base:16.04
 WORKDIR /opt/seafile
+
+ENV SEAFILE_VERSION=6.2.10 SEAFILE_SERVER=seafile-pro-server
 
 # syslog-ng and syslog-forwarder would mess up the container stdout, not good
 # when debugging/upgrading.
@@ -8,16 +10,15 @@ RUN sed -i -e 's|\(^exec syslog-ng.*$\)|\1 >>/var/log/syslog-ng.log 2>\&1|g' /et
 
 RUN mkdir -p /etc/my_init.d
 
-ENV SEAFILE_VERSION=6.2.3
+RUN mkdir -p /opt/seafile/
 
-RUN mkdir -p /opt/seafile/ && \
-    curl -sSL -o - https://download.seadrive.org/seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz \
-    | tar xzf - -C /opt/seafile/
+COPY seafile-pro-server_${SEAFILE_VERSION}_x86-64.tar.gz /opt/seafile
+
+RUN tar -zxvf /opt/seafile/seafile-pro-server_${SEAFILE_VERSION}_x86-64.tar.gz -C /opt/seafile/
 
 ADD create_data_links.sh /etc/my_init.d/01_create_data_links.sh
 
 COPY scripts /scripts
 COPY templates /templates
-COPY bootstrap.conf /opt/bootstrap.conf
 
 CMD ["/sbin/my_init", "--", "/scripts/start.py"]

@@ -34,7 +34,7 @@ def init_letsencrypt():
     if not exists(ssl_dir):
         os.mkdir(ssl_dir)
 
-    domain = get_conf('server.hostname')
+    domain = get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com')
     context = {
         'ssl_dir': ssl_dir,
         'domain': domain,
@@ -73,7 +73,7 @@ def init_letsencrypt():
 
 def generate_local_nginx_conf():
     # Now create the final nginx configuratin
-    domain = get_conf('server.hostname')
+    domain = get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com')
     context = {
         'https': is_https(),
         'domain': domain,
@@ -86,33 +86,14 @@ def generate_local_nginx_conf():
 
 
 def is_https():
-    return get_conf('server.letsencrypt', '').lower() == 'true'
+    return get_conf('SEAFILE_SERVER_LETSENCRYPT', 'false').lower() == 'true'
 
-def generate_local_dockerfile():
-    loginfo('Generating local Dockerfile ...')
-    context = {
-        'seafile_version': seafile_version,
-        'https': is_https(),
-        'domain': get_conf('server.domain'),
-    }
-    render_template('/templates/Dockerfile.template', join(generated_dir, 'Dockerfile'), context)
 
 def parse_args():
     ap = argparse.ArgumentParser()
     ap.add_argument('--parse-ports', action='store_true')
 
     return ap.parse_args()
-
-def do_parse_ports():
-    """
-    Parse the server.port_mappings option and print docker command line port
-    mapping flags like "-p 80:80 -p 443:443"
-    """
-    # conf is like '80:80,443:443'
-    conf = get_conf('server.port_mappings', '').strip()
-    if conf:
-        sys.stdout.write(' '.join(['-p {}'.format(part.strip()) for part in conf.split(',')]))
-        sys.stdout.flush()
 
 def init_seafile_server():
     version_stamp_file = get_version_stamp_file()
@@ -121,7 +102,7 @@ def init_seafile_server():
             update_version_stamp(os.environ['SEAFILE_VERSION'])
         # sysbol link unlink after docker finish.
         latest_version_dir='/opt/seafile/seafile-server-latest'
-        current_version_dir='/opt/seafile/seafile-server-' +  read_version_stamp()
+        current_version_dir='/opt/seafile/seafile-pro-server-' +  read_version_stamp()
         if not exists(latest_version_dir):
             call('ln -sf ' + current_version_dir + ' ' + latest_version_dir)
         loginfo('Skip running setup-seafile-mysql.py because there is existing seafile-data folder.')
@@ -130,7 +111,7 @@ def init_seafile_server():
     loginfo('Now running setup-seafile-mysql.py in auto mode.')
     env = {
         'SERVER_NAME': 'seafile',
-        'SERVER_IP': get_conf('server.hostname'),
+        'SERVER_IP': get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com'),
         'MYSQL_USER': 'seafile',
         'MYSQL_USER_PASSWD': str(uuid.uuid4()),
         'MYSQL_USER_HOST': '127.0.0.1',
@@ -145,7 +126,7 @@ def init_seafile_server():
     setup_script = get_script('setup-seafile-mysql.sh')
     call('{} auto -n seafile'.format(setup_script), env=env)
 
-    domain = get_conf('server.hostname')
+    domain = get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com')
     proto = 'https' if is_https() else 'http'
     with open(join(topdir, 'conf', 'seahub_settings.py'), 'a+') as fp:
         fp.write('\n')
@@ -164,7 +145,7 @@ def init_seafile_server():
         fp.write('UNIX_SOCKET = /opt/seafile/ccnet.sock\n')
         fp.write('\n')
 
-    files_to_copy = ['conf', 'ccnet', 'seafile-data', 'seahub-data',]
+    files_to_copy = ['conf', 'ccnet', 'seafile-data', 'seahub-data', 'pro-data']
     for fn in files_to_copy:
         src = join(topdir, fn)
         dst = join(shared_seafiledir, fn)
@@ -174,29 +155,3 @@ def init_seafile_server():
 
     loginfo('Updating version stamp')
     update_version_stamp(os.environ['SEAFILE_VERSION'])
-
-def main():
-    args = parse_args()
-    if args.parse_ports:
-        do_parse_ports()
-        return
-    if not exists(shared_seafiledir):
-        os.mkdir(shared_seafiledir)
-    if not exists(generated_dir):
-        os.mkdir(generated_dir)
-
-    generate_local_dockerfile()
-
-    if is_https():
-        init_letsencrypt()
-    generate_local_nginx_conf()
-
-    wait_for_mysql()
-    init_seafile_server()
-
-    loginfo('Generated local config.')
-
-
-if __name__ == '__main__':
-    # TODO: validate the content of bootstrap.conf is valid
-    main()
