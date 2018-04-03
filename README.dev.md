@@ -10,7 +10,7 @@
 
 ### Getting Started
 
-The simplest way to get started is via the **samples/server.conf** template, which can be installed within several minutes.
+Generate seafile image, and run the image.
 
 ```
 sudo git clone https://github.com/haiwen/seafile-docker.git /var/seafile/
@@ -27,14 +27,29 @@ If you are not familiar with docker commands, refer to [docker documentation](ht
 
 ### How to use
 
+#### Password and plan B
+
+The default account is `me@example.com` and the password is `asecret`.
+You must change the password when you first run the seafile server.
+If you forget the admin password, you can add a new admin account and then go to the sysadmin panel to reset user password.
+
+#### Domain
+
+You can create `/shared/bootstrap.conf`, write the following lines.
+
+    [server]
+    server.hostname = seafile.example.com
+
+And then restart service, nginx will update up config.
+
 #### Modify configurations
 
 The config files are under `shared/seafile/conf`. You can modify the configurations according to [Seafile manual](https://manual.seafile.com/)
 
-After modification, restart the docker container:
+After modification, run the new docker container:
 
 ```
-docker stop seafile-server-latest
+docker rm seafile-server
 docker run -d --name seafile-server -v /root/seafile:/shared -p 80:80 seafileltd/seafile:6.2.1
 ```
 
@@ -44,6 +59,15 @@ The seafile logs are under `shared/logs/seafile`.
 
 The system logs are under `shared/logs/var-log`.
 
+#### Add a new Admin
+
+Enter the command below.
+
+```
+docker exec -it seafile-server /opt/seafile/seafile-server-latest/reset-admin.sh
+```
+
+Enter the username and password according to the prompts.You now have a new admin account.
 
 ### Directory Structure
 
