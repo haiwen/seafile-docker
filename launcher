@@ -119,9 +119,6 @@ set_volumes() {
 
     mounts=(
         $sharedir:/shared
-        $sharedir/logs/var-log:/var/log
-        $sharedir/db:/var/lib/mysql
-        $sharedir/.bash_history:/root/.bash_history
     )
     volumes=""
     local m
@@ -376,7 +373,7 @@ rebuild() {
         )
     fi
 
-    bootstrap
+    docker build -f image/seafile/Dockfile -t local_seafile/server:latest  . >/dev/null
     loginfo "Rebuilt successfully."
 
     if [[ $existing != "" ]]; then
