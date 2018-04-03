@@ -119,9 +119,6 @@ set_volumes() {
 
     mounts=(
         $sharedir:/shared
-        $sharedir/logs/var-log:/var/log
-        $sharedir/db:/var/lib/mysql
-        $sharedir/.bash_history:/root/.bash_history
     )
     volumes=""
     local m
@@ -150,6 +147,8 @@ bootstrap() {
     set_bootstrap_volumes
     set_ports
 
+    echo "docker run $user_args --rm -it --name seafile-bootstrap -e SEAFILE_BOOTSRAP=1 $envs $volumes $ports $image /sbin/my_init $quiet -- /scripts/bootstrap.py"
+    return
     docker run $user_args --rm -it --name seafile-bootstrap -e SEAFILE_BOOTSRAP=1 $envs $volumes $ports $image /sbin/my_init $quiet -- /scripts/bootstrap.py
 
     loginfo "Now building the local docker image."
@@ -374,7 +373,7 @@ rebuild() {
         )
     fi
 
-    bootstrap
+    docker build -f image/seafile/Dockfile -t local_seafile/server:latest  . >/dev/null
     loginfo "Rebuilt successfully."
 
     if [[ $existing != "" ]]; then

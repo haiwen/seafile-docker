@@ -58,10 +58,11 @@ Now run the following commands:
 git clone https://github.com/haiwen/seafile-docker.git c:\seafile
 cd c:\seafile
 
-Copy-Item samples/server.conf bootstrap/bootstrap.conf
-# Edit the options according to your use case
-start notepad++ bootstrap/bootstrap.conf
+# assume you use shared folder as volume's folder
+# you can create bootstrap.con and write a configuration similar to the files under the samples folder.
+start notepad++ shared/bootstrap.conf
 
-.\launcher.ps1 bootstrap
-.\launcher.ps1 start
+make base
+make server
+docker run --rm -it -d --name seafile-server-latest -v /root/seafile:/shared -p 0.0.0.0:80:80 seafileltd/seafile:6.2.1
 ```

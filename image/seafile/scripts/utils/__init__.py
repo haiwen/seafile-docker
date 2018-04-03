@@ -221,7 +221,10 @@ def get_conf(key, default=None):
     global _config
     if _config is None:
         _config = ConfigParser()
-        _config.read("/bootstrap/bootstrap.conf")
+        if exists('/shared/bootstrap.conf'):
+            _config.read("/shared/bootstrap.conf")
+        else:
+            _config.read("/opt/bootstrap.conf")
     return _config.get("server", key) if _config.has_option("server", key) \
         else default
 
