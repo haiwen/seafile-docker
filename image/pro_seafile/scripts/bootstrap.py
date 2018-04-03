@@ -164,7 +164,7 @@ def init_seafile_server():
         fp.write('UNIX_SOCKET = /opt/seafile/ccnet.sock\n')
         fp.write('\n')
 
-    files_to_copy = ['conf', 'ccnet', 'seafile-data', 'seahub-data',]
+    files_to_copy = ['conf', 'ccnet', 'seafile-data', 'seahub-data', 'pro-data']
     for fn in files_to_copy:
         src = join(topdir, fn)
         dst = join(shared_seafiledir, fn)

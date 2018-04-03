@@ -1,4 +1,4 @@
-FROM seafileltd/base:16.04
+FROM seafileltd/pro-base:16.04
 WORKDIR /opt/seafile
 
 # syslog-ng and syslog-forwarder would mess up the container stdout, not good
@@ -8,7 +8,7 @@ RUN sed -i -e 's|\(^exec syslog-ng.*$\)|\1 >>/var/log/syslog-ng.log 2>\&1|g' /et
 
 RUN mkdir -p /etc/my_init.d
 
-ENV SEAFILE_VERSION=6.2.3 SEAFILE_SERVER=seafile-server
+ENV SEAFILE_VERSION=6.2.10 SEAFILE_SERVER=seafile-pro-server
 
 RUN mkdir -p /opt/seafile/
 
