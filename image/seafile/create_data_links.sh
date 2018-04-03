@@ -33,17 +33,21 @@ current_version_dir=/opt/seafile/seafile-server-${SEAFILE_VERSION}
 latest_version_dir=/opt/seafile/seafile-server-latest
 seahub_data_dir=/shared/seafile/seahub-data
 
+if [[ ! -e ${seahub_data_dir} ]]; then
+    mkdir -p ${seahub_data_dir}
+fi
 source_avatars_dir=${current_version_dir}/seahub/media/avatars
 if [[ ! -e ${seahub_data_dir}/avatars ]]; then
-    mkdir -p ${seahub_data_dir}
     mv $source_avatars_dir ${seahub_data_dir}/avatars
 fi
-ln -sf ${seahub_data_dir}/avatars $source_avatars_dir
+rm -rf $source_avatars_dir && ln -sf ${seahub_data_dir}/avatars $source_avatars_dir
 
 source_custom_dir=${current_version_dir}/seahub/media/custom
 rm -rf $source_custom_dir
-mkdir -p ${seahub_data_dir}/custom
-ln -sf ${seahub_data_dir}/custom $source_custom_dir
+if [[ ! -e ${seahub_data_dir}/custom ]]; then
+    mkdir -p ${seahub_data_dir}/custom
+fi
+rm -rf $source_custom_dir && ln -sf ${seahub_data_dir}/custom $source_custom_dir
 
 rm -rf /var/lib/mysql
 if [[ ! -e /shared/db ]];then
@@ -54,5 +58,4 @@ ln -sf /shared/db /var/lib/mysql
 if [[ ! -e /shared/logs/var-log ]]; then
     mv /var/log /shared/logs/var-log
 fi
-rm -rf /var/log
-ln -sf /shared/logs/var-log /var/log
+rm -rf /var/log && ln -sf /shared/logs/var-log /var/log

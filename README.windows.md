@@ -55,14 +55,8 @@ Now run the following commands:
 (Note that if you're using another drive than "C:", say "D:", you should change the "c:\\seafile" in the following commands to "d:\\seafile" instead.)
 
 ```sh
-git clone https://github.com/haiwen/seafile-docker.git c:\seafile
-cd c:\seafile
-
-# assume you use shared folder as volume's folder
-# you can create bootstrap.con and write a configuration similar to the files under the samples folder.
-start notepad++ shared/bootstrap.conf
-
-make base
-make server
-docker run --rm -it -d --name seafile-server-latest -v /root/seafile:/shared -p 0.0.0.0:80:80 seafileltd/seafile:6.2.1
+docker pull seafileltd/seafile:6.2.1
+docker run -d --name seafile-server -v /root/seafile:/shared -p 80:80 seafileltd/seafile:6.2.1
 ```
+
+If you are not familiar with docker commands, refer to [docker documentation](https://docs.docker.com/engine/reference/commandline/cli/).
