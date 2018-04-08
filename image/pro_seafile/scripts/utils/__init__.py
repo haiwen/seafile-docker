@@ -209,7 +209,7 @@ def get_seafile_version():
     return os.environ['SEAFILE_VERSION']
 
 def get_install_dir():
-    return join('/opt/seafile/seafile-server-{}'.format(get_seafile_version()))
+    return join('/opt/seafile/seafile-pro-server-{}'.format(get_seafile_version()))
 
 def get_script(script):
     return join(get_install_dir(), script)
@@ -221,7 +221,10 @@ def get_conf(key, default=None):
     global _config
     if _config is None:
         _config = ConfigParser()
-        _config.read("/bootstrap/bootstrap.conf")
+        if exists('/shared/bootstrap.conf'):
+            _config.read("/shared/bootstrap.conf")
+        else:
+            _config.read("/opt/bootstrap.conf")
     return _config.get("server", key) if _config.has_option("server", key) \
         else default
 

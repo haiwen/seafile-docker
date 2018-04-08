@@ -9,8 +9,7 @@ usage () {
   echo "    destroy:    Stop and remove the container"
   echo "    enter:      Open a shell to run commands inside the container"
   echo "    logs:       View the Docker container logs"
-  echo "    bootstrap:  Bootstrap the container based on a template"
-  echo "    rebuild:    Rebuild the container (destroy old, bootstrap, start new)"
+  echo "    rebuild:    Rebuild the container (destroy old, start new)"
   echo "    gc:         Start the seafile garbage collector (stops seafile, starts gc, restarts seafile)"
   echo
   echo "Options:"
@@ -86,8 +85,7 @@ set_envs() {
 
 set_ports() {
     ports=$(docker run $user_args --rm -it \
-                   -v ${dockerdir}/scripts:/scripts \
-                   -v ${dockerdir}/bootstrap:/bootstrap:ro \
+                   -v ${dockerdir}/shared:/shared \
                    $image \
                    /scripts/bootstrap.py --parse-ports)
 }
@@ -119,9 +117,6 @@ set_volumes() {
 
     mounts=(
         $sharedir:/shared
-        $sharedir/logs/var-log:/var/log
-        $sharedir/db:/var/lib/mysql
-        $sharedir/.bash_history:/root/.bash_history
     )
     volumes=""
     local m
@@ -134,29 +129,6 @@ set_existing_container() {
   existing=$(docker ps -a | awk '{ print $1, $(NF) }' | grep " seafile$" | awk '{ print $1 }' || true)
 }
 
-bootstrap() {
-    if [[ ! -e $bootstrap_conf  ]]; then
-        err_and_quit "The file $bootstrap_conf doesn't exist. Have you run seafile-server-setup?"
-    fi
-
-    docker history $image >/dev/null 2>&1 || {
-        loginfo "Pulling Seafile server image $version, this may take a while."
-        docker pull $image
-        loginfo "Seafile server image $version pulled. Now bootstrapping the server ..."
-    }
-
-    # First initialize seafile server and letsencrypt
-    set_envs
-    set_bootstrap_volumes
-    set_ports
-
-    docker run $user_args --rm -it --name seafile-bootstrap -e SEAFILE_BOOTSRAP=1 $envs $volumes $ports $image /sbin/my_init $quiet -- /scripts/bootstrap.py
-
-    loginfo "Now building the local docker image."
-    docker build -f bootstrap/generated/Dockerfile -t local_seafile/server:latest  . >/dev/null
-    loginfo "Image built."
-}
-
 start() {
     existing=$(docker ps | awk '{ print $1, $(NF) }' | grep " seafile$" | awk '{ print $1 }' || true)
     if [[ $existing != "" ]]; then
@@ -164,11 +136,9 @@ start() {
         exit 0
     fi
 
-    check_version_match
-
-    chmod 0700 $dockerdir/bootstrap $sharedir/seafile/conf
 
     set_existing_container
+    set_volumes
     if [[ $existing != "" ]]; then
         loginfo "starting up existing container"
         (
@@ -193,7 +163,7 @@ start() {
     loginfo "Starting up new seafile server container"
     (
         set -x
-        docker run $user_args $attach_on_run $restart_policy --name seafile -h seafile $envs $volumes $ports $local_image
+        docker run $user_args $attach_on_run $restart_policy --name seafile -h seafile $envs $volumes $ports $image
     )
 }
 
@@ -374,7 +344,8 @@ rebuild() {
         )
     fi
 
-    bootstrap
+    cd image/seafile
+    docker build -t local_seafile/server:latest  . >/dev/null
     loginfo "Rebuilt successfully."
 
     if [[ $existing != "" ]]; then
@@ -407,7 +378,7 @@ main() {
     while [[ $# -gt 0 ]]
     do
         case "$1" in
-            bootstrap|start|stop|restart|enter|destroy|logs|rebuild|manual-upgrade|gc)
+            start|stop|restart|enter|destroy|logs|rebuild|manual-upgrade|gc)
                                                 action=${1//-/_}            ; shift 1 ;;
             -h|--help)                          ( usage ; exit 1)           ; shift 1 ;;
             -v|--verbose)                       verbose=true                ; shift 1 ;;

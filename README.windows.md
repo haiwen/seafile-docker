@@ -55,13 +55,8 @@ Now run the following commands:
 (Note that if you're using another drive than "C:", say "D:", you should change the "c:\\seafile" in the following commands to "d:\\seafile" instead.)
 
 ```sh
-git clone https://github.com/haiwen/seafile-docker.git c:\seafile
-cd c:\seafile
-
-Copy-Item samples/server.conf bootstrap/bootstrap.conf
-# Edit the options according to your use case
-start notepad++ bootstrap/bootstrap.conf
-
-.\launcher.ps1 bootstrap
-.\launcher.ps1 start
+docker pull seafileltd/seafile:6.2.1
+docker run -d --name seafile-server -v /root/seafile:/shared -p 80:80 seafileltd/seafile:6.2.1
 ```
+
+If you are not familiar with docker commands, refer to [docker documentation](https://docs.docker.com/engine/reference/commandline/cli/).

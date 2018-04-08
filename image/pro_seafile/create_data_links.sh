@@ -13,6 +13,7 @@ dirs=(
     seafile-data
     seahub-data
     bootstrap.conf
+    pro-data
 )
 
 for d in ${dirs[*]}; do
@@ -33,8 +34,8 @@ current_version_dir=/opt/seafile/seafile-pro-server-${SEAFILE_VERSION}
 latest_version_dir=/opt/seafile/seafile-server-latest
 seahub_data_dir=/shared/seafile/seahub-data
 
-if [[ ! -e ${seahub_data_dir} ]]; then
-    mkdir -p ${seahub_data_dir}
+if [[ ! -e $seahub_data_dir ]]; then
+    mkdir -p $seahub_data_dir
 fi
 source_avatars_dir=${current_version_dir}/seahub/media/avatars
 if [[ ! -e ${seahub_data_dir}/avatars ]]; then

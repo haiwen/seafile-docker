@@ -17,7 +17,7 @@ from utils import (
     call, get_conf, get_install_dir, loginfo,
     get_script, render_template, get_seafile_version, eprint,
     cert_has_valid_days, get_version_stamp_file, update_version_stamp,
-    wait_for_mysql, wait_for_nginx
+    wait_for_mysql, wait_for_nginx, read_version_stamp
 )
 
 seafile_version = get_seafile_version()
@@ -80,7 +80,7 @@ def generate_local_nginx_conf():
     }
     render_template(
         '/templates/seafile.nginx.conf.template',
-        join(generated_dir, 'seafile.nginx.conf'),
+        '/etc/nginx/sites-enabled/seafile.nginx.conf',
         context
     )
 
@@ -119,6 +119,11 @@ def init_seafile_server():
     if exists(join(shared_seafiledir, 'seafile-data')):
         if not exists(version_stamp_file):
             update_version_stamp(os.environ['SEAFILE_VERSION'])
+        # sysbol link unlink after docker finish.
+        latest_version_dir='/opt/seafile/seafile-server-latest'
+        current_version_dir='/opt/seafile/seafile-pro-server-' +  read_version_stamp()
+        if not exists(latest_version_dir):
+            call('ln -sf ' + current_version_dir + ' ' + latest_version_dir)
         loginfo('Skip running setup-seafile-mysql.py because there is existing seafile-data folder.')
         return
 
@@ -159,12 +164,13 @@ def init_seafile_server():
         fp.write('UNIX_SOCKET = /opt/seafile/ccnet.sock\n')
         fp.write('\n')
 
-    files_to_copy = ['conf', 'ccnet', 'seafile-data', 'seahub-data',]
+    files_to_copy = ['conf', 'ccnet', 'seafile-data', 'seahub-data', 'pro-data']
     for fn in files_to_copy:
         src = join(topdir, fn)
         dst = join(shared_seafiledir, fn)
         if not exists(dst) and exists(src):
             shutil.move(src, shared_seafiledir)
+            call('ln -sf ' + join(shared_seafiledir, fn) + ' ' + src)
 
     loginfo('Updating version stamp')
     update_version_stamp(os.environ['SEAFILE_VERSION'])

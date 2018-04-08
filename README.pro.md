@@ -36,7 +36,7 @@ You can create `/shared/bootstrap.conf`, write the following lines.
     [server]
     server.hostname = seafile.example.com
 
-And then restart service, nginx will update up config.
+And then restart container, nginx will update up config.
 
 #### Modify configurations
 
@@ -44,10 +44,7 @@ The config files are under `shared/seafile/conf`. You can modify the configurati
 
 After modification, run the new docker container:
 
-```
-docker rm seafile-server
-docker run -d --name seafile-server -v /root/seafile:/shared -p 80:80 seafileltd/seafile:6.2.1
-```
+    docker restart seafile-server
 
 #### Find logs
 
@@ -60,11 +57,15 @@ The system logs are under `shared/logs/var-log`.
 
 Enter the command below.
 
-```
-docker exec -it seafile-server /opt/seafile/seafile-server-latest/reset-admin.sh
-```
+    docker exec -it seafile-server /opt/seafile/seafile-server-latest/reset-admin.sh
 
 Enter the username and password according to the prompts.You now have a new admin account.
+
+#### Index indices
+
+Enter the command below.
+
+    docker exec seafile-server /opt/seafile/seafile-server-latest/pro/pro.py search --update
 
 ### Directory Structure
 

@@ -10,10 +10,14 @@
 
 ### Getting Started
 
-Download seafile image, and run the image.
+Generate seafile image, and run the image.
 
 ```
-docker pull seafileltd/seafile:6.2.1
+sudo git clone https://github.com/haiwen/seafile-docker.git /var/seafile/
+cd /var/seafile/image
+
+make base
+make server
 docker run -d --name seafile-server -v /root/seafile:/shared -p 80:80 seafileltd/seafile:6.2.1
 ```
 
@@ -55,7 +59,6 @@ The seafile logs are under `shared/logs/seafile`.
 
 The system logs are under `shared/logs/var-log`.
 
-
 #### Add a new Admin
 
 Enter the command below.
@@ -67,6 +70,10 @@ docker exec -it seafile-server /opt/seafile/seafile-server-latest/reset-admin.sh
 Enter the username and password according to the prompts.You now have a new admin account.
 
 ### Directory Structure
+
+#### `/bootstrap`
+
+This directory is for container definitions for your Seafile containers. You are in charge of this directory, it ships empty.
 
 #### `/samples`
 
@@ -84,6 +91,9 @@ Placeholder spot for shared volumes. You may elect to store certain persistent i
 - /shared/ssl: This is directory for certificate, which does not exist by default.
 - /shared/bootstrap.conf: This file does not exist by default. You can create it by your self, and write the configuration of files similar to the `samples` folder.
 
+#### `/templates`
+
+Various jinja2 templates used for seafile server configuration.
 
 #### `/image`
 
@@ -112,6 +122,23 @@ ensure same version of the repo, and run start command`docker run -d --name seaf
 ### Troubleshooting
 
 You can run the command as "docker logs" or "docker exec" to find errors.
+
+### Developing with Vagrant
+
+If you are looking to make modifications to this repository, you can easily test
+out your changes before committing, using the magic
+of [Vagrant](http://vagrantup.com). Install Vagrant as
+per
+[the default instructions](http://docs.vagrantup.com/v2/installation/index.html),
+and then run:
+
+    vagrant up
+
+This will spawn a new Ubuntu VM, install Docker, and then await your
+instructions. You can then SSH into the VM with `vagrant ssh`, become `root`
+with `sudo -i`, and then you're right to go. Your live git repo is already
+available at `/var/seafile`, so you can just `cd /var/seafile` and then start
+running `launcher`.
 
 ### Special Thanks
 
