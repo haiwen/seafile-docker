@@ -26,7 +26,7 @@ if [[ ! -e /shared/logs/seafile ]]; then
     mkdir -p /shared/logs/seafile
 fi
 if [[ -e /shared/logs/seafile ]]; then
-    ln -sf /shared/logs/seafile/ /opt/seafile/logs
+    rm /opt/seafile/logs && ln -sf /shared/logs/seafile/ /opt/seafile/logs
 fi
 
 current_version_dir=/opt/seafile/seafile-server-${SEAFILE_VERSION}

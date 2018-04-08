@@ -27,7 +27,7 @@ If you are not familiar with docker commands, refer to [docker documentation](ht
 
 ### How to use
 
-#### Password and plan B
+#### Custom admin username and password
 
 The default account is `me@example.com` and the password is `asecret`.
 You must change the password when you first run the seafile server.
@@ -49,7 +49,7 @@ The config files are under `shared/seafile/conf`. You can modify the configurati
 After modification, run the new docker container:
 
 ```
-docker rm seafile-server
+docker rm -f seafile-server
 docker run -d --name seafile-server -v /root/seafile:/shared -p 80:80 seafileltd/seafile:6.2.1
 ```
 
