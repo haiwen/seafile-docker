@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version=6.2.3
+version=6.2.5
 set -e -x
 
 
@@ -12,11 +12,11 @@ set -e -x
     make server
 )
 
-mkdir -p /opt/seafile-docker-data
-docker run -d --name  seafile-server -v /opt/seafile-docker-data:/shared -p 80:80 -p 443:443 seafileltd/seafile:$version
-docker stop seafile-server
-docker start seafile-server
-docker restart seafile-server
+mkdir -p /opt/seafile-data
+docker run -d --name seafile -v /opt/seafile-data:/shared -p 80:80 -p 443:443 seafileltd/seafile:$version
+docker stop seafile
+docker start seafile
+docker restart seafile
 
 if [[ $TRAVIS_TAG != "" ]]; then
     ci/publish-image.sh
