@@ -218,12 +218,8 @@ def get_script(script):
 _config = None
 
 def get_conf(key, default=None):
-    global _config
-    if _config is None:
-        _config = ConfigParser()
-        _config.read("/bootstrap/bootstrap.conf")
-    return _config.get("server", key) if _config.has_option("server", key) \
-        else default
+    key = key.upper()
+    return os.environ.get(key, default)
 
 def _add_default_context(context):
     default_context = {

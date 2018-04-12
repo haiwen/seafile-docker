@@ -17,7 +17,13 @@ from utils import (
     call, get_conf, get_install_dir, get_script, get_command_output,
     render_template, wait_for_mysql
 )
+from upgrade import check_upgrade
+from bootstrap import init_seafile_server, is_https, init_letsencrypt, generate_local_nginx_conf
 
+
+shared_seafiledir = '/shared/seafile'
+ssl_dir = '/shared/ssl'
+generated_dir = '/bootstrap/generated'
 installdir = get_install_dir()
 topdir = dirname(installdir)
 
@@ -36,15 +42,30 @@ def watch_controller():
     sys.exit(1)
 
 def main():
+    if not exists(shared_seafiledir):
+        os.mkdir(shared_seafiledir)
+    if not exists(generated_dir):
+        os.makedirs(generated_dir)
+
+    if is_https():
+        init_letsencrypt()
+    generate_local_nginx_conf()
+    call('nginx -s reload')
+
+    wait_for_mysql()
+    init_seafile_server()
+
+    check_upgrade()
+    os.chdir(installdir)
+
     admin_pw = {
-        'email': get_conf('admin.email'),
-        'password': get_conf('admin.password'),
+        'email': get_conf('SEAFILE_ADMIN_EMAIL', 'me@example.com'),
+        'password': get_conf('SEAFILE_ADMIN_PASSWORD', 'asecret'),
     }
     password_file = join(topdir, 'conf', 'admin.txt')
     with open(password_file, 'w') as fp:
         json.dump(admin_pw, fp)
 
-    wait_for_mysql()
 
     try:
         call('{} start'.format(get_script('seafile.sh')))

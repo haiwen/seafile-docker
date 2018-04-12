@@ -10,50 +10,37 @@
 
 ### Getting Started
 
-Download seafile image, and run the image.
+Generate seafile image, and run the image.
 
 ```
-docker run -d --name seafile-server -v /opt/seafile-data:/shared -p 80:80 seafileltd/seafile:6.2.1
+sudo git clone https://github.com/haiwen/seafile-docker.git /var/seafile/
+cd /var/seafile/image
+
+make base
+make server
+docker run -d --name seafile-server -v /root/seafile:/shared -p 80:80 seafileltd/seafile:6.2.1
 ```
 
 Now visit `http://hostname` or `https://hostname` to open Seafile Web UI.
 
 If you are not familiar with docker commands, refer to [docker documentation](https://docs.docker.com/engine/reference/commandline/cli/).
 
-### More configuration option
+### How to use
 
 #### Custom admin username and password
 
-The default account is `me@example.com` and the password is `asecret`. It will be created when the container is first run.
-The default values can also be changed by setting the container's environment variables
-
-e.g.
-
-    docker run -d --name seafile-server -e "SEAFILE_ADMIN_EMAIL=me@example.com" -e "SEAFILE_ADMIN_PASSWORD=asecret" -v /opt/seafile-data:/shared -p 80:80 seafileltd/seafile:6.2.1
-
+The default account is `me@example.com` and the password is `asecret`.
+You must change the password when you first run the seafile server.
 If you forget the admin password, you can add a new admin account and then go to the sysadmin panel to reset user password.
 
 #### Domain
 
-The default value is `seafile.example.com`, you can set environ to docker container.
+You can create `/shared/bootstrap.conf`, write the following lines.
 
-e.g.
+    [server]
+    server.hostname = seafile.example.com
 
-    docker run -d --name seafile-server -e "SEAFILE_SERVER_HOSTNAME=seafile.example.com" -v /opt/seafile-data:/shared -p 80:80 seafileltd/seafile:6.2.1
-
-And then nginx will update up config.
-
-#### Let's encrypt SSL certificate
-
-If you set `SEAFILE_SERVER_LETSENCRYPT` to `true`, the bootstrap script would request a letsencrypt-signed SSL certificate for you.
-
-e.g.
-
-    docker run -d --name seafile-server -e "SEAFILE_SERVER_LETSENCRYPT=true" -v /opt/seafile-data:/shared -p 80:80 -p 443:443 seafileltd/seafile:6.2.1
-
-If you want to use your own SSL certificate:
-- create a folder 'shared/ssl', and put your certificate and private key under the ssl directory.
-- Assume your site name is "seafile.example.com", then your certificate must have the name "seafile.example.com.crt", and the private key must have the name "seafile.example.com.key".
+And then restart service, nginx will update up config.
 
 #### Modify configurations
 
@@ -62,7 +49,7 @@ The config files are under `shared/seafile/conf`. You can modify the configurati
 After modification, run the new docker container:
 
 ```
-docker rm -fseafile-server
+docker rm -f seafile-server
 docker run -d --name seafile-server -v /root/seafile:/shared -p 80:80 seafileltd/seafile:6.2.1
 ```
 
@@ -84,6 +71,14 @@ Enter the username and password according to the prompts.You now have a new admi
 
 ### Directory Structure
 
+#### `/bootstrap`
+
+This directory is for container definitions for your Seafile containers. You are in charge of this directory, it ships empty.
+
+#### `/samples`
+
+Sample container definitions you may use to bootstrap your environment. You can copy templates from here into the bootstrap directory.
+
 #### `/shared`
 
 Placeholder spot for shared volumes. You may elect to store certain persistent information outside of a container, in our case we keep various logfiles and upload directory outside. This allows you to rebuild containers easily without losing important information.
@@ -96,18 +91,54 @@ Placeholder spot for shared volumes. You may elect to store certain persistent i
 - /shared/ssl: This is directory for certificate, which does not exist by default.
 - /shared/bootstrap.conf: This file does not exist by default. You can create it by your self, and write the configuration of files similar to the `samples` folder.
 
+#### `/templates`
+
+Various jinja2 templates used for seafile server configuration.
+
+#### `/image`
+
+Dockerfiles for Seafile.
+
+The Docker repository will always contain the latest built version at: https://hub.docker.com/r/seafileltd/seafile/, you should not need to build the base image.
+
+### Container Configuration
+
+#### Let's encrypt SSL certificate
+
+If you set `server.letsencrypt` to `true`, the bootstrap script would request a letsencrypt-signed SSL certificate for you.
+
+```conf
+server.letsencrypt = true
+```
+
+If you want to use your own SSL certificate:
+- create a folder 'shared/ssl', and put your certificate and private key under the ssl directory.
+- Assume your site name is "seafile.example.com", then your certificate must have the name "seafile.example.com.crt", and the private key must have the name "seafile.example.com.key".
 
 ### Upgrading Seafile Server
-If you are one of the users who use the launcher update. You can refer to [upgrade from old format](https://github.com/haiwen/seafile-docker/upgrade_from_old_format.md)
 
-ensure same version of the repo, and run start command
-
-    docker run -d --name seafile-server -v ${data_path}:/shared -p 80:80 seafileltd/seafile:6.2.1
- which would keep your seafile server up to date.
+ensure same version of the repo, and run start command`docker run -d --name seafile-server -v /root/seafile:/shared -p 80:80 seafileltd/seafile:6.2.1 `, which would keep your seafile server up to date.
 
 ### Troubleshooting
 
 You can run the command as "docker logs" or "docker exec" to find errors.
+
+### Developing with Vagrant
+
+If you are looking to make modifications to this repository, you can easily test
+out your changes before committing, using the magic
+of [Vagrant](http://vagrantup.com). Install Vagrant as
+per
+[the default instructions](http://docs.vagrantup.com/v2/installation/index.html),
+and then run:
+
+    vagrant up
+
+This will spawn a new Ubuntu VM, install Docker, and then await your
+instructions. You can then SSH into the VM with `vagrant ssh`, become `root`
+with `sudo -i`, and then you're right to go. Your live git repo is already
+available at `/var/seafile`, so you can just `cd /var/seafile` and then start
+running `launcher`.
 
 ### Special Thanks
 
