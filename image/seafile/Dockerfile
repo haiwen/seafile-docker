@@ -1,11 +1,6 @@
 FROM seafileltd/base:16.04
 WORKDIR /opt/seafile
 
-# syslog-ng and syslog-forwarder would mess up the container stdout, not good
-# when debugging/upgrading.
-RUN sed -i -e 's|\(^exec syslog-ng.*$\)|\1 >>/var/log/syslog-ng.log 2>\&1|g' /etc/service/syslog-ng/run && \
-    rm -rf /etc/service/syslog-forwarder
-
 RUN mkdir -p /etc/my_init.d
 
 ENV SEAFILE_VERSION=6.2.5

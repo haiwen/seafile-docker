@@ -1,8 +1,8 @@
-# Lastet phusion baseimage as of 2016.11, based on ubuntu 16.04
+# Lastet phusion baseimage as of 20180412, based on ubuntu 16.04
 # See https://hub.docker.com/r/phusion/baseimage/tags/
-FROM phusion/baseimage:0.9.19
+FROM phusion/baseimage:0.10.1
 
-ENV UPDATED_AT=20161124 \
+ENV UPDATED_AT=20180412 \
     DEBIAN_FRONTEND=noninteractive
 
 CMD ["/sbin/my_init", "--", "bash", "-l"]

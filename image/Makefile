@@ -14,7 +14,7 @@ base:
 	cd base && docker build -t $(base_image) .
 
 squash-base:
-	docker-squash --tag $(base_image_squashed) $(base_image) --from-layer phusion/baseimage:0.9.19
+	docker-squash --tag $(base_image_squashed) $(base_image) --from-layer phusion/baseimage:0.10.1
 	docker tag $(base_image_squashed) $(base_image)
 
 server:
