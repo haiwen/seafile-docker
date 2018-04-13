@@ -25,9 +25,7 @@ done
 if [[ ! -e /shared/logs/seafile ]]; then
     mkdir -p /shared/logs/seafile
 fi
-if [[ -e /shared/logs/seafile ]]; then
-    rm /opt/seafile/logs && ln -sf /shared/logs/seafile/ /opt/seafile/logs
-fi
+rm -f /opt/seafile/logs && ln -sf /shared/logs/seafile /opt/seafile/logs
 
 current_version_dir=/opt/seafile/seafile-server-${SEAFILE_VERSION}
 latest_version_dir=/opt/seafile/seafile-server-latest
