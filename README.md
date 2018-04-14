@@ -24,6 +24,8 @@ docker run -d --name seafile \
 
 Wait for a few minutes for the first time initialization, then visit `http://seafile.example.com` to open Seafile Web UI.
 
+This command will mount folder `/opt/seafile-data` at the local server to the docker instance. You can find logs and other data under this folder.
+
 ### More configuration Options
 
 #### Custom Admin Username and Password
@@ -77,9 +79,9 @@ docker restart seafile
 
 #### Find logs
 
-The seafile logs are under `shared/logs/seafile`.
+The seafile logs are under `shared/logs/seafile` in the docker, or `/opt/seafile-data/logs/seafile` in the server that run the docker.
 
-The system logs are under `shared/logs/var-log`.
+The system logs are under `shared/logs/var-log`, or `/opt/seafile-data/logs/var-log` in the server that run the docker.
 
 #### Add a new Admin
 
