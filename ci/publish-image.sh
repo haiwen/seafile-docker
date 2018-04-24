@@ -9,12 +9,12 @@
 set -e
 set -o pipefail
 
-docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+docker login -u="$DOCKER_PRO_USERNAME" -p="$DOCKER_PRO_PASSWORD" docker-internal.seadrive.org
 
 ## Always use the base image we build manually to reduce the download size of the end user.
 docker pull seafileltd/base:16.04
 
 (
     cd image
-    make server push-server
+    make pro-base pro-server push-pro-server
 )

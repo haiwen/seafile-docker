@@ -33,6 +33,9 @@ push-base:
 push-server:
 	docker push $(server_image)
 
+push-pro-server:
+	docker push $(pro_server_image)
+
 push: push-base push-server
 
 .PHONY: base server push push-base push-server

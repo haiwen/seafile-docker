@@ -12,9 +12,8 @@ RUN mkdir -p /etc/my_init.d
 
 RUN mkdir -p /opt/seafile/
 
-COPY seafile-pro-server_${SEAFILE_VERSION}_x86-64.tar.gz /opt/seafile
-
-RUN tar -zxvf /opt/seafile/seafile-pro-server_${SEAFILE_VERSION}_x86-64.tar.gz -C /opt/seafile/
+RUN curl -sSL -G -d "p=/seafile-pro-server_${SEAFILE_VERSION}_x86-64.tar.gz&dl=1" https://download.seafile.top/d/8c29766a64d24122936f/files/ \
+    | tar xzf - -C /opt/seafile/
 
 ADD create_data_links.sh /etc/my_init.d/01_create_data_links.sh
 
