@@ -5,9 +5,11 @@ base_image_squashed=seafileltd/base:16.04-squashed
 pro_base_image=seafileltd/pro-base:16.04
 pro_base_image_squashed=seafileltd/pro-base:16.04-squashed
 server_image=seafileltd/seafile:$(server_version)
-pro_server_image=docker-internal.seadrive.org/seafileltd/pro-seafile:$(server_version)
-pro_server_image_squashed=docker-internal.seadrive.org/seafileltd/pro-seafile:$(server_version)-squashed
-latest_server_image=docker-internal.seadrive.org/seafileltd/pro-seafile:latest
+server_image_squashed=seafileltd/seafile:$(server_version)-squashed
+pro_server_image=seafileltd/pro-seafile:$(server_version)
+pro_server_image_squashed=seafileltd/pro-seafile:$(server_version)-squashed
+latest_pro_server_image=seafileltd/pro-seafile:latest
+latest_server_image=seafileltd/seafile:latest
 
 all:
 	@echo
@@ -22,6 +24,12 @@ base:
 	docker-squash --tag $(base_image_squashed) $(base_image)
 	docker tag $(base_image_squashed) $(base_image)
 
+server:
+	cd seafile && docker build -t $(server_image) .
+	docker-squash --tag $(server_image_squashed) $(server_image) --from-layer=$(base_image)
+	docker tag $(server_image_squashed) $(server_image)
+	docker tag $(server_image) $(latest_server_image)
+
 pro-base:
 	cd pro_base && docker build -t $(pro_base_image) .
 	docker-squash --tag $(pro_base_image_squashed) $(pro_base_image)
@@ -31,17 +39,24 @@ pro-server:
 	cd pro_seafile && docker build -t $(pro_server_image) .
 	docker-squash --tag $(pro_server_image_squashed) $(pro_server_image) --from-layer=$(pro_base_image)
 	docker tag $(pro_server_image_squashed) $(pro_server_image)
-	docker tag $(pro_server_image) $(latest_server_image)
+	docker tag $(pro_server_image) $(latest_pro_server_image)
 
 push-base:
 	docker push $(base_image)
 
+push-pro-base:
+	docker tag $(pro_base_image) ${host}/$(pro_base_image)
+	docker push ${host}/$(pro_base_image)
+
 push-server:
 	docker push $(server_image)
+	docker push $(latest_server_image)
 
 push-pro-server:
-	docker push $(pro_server_image)
-	docker push $(latest_server_image)
+	docker tag $(pro_server_image) ${host}/$(pro_server_image)
+	docker tag $(pro_server_image) ${host}/$(latest_pro_server_image)
+	docker push ${host}/$(pro_server_image)
+	docker push ${host}/$(latest_pro_server_image)
 
 push: push-base push-server
 
