@@ -7,6 +7,6 @@ echo
 echo "Or run this command directly:"
 echo
 echo "   docker rm -f seafile"
-echo "   docker run -d -it --name seafile -v $(dirname $PWD)/shared:/shared -p 80:80 -p 443:443 seafileltd/server"
+echo "   docker run -d -it --name seafile -v $PWD/shared:/shared -p 80:80 -p 443:443 seafileltd/seafile"
 echo
 echo "================================================================================================================================="
