@@ -1,6 +1,6 @@
 #coding: UTF-8
 
-'''This script would check if there is admin, and prompt the user to create a new one if non exist'''
+'''This script checks if there is admin and prompts the user to create one if none exists'''
 
 import json
 import sys
@@ -23,7 +23,7 @@ except ImportError:
     pass
 
 
-SERVER_MANUAL_HTTP = 'https://github.com/haiwen/seafile/wiki'
+SERVER_MANUAL_HTTP = 'https://manual.seafile.com'
 
 class Utils(object):
     '''Groups all helper functions here'''
@@ -32,7 +32,7 @@ class Utils(object):
         '''Show welcome message'''
         welcome_msg = '''\
 -----------------------------------------------------------------
-This script will guide you to setup your seafile server using MySQL.
+This script guides you to setup your seafile server using MySQL.
 Make sure you have read seafile server manual at
 
         %s
@@ -60,9 +60,8 @@ Press ENTER to continue
 
     @staticmethod
     def run_argv(argv, cwd=None, env=None, suppress_stdout=False, suppress_stderr=False):
-        '''Run a program and wait it to finish, and return its exit code. The
+        '''Run a program, wait it to finish and return its exit code. The
         standard output of this program is supressed.
-
         '''
         with open(os.devnull, 'w') as devnull:
             if suppress_stdout:
@@ -106,7 +105,7 @@ Press ENTER to continue
 
     @staticmethod
     def prepend_env_value(name, value, env=None, seperator=':'):
-        '''prepend a new value to a list'''
+        '''Prepend a new value to a list'''
         if env is None:
             env = os.environ
 
@@ -159,7 +158,6 @@ Press ENTER to continue
     def get_python_executable():
         '''Return the python executable. This should be the PYTHON environment
         variable which is set in setup-seafile-mysql.sh
-
         '''
         return os.environ['PYTHON']
 
@@ -174,7 +172,6 @@ Press ENTER to continue
 
     @staticmethod
     def write_config(cp, fn):
-        '''Return a case sensitive ConfigParser by reading the file "fn"'''
         with open(fn, 'w') as fp:
             cp.write(fp)
 
@@ -186,7 +183,8 @@ Press ENTER to continue
                      validate=None,
                      yes_or_no=False,
                      password=False):
-        '''Ask a question, return the answer.
+        '''Ask a question and return the answer.
+
         @desc description, e.g. "What is the port of ccnet?"
 
         @key a name to represent the target of the question, e.g. "port for
@@ -196,19 +194,17 @@ Press ENTER to continue
         port number"
 
         @default the default value of the question. If the default value is
-        not None, when the user enter nothing and press [ENTER], the default
-        value would be returned
+        not None and the user enters nothing and presses [ENTER], the default
+        value will be returned
 
         @validate a function that takes the user input as the only parameter
-        and validate it. It should return a validated value, or throws an
+        and validates it. It should return a validated value, or throws an
         "InvalidAnswer" exception if the input is not valid.
 
         @yes_or_no If true, the user must answer "yes" or "no", and a boolean
-        value would be returned
+        value will be returned
 
-        @password If true, the user input would not be echoed to the
-        console
-
+        @password If true, the user input will not be echoed on the console
         '''
         assert key or yes_or_no
         # Format description
