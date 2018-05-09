@@ -35,7 +35,7 @@ git push origin master
     git push origin seafile-pro-base
     ```
     
-    * Create a tag "v6.0.7-pro" and push it to github. Wait for travis ci to finish: this time it would push the image ${registry}/seafileltd/pro-seafile:6.0.7 to docker Registry since it's triggered by a tag.
+    * Create a tag "v6.0.7-pro" and push it to github. Wait for travis ci to finish: this time it would push the image ${registry}/seafileltd/seafile-pro:6.0.7 to docker Registry since it's triggered by a tag.
     ```sh
     git tag v6.0.7-pro
     git push origin v6.0.7

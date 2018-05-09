@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ######################################
-# Publish the seafile pro-server image (e.g. seafileltd/pro-seafile:6.2.3) to docker
+# Publish the seafile pro-server image (e.g. seafileltd/seafile-pro:6.2.3) to docker
 # registry. This script should only be called during a travis build trigger by a tag.
 ######################################
 
@@ -12,7 +12,8 @@ set -o pipefail
 docker login -u="$DOCKER_PRO_REGISTRY_USER" -p="$DOCKER_PRO_REGISTRY_PASSWORD" docker-internal.seadrive.org
 
 ## Always use the base image we build manually to reduce the download size of the end user.
-docker rmi -f $(docker images | awk {'print $3'})
+docker rm -f $(docker ps -a -q)
+docker rmi -f $(docker images -a -q)
 docker pull docker-internal.seadrive.org/seafileltd/pro-base:16.04
 docker tag docker-internal.seadrive.org/seafileltd/pro-base:16.04 seafileltd/pro-base:16.04
 
