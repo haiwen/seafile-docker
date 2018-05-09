@@ -113,8 +113,6 @@ Placeholder spot for shared volumes. You may elect to store certain persistent i
     - /shared/logs/var-log: This is the directory that would be mounted as `/var/log` inside the container. For example, you can find the nginx logs in `shared/logs/var-log/nginx/`.
     - /shared/logs/seafile: This is the directory that would contain the log files of seafile server processes. For example, you can find seaf-server logs in `shared/logs/seafile/seafile.log`.
 - /shared/ssl: This is directory for certificate, which does not exist by default.
-- /shared/bootstrap.conf: This file does not exist by default. You can create it by your self, and write the configuration of files similar to the `samples` folder.
-
 
 ### Upgrading Seafile Server
 
