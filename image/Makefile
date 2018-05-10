@@ -6,9 +6,9 @@ pro_base_image=seafileltd/pro-base:16.04
 pro_base_image_squashed=seafileltd/pro-base:16.04-squashed
 server_image=seafileltd/seafile:$(server_version)
 server_image_squashed=seafileltd/seafile:$(server_version)-squashed
-pro_server_image=seafileltd/pro-seafile:$(server_version)
-pro_server_image_squashed=seafileltd/pro-seafile:$(server_version)-squashed
-latest_pro_server_image=seafileltd/pro-seafile:latest
+pro_server_image=seafileltd/seafile-pro:$(server_version)
+pro_server_image_squashed=seafileltd/seafile-pro:$(server_version)-squashed
+latest_pro_server_image=seafileltd/seafile-pro:latest
 latest_server_image=seafileltd/seafile:latest
 
 all:
