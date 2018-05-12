@@ -209,7 +209,7 @@ def get_seafile_version():
     return os.environ['SEAFILE_VERSION']
 
 def get_install_dir():
-    return join('/opt/seafile/seafile-pro-server-{}'.format(get_seafile_version()))
+    return join('/opt/seafile/' + get_conf('SEAFILE_SERVER', 'seafile-server') + '-{}'.format(get_seafile_version()))
 
 def get_script(script):
     return join(get_install_dir(), script)

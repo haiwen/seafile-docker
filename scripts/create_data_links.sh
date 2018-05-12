@@ -28,7 +28,7 @@ if [[ ! -e /shared/logs/seafile ]]; then
 fi
 rm -rf /opt/seafile/logs && ln -sf /shared/logs/seafile/ /opt/seafile/logs
 
-current_version_dir=/opt/seafile/seafile-pro-server-${SEAFILE_VERSION}
+current_version_dir=/opt/seafile/${SEAFILE_SERVER}-${SEAFILE_VERSION}
 latest_version_dir=/opt/seafile/seafile-server-latest
 seahub_data_dir=/shared/seafile/seahub-data
 

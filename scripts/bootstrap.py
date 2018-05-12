@@ -101,7 +101,7 @@ def init_seafile_server():
             update_version_stamp(os.environ['SEAFILE_VERSION'])
         # sysbol link unlink after docker finish.
         latest_version_dir='/opt/seafile/seafile-server-latest'
-        current_version_dir='/opt/seafile/seafile-pro-server-' +  read_version_stamp()
+        current_version_dir='/opt/seafile/' + get_conf('SEAFILE_SERVER', 'seafile-server') + '-' +  read_version_stamp()
         if not exists(latest_version_dir):
             call('ln -sf ' + current_version_dir + ' ' + latest_version_dir)
         loginfo('Skip running setup-seafile-mysql.py because there is existing seafile-data folder.')
