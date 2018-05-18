@@ -26,7 +26,7 @@ base:
 	docker rmi `docker images --filter "dangling=true" -q --no-trunc`
 
 server:
-	cd seafile && cp -rf ../../scripts ./ && docker build -t $(server_image) .
+	cd seafile && cp -rf ../../templates ./ && cp -rf ../../scripts ./ && docker build -t $(server_image) .
 	docker-squash --tag $(server_image_squashed) $(server_image) --from-layer=$(base_image)
 	docker tag $(server_image_squashed) $(server_image)
 	docker tag $(server_image) $(latest_server_image)
@@ -39,7 +39,7 @@ pro-base:
 	docker rmi `docker images --filter "dangling=true" -q --no-trunc`
 
 pro-server:
-	cd pro_seafile && cp -rf ../../scripts ./ && docker build -t $(pro_server_image) .
+	cd pro_seafile && cp -rf ../../templates ./ && cp -rf ../../scripts ./ && docker build -t $(pro_server_image) .
 	docker-squash --tag $(pro_server_image_squashed) $(pro_server_image) --from-layer=$(pro_base_image)
 	docker tag $(pro_server_image_squashed) $(pro_server_image)
 	docker tag $(pro_server_image) $(latest_pro_server_image)

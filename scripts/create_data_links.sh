@@ -66,6 +66,16 @@ fi
 ln -sf /shared/db /var/lib/mysql
 
 if [[ ! -e /shared/logs/var-log ]]; then
+    chmod 777 /var/log -R
     mv /var/log /shared/logs/var-log
 fi
 rm -rf /var/log && ln -sf /shared/logs/var-log /var/log
+
+if [[ ! -e latest_version_dir ]]; then
+    ln -sf $current_version_dir $latest_version_dir
+fi
+
+chmod u+x /scripts/*
+
+echo $PYTHON
+$PYTHON /scripts/init.py
