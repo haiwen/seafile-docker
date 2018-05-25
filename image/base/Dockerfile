@@ -19,7 +19,7 @@ RUN apt-get install -y python2.7-dev python-imaging python-ldap python-mysqldb
 RUN curl -sSL -o /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py && \
     python /tmp/get-pip.py && \
     rm -rf /tmp/get-pip.py && \
-    pip install -U wheel
+    pip install -U wheel && pip install oss2
 
 ADD requirements.txt  /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt
