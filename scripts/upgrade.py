@@ -41,7 +41,7 @@ def collect_upgrade_scripts(from_version, to_version):
     to_major_ver = '.'.join(to_version.split('.')[:2])
 
     scripts = []
-    for fn in glob.glob(join(installdir, 'upgrade', 'upgrade_*_*.sh')):
+    for fn in sorted(glob.glob(join(installdir, 'upgrade', 'upgrade_*_*.sh'))):
         va, vb = parse_upgrade_script_version(fn)
         if va >= from_major_ver and vb <= to_major_ver:
             scripts.append(fn)
