@@ -9,4 +9,6 @@ libreoffice-script-provider-python ttf-wqy-microhei ttf-wqy-zenhei xfonts-wqy py
 
 RUN apt-get install -y python-pip python-setuptools python-urllib3
 
+RUN pip install oss2 django-pylibmc
+
 RUN apt clean
