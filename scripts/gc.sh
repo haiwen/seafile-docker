@@ -5,10 +5,15 @@ set -e
 # Before
 SEAFILE_DIR=/opt/seafile/seafile-server-latest
 
-$SEAFILE_DIR/seafile.sh stop
+if [[ $SEAFILE_SERVER != *"pro"* ]]; then
+  echo "Seafile CE: Stop Seafile to perform offline garbage collection."
+  $SEAFILE_DIR/seafile.sh stop
 
-echo "Waiting for the server to shut down properly..."
-sleep 5
+  echo "Waiting for the server to shut down properly..."
+  sleep 5
+else
+  echo "Seafile Pro: Perform online garbage collection."
+fi
 
 # Do it
 (
@@ -22,9 +27,11 @@ gc_exit_code=$?
 
 # After
 
-echo "Giving the server some time..."
-sleep 3
+if [[ $SEAFILE_SERVER != *"pro"* ]]; then
+  echo "Giving the server some time..."
+  sleep 3
 
-$SEAFILE_DIR/seafile.sh start
+  $SEAFILE_DIR/seafile.sh start
+fi
 
 exit $gc_exit_code
