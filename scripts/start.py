@@ -1,6 +1,7 @@
 import os
 import time
 import json
+import argparse
 from os.path import join, exists, dirname
 
 from upgrade import check_upgrade
@@ -23,7 +24,7 @@ def watch_controller():
     print 'seafile controller exited unexpectedly.'
     sys.exit(1)
 
-def main():
+def main(args):
     call('/scripts/create_data_links.sh')
     check_upgrade()
     os.chdir(installdir)
@@ -41,6 +42,8 @@ def main():
     try:
         call('{} start'.format(get_script('seafile.sh')))
         call('{} start'.format(get_script('seahub.sh')))
+        if args.mode == 'backend':
+            call('{} start'.format(get_script('seafile-background-tasks.sh')))
     finally:
         if exists(password_file):
             os.unlink(password_file)
@@ -53,4 +56,6 @@ def main():
         sys.exit(0)
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description='Seafile cluster start script')
+    parser.add_argument('--mode')
+    main(parser.parse_args())
