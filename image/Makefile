@@ -1,4 +1,4 @@
-server_version=6.2.13
+server_version=6.2.11
 
 base_image=seafileltd/base:16.04
 base_image_squashed=seafileltd/base:16.04-squashed
