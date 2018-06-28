@@ -13,28 +13,28 @@ set -e -x
     make pro-server
 )
 
-mkdir -p /opt/seafile-data
-docker run -d --name seafile -e SEAFILE_SERVER_HOSTNAME=127.0.0.1 -v /opt/seafile-data:/shared -p 80:80 -p 443:443 seafileltd/seafile-pro:$version
-
-
-cat > doc.md <<EOF
-# Doc
-
-Hello world.
-EOF
-
-sleep 50
-python ci/upload.py doc.md
-python ci/validate_file.py doc.md
-docker restart seafile
-sleep 30
-python ci/validate_file.py doc.md
-docker rm -f seafile
-docker run -d --name seafile -e SEAFILE_SERVER_HOSTNAME=127.0.0.1 -v /opt/seafile-data:/shared -p 80:80 -p 443:443 seafileltd/seafile-pro:$version
-sleep 30
-python ci/validate_file.py doc.md
-
-rm -rf doc.md
+#mkdir -p /opt/seafile-data
+#docker run -d --name seafile -e SEAFILE_SERVER_HOSTNAME=127.0.0.1 -v /opt/seafile-data:/shared -p 80:80 -p 443:443 seafileltd/seafile-pro:$version
+#
+#
+#cat > doc.md <<EOF
+## Doc
+#
+#Hello world.
+#EOF
+#
+#sleep 50
+#python ci/upload.py doc.md
+#python ci/validate_file.py doc.md
+#docker restart seafile
+#sleep 30
+#python ci/validate_file.py doc.md
+#docker rm -f seafile
+#docker run -d --name seafile -e SEAFILE_SERVER_HOSTNAME=127.0.0.1 -v /opt/seafile-data:/shared -p 80:80 -p 443:443 seafileltd/seafile-pro:$version
+#sleep 30
+#python ci/validate_file.py doc.md
+#
+#rm -rf doc.md
 
 if [[ $TRAVIS_TAG =~ ^v([0-9]*?)(\.([0-9])*?){2}-pro$ ]]; then
     ci/publish-pro-image.sh
