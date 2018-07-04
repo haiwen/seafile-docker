@@ -124,7 +124,7 @@ docker run -d --name seafile \
   seafileltd/seafile:latest
 ```
 
-If you are one of the early users who use the `launcher` script, you should refer to [upgrade from old format](https://github.com/haiwen/seafile-docker/upgrade_from_old_format.md) document.
+If you are one of the early users who use the `launcher` script, you should refer to [upgrade from old format](https://github.com/haiwen/seafile-docker/blob/master/upgrade_from_old_format.md) document.
 
 ### Garbage Collection
 
