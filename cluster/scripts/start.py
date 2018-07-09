@@ -1,29 +1,12 @@
-#!/usr/bin/env python
-#coding: UTF-8
-
-"""
-Starts the seafile/seahub server and watches the controller process. It is
-the entrypoint command of the docker container.
-"""
-
-import json
 import os
-from os.path import abspath, basename, exists, dirname, join, isdir
-import shutil
-import sys
 import time
+import json
+import argparse
+from os.path import join, exists, dirname
 
-from utils import (
-    call, get_conf, get_install_dir, get_script, get_command_output,
-    render_template, wait_for_mysql
-)
 from upgrade import check_upgrade
-from bootstrap import init_seafile_server, is_https, init_letsencrypt, generate_local_nginx_conf
+from utils import call, get_conf, get_script, get_command_output, get_install_dir
 
-
-shared_seafiledir = '/shared/seafile'
-ssl_dir = '/shared/ssl'
-generated_dir = '/bootstrap/generated'
 installdir = get_install_dir()
 topdir = dirname(installdir)
 
@@ -41,35 +24,26 @@ def watch_controller():
     print 'seafile controller exited unexpectedly.'
     sys.exit(1)
 
-def main():
-    if not exists(shared_seafiledir):
-        os.mkdir(shared_seafiledir)
-    if not exists(generated_dir):
-        os.makedirs(generated_dir)
-
-    if is_https():
-        init_letsencrypt()
-    generate_local_nginx_conf()
-    call('nginx -s reload')
-
-    wait_for_mysql()
-    init_seafile_server()
-
+def main(args):
+    call('/scripts/create_data_links.sh')
     check_upgrade()
     os.chdir(installdir)
+    call('service nginx start &')
 
     admin_pw = {
         'email': get_conf('SEAFILE_ADMIN_EMAIL', 'me@example.com'),
         'password': get_conf('SEAFILE_ADMIN_PASSWORD', 'asecret'),
     }
     password_file = join(topdir, 'conf', 'admin.txt')
-    with open(password_file, 'w') as fp:
+    with open(password_file, 'w+') as fp:
         json.dump(admin_pw, fp)
 
 
     try:
         call('{} start'.format(get_script('seafile.sh')))
         call('{} start'.format(get_script('seahub.sh')))
+        if args.mode == 'backend':
+            call('{} start'.format(get_script('seafile-background-tasks.sh')))
     finally:
         if exists(password_file):
             os.unlink(password_file)
@@ -81,5 +55,7 @@ def main():
         print 'Stopping seafile server.'
         sys.exit(0)
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Seafile cluster start script')
+    parser.add_argument('--mode')
+    main(parser.parse_args())
