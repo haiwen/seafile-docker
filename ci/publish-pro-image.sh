@@ -24,12 +24,12 @@ docker tag docker-internal.seadrive.org/seafileltd/pro-base:16.04 seafileltd/pro
 
 
 
-docker login -u="$LOCAL_DOCKER_PRO_REGISTRY_USER" -p="$LOCAL_DOCKER_PRO_REGISTRY_PASSWORD" docker-internal.seafile.top
+docker login -u="$LOCAL_DOCKER_PRO_REGISTRY_USER" -p="$LOCAL_DOCKER_PRO_REGISTRY_PASSWORD" docker.seafile.top
 
 docker rmi -f $(docker images | awk {'print $3'})
-docker pull docker-internal.seafile.top/seafileltd/pro-base:16.04
-docker tag docker-internal.seafile.top/seafileltd/pro-base:16.04 seafileltd/pro-base:16.04
+docker pull docker.seafile.top/seafileltd/pro-base:16.04
+docker tag docker.seafile.top/seafileltd/pro-base:16.04 seafileltd/pro-base:16.04
 (
     cd image
-    make host=docker-internal.seafile.top pro-server push-pro-server
+    make host=docker.seafile.top pro-server push-pro-server
 )
