@@ -39,27 +39,6 @@ if [[ ! -e /shared/logs/seafile ]]; then
 fi
 rm -rf /opt/seafile/logs && ln -sf /shared/logs/seafile/ /opt/seafile/logs
 
-current_version_dir=/opt/seafile/${SEAFILE_SERVER}-${SEAFILE_VERSION}
-latest_version_dir=/opt/seafile/seafile-server-latest
-seahub_data_dir=/shared/seafile/seahub-data
-
-if [[ ! -e $seahub_data_dir ]]; then
-    mkdir -p $seahub_data_dir
-fi
-
-media_dirs=(
-    avatars
-    custom
-)
-for d in ${media_dirs[*]}; do
-    source_media_dir=${current_version_dir}/seahub/media/$d
-    # move files in media/avatars, e.g. media/avatars/default.jpg to seahub-data/avatars
-    if [ -e ${source_media_dir} ] && [ ! -e ${seahub_data_dir}/$d ]; then
-        mv $source_media_dir ${seahub_data_dir}/$d
-    fi
-    rm -rf $source_media_dir && ln -sf ${seahub_data_dir}/$d $source_media_dir
-done
-
 rm -rf /var/lib/mysql
 if [[ ! -e /shared/db ]];then
     mkdir -p /shared/db
