@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e 
+set -e
 set -o pipefail
 
 if [[ $SEAFILE_BOOTSRAP != "" ]]; then
@@ -53,6 +53,7 @@ media_dirs=(
 )
 for d in ${media_dirs[*]}; do
     source_media_dir=${current_version_dir}/seahub/media/$d
+    # move files in media/avatars, e.g. media/avatars/default.jpg to seahub-data/avatars
     if [ -e ${source_media_dir} ] && [ ! -e ${seahub_data_dir}/$d ]; then
         mv $source_media_dir ${seahub_data_dir}/$d
     fi

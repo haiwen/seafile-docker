@@ -144,6 +144,10 @@ def init_seafile_server():
         fp.write('UNIX_SOCKET = /opt/seafile/ccnet.sock\n')
         fp.write('\n')
 
+    # After the setup script creates all the files inside the
+    # container, we need to move them to the shared volume
+    #
+    # e.g move "/opt/seafile/seafile-data" to "/shared/seafile/seafile-data"
     files_to_copy = ['conf', 'ccnet', 'seafile-data', 'seahub-data', 'pro-data']
     for fn in files_to_copy:
         src = join(topdir, fn)

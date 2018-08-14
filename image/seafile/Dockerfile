@@ -13,6 +13,5 @@ ADD scripts/create_data_links.sh /etc/my_init.d/01_create_data_links.sh
 
 COPY scripts /scripts
 COPY templates /templates
-COPY bootstrap.conf /opt/bootstrap.conf
 
 CMD ["/sbin/my_init", "--", "/scripts/start.py"]
