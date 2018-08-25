@@ -27,6 +27,14 @@ shared_seafiledir = '/shared/seafile'
 ssl_dir = '/shared/ssl'
 generated_dir = '/bootstrap/generated'
 
+
+def init_https():
+    if (get_conf('SEAFILE_SERVER_LETSENCRYPT', 'false').lower() == 'true'):
+        init_letsencrypt()
+    elif (get_conf('SEAFILE_SERVER_SELF_SIGNED_HTTPS', 'false').lower() == 'true'):
+        init_selfsignedhttps()
+
+
 def init_letsencrypt():
     loginfo('Preparing for letsencrypt ...')
     wait_for_nginx()
@@ -64,12 +72,29 @@ def init_letsencrypt():
     call('nginx -s reload')
     time.sleep(2)
 
-    call('/scripts/ssl.sh {0} {1}'.format(ssl_dir, domain))
-    # if call('/scripts/ssl.sh {0} {1}'.format(ssl_dir, domain), check_call=False) != 0:
+    call('/scripts/ssl_letsencrypt.sh {0} {1}'.format(ssl_dir, domain))
+    # if call('/scripts/ssl_letsencrypt.sh {0} {1}'.format(ssl_dir, domain), check_call=False) != 0:
     #     eprint('Now waiting 1000s for postmortem')
     #     time.sleep(1000)
     #     sys.exit(1)
 
+def init_selfsignedhttps():
+    loginfo('Preparing for self signed https ...')
+    wait_for_nginx()
+
+    if not exists(ssl_dir):
+        os.mkdir(ssl_dir)
+
+    domain = get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com')
+
+    ssl_crt = '/shared/ssl/{}.crt'.format(domain)
+    if exists(ssl_crt):
+        loginfo('Found existing cert file {}'.format(ssl_crt))
+        if cert_has_valid_days(ssl_crt, 30):
+            loginfo('Skip certificate generation since we already have a valid certificate')
+            return
+
+    call('/scripts/ssl_selfsigned.sh {0} {1}'.format(ssl_dir, domain))
 
 def generate_local_nginx_conf():
     # Now create the final nginx configuratin
@@ -86,7 +111,12 @@ def generate_local_nginx_conf():
 
 
 def is_https():
-    return get_conf('SEAFILE_SERVER_LETSENCRYPT', 'false').lower() == 'true'
+    if (get_conf('SEAFILE_SERVER_LETSENCRYPT', 'false').lower() == 'true'):
+        return True
+    elif (get_conf('SEAFILE_SERVER_SELF_SIGNED_HTTPS', 'false').lower() == 'true'):
+        return True
+    else:
+        return False
 
 def parse_args():
     ap = argparse.ArgumentParser()

@@ -67,6 +67,24 @@ If you want to use your own SSL certificate:
 - create a folder `/opt/seafile-data/ssl`, and put your certificate and private key under the ssl directory.
 - Assume your site name is `seafile.example.com`, then your certificate must have the name `seafile.example.com.crt`, and the private key must have the name `seafile.example.com.key`.
 
+#### Self-signed SSL certificate
+
+If you set `SEAFILE_SERVER_SELF_SIGNED_HTTPS` to `true`, the container would generate a self-signed SSL certificate for you automatically. This is useful if a Let's Encrypt certificate is not possible to set up because the seafile server is run behind a firewall and the HTTP(S) ports are not exposed. One possible usecase for this is a setup, in which the users connect to their home network via VPN in oder to use seafile and the admin does not wish to expose any ports to the internet.
+
+e.g.
+
+```
+docker run -d --name seafile \
+  -e SEAFILE_SERVER_SELF_SIGNED_HTTPS=true \
+  -e SEAFILE_SERVER_HOSTNAME=192.168.1.10 \
+  -e SEAFILE_ADMIN_EMAIL=me@example.com \
+  -e SEAFILE_ADMIN_PASSWORD=a_very_secret_password \
+  -v /opt/seafile-data:/shared \
+  -p 80:80 \
+  -p 443:443 \
+  seafileltd/seafile:latest
+```
+
 #### Modify Seafile Server Configurations
 
 The config files are under `shared/seafile/conf`. You can modify the configurations according to [Seafile manual](https://manual.seafile.com/)
