@@ -18,4 +18,4 @@ openssl req -x509 -key ${ssl_key} -out ${ssl_crt} -days 3650 -nodes -subj "/CN=$
 
 nginx -s reload
 
-echo "Nginx reloaded."
+echo "Nginx reloaded." 
