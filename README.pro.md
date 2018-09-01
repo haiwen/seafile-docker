@@ -53,6 +53,32 @@ docker run -d --name seafile \
 
 If you forget the admin password, you can add a new admin account and then go to the sysadmin panel to reset user password.
 
+#### Custom Port
+
+The default port is `80` for http, and `443` for https. You can use a different port by setting the container's environment variables:
+e.g.
+
+```sh
+docker run -d --name seafile \
+  -e SEAFILE_SERVER_HOSTNAME=seafile.example.com \
+  -e SEAFILE_SERVER_HTTP_PORT=10080 \
+  -v /opt/seafile-data:/shared \
+  -p 10080:80 \
+  seafileltd/seafile:latest
+```
+
+```sh
+docker run -d --name seafile \
+  -e SEAFILE_SERVER_LETSENCRYPT=true \
+  -e SEAFILE_SERVER_HOSTNAME=seafile.example.com \
+  -e SEAFILE_SERVER_HTTP_PORT=80 \
+  -e SEAFILE_SERVER_HTTPS_PORT=11443 \
+  -v /opt/seafile-data:/shared \
+  -p 80:80 \
+  -p 11443:443 \
+  seafileltd/seafile:latest
+```
+
 #### Let's encrypt SSL certificate
 
 If you set `SEAFILE_SERVER_LETSENCRYPT` to `true`, the container would request a letsencrypt-signed SSL certificate for you automatically.

@@ -1,15 +1,15 @@
 # -*- mode: nginx -*-
 # Auto generated at {{ current_timestr }}
-{% if https -%}
+{%- if https %}
 server {
     listen 80;
     server_name _ default_server;
-    rewrite ^ https://{{ domain }}$request_uri? permanent;
+    rewrite ^ https://{{ domain }}{% if https_port != '80' %}:{{ https_port }}{% endif %}$request_uri? permanent;
 }
-{% endif -%}
+{%- endif %}
 
 server {
-{% if https -%}
+{%- if https %}
     listen 443;
     ssl on;
     ssl_certificate      /shared/ssl/{{ domain }}.crt;
@@ -22,9 +22,9 @@ server {
     # ssl_session_ticket_key /etc/nginx/sessionticket.key;
     # ssl_session_cache shared:SSL:10m;
     # ssl_session_timeout 10m;
-{% else -%}
+{%- else %}
     listen 80;
-{% endif -%}
+{%- endif %}
 
     server_name {{ domain }};
 
@@ -33,7 +33,11 @@ server {
     location / {
         proxy_pass http://127.0.0.1:8000/;
         proxy_read_timeout 310s;
-        proxy_set_header Host $host;
+{%- if https %}
+        proxy_set_header Host $host{% if https_port != '443' %}:{{ https_port }}{% endif %};
+{%- else %}
+        proxy_set_header Host $host{% if http_port != '80' %}:{{ http_port }}{% endif %};
+{%- endif %}
         proxy_set_header Forwarded "for=$remote_addr;proto=$scheme";
         proxy_set_header X-Forwarded-For $remote_addr;
         proxy_set_header X-Forwarded-Proto $scheme;
