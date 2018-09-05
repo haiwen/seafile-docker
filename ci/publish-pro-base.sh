@@ -9,16 +9,16 @@
 set -e
 set -o pipefail
 
-docker login -u="$DOCKER_PRO_REGISTRY_USER" -p="$DOCKER_PRO_REGISTRY_PASSWORD" docker-internal.seadrive.org
+docker login -u="$DOCKER_PRO_REGISTRY_USER" -p="$DOCKER_PRO_REGISTRY_PASSWORD" docker.seadrive.org
 
 (
     cd image
-    make host=docker-internal.seadrive.org push-pro-base
+    make host=docker.seadrive.org push-pro-base
 )
 
-docker login -u="$LOCAL_DOCKER_PRO_REGISTRY_USER" -p="$LOCAL_DOCKER_PRO_REGISTRY_PASSWORD" docker-internal.seafile.top
+docker login -u="$LOCAL_DOCKER_PRO_REGISTRY_USER" -p="$LOCAL_DOCKER_PRO_REGISTRY_PASSWORD" docker.seafile.top
 
 (
     cd image
-    make host=docker-internal.seafile.top push-pro-base
+    make host=docker.seafile.top push-pro-base
 )

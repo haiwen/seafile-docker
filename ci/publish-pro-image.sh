@@ -9,17 +9,17 @@
 set -e
 set -o pipefail
 
-docker login -u="$DOCKER_PRO_REGISTRY_USER" -p="$DOCKER_PRO_REGISTRY_PASSWORD" docker-internal.seadrive.org
+docker login -u="$DOCKER_PRO_REGISTRY_USER" -p="$DOCKER_PRO_REGISTRY_PASSWORD" docker.seadrive.org
 
 ## Always use the base image we build manually to reduce the download size of the end user.
 docker rm -f $(docker ps -a -q)
 docker rmi -f $(docker images -a -q)
-docker pull docker-internal.seadrive.org/seafileltd/pro-base:16.04
-docker tag docker-internal.seadrive.org/seafileltd/pro-base:16.04 seafileltd/pro-base:16.04
+docker pull docker.seadrive.org/seafileltd/pro-base:16.04
+docker tag docker.seadrive.org/seafileltd/pro-base:16.04 seafileltd/pro-base:16.04
 
 (
     cd image
-    make host=docker-internal.seadrive.org pro-server push-pro-server
+    make host=docker.seadrive.org pro-server push-pro-server
 )
 
 
