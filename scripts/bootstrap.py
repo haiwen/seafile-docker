@@ -111,11 +111,13 @@ def init_seafile_server():
     env = {
         'SERVER_NAME': 'seafile',
         'SERVER_IP': get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com'),
-        'MYSQL_USER': 'seafile',
-        'MYSQL_USER_PASSWD': str(uuid.uuid4()),
-        'MYSQL_USER_HOST': '127.0.0.1',
+        'MYSQL_USER': get_conf('MYSQL_USER', 'seafile'),
+        'MYSQL_USER_PASSWD': get_conf('MYSQL_USER_PASSWD', str(uuid.uuid4())),
+        'MYSQL_USER_HOST': get_conf('MYSQL_USER_HOST','127.0.0.1'),
+        'MYSQL_HOST': get_conf('MYSQL_HOST','127.0.0.1'),
+        'USE_EXISTING_DB': get_conf('USE_EXISTING_DB','0'),
         # Default MariaDB root user has empty password and can only connect from localhost.
-        'MYSQL_ROOT_PASSWD': '',
+        'MYSQL_ROOT_PASSWD': get_conf('MYSQL_ROOT_PASSWD', ''),
     }
 
     # Change the script to allow mysql root password to be empty
