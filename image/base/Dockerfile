@@ -7,10 +7,10 @@ ENV UPDATED_AT=20180412 \
 
 CMD ["/sbin/my_init", "--", "bash", "-l"]
 
-RUN apt-get update -qq && apt-get -qq -y install memcached mariadb-server nginx
+RUN apt-get update && apt-get -y install memcached nginx #mariadb-server 
 
 # Utility tools
-RUN apt-get install -qq -y vim htop net-tools psmisc git wget curl
+RUN apt-get install -y vim htop net-tools psmisc git wget curl
 
 # Guidline for installing python libs: if a lib has C-compoment (e.g.
 # python-imaging depends on libjpeg/libpng), we install it use apt-get.
@@ -38,7 +38,7 @@ RUN mkdir -p /etc/service/mysql && \
     mv /services/mysql.sh /etc/service/mysql/run
 
 RUN mkdir -p /etc/my_init.d && rm -f /etc/my_init.d/00_regen_ssh_host_keys.sh
-ADD my_init.d/99_mysql_setup.sh /etc/my_init.d/
+#ADD my_init.d/99_mysql_setup.sh /etc/my_init.d/
 
 # Clean up for docker squash
 # See https://github.com/goldmann/docker-squash
