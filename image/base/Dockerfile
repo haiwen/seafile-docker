@@ -34,11 +34,9 @@ RUN mkdir -p /etc/service/nginx && \
     mv /services/nginx.conf /etc/nginx/nginx.conf && \
     mv /services/nginx.sh /etc/service/nginx/run
 
-RUN mkdir -p /etc/service/mysql && \
-    mv /services/mysql.sh /etc/service/mysql/run
 
 RUN mkdir -p /etc/my_init.d && rm -f /etc/my_init.d/00_regen_ssh_host_keys.sh
-#ADD my_init.d/99_mysql_setup.sh /etc/my_init.d/
+
 
 # Clean up for docker squash
 # See https://github.com/goldmann/docker-squash
