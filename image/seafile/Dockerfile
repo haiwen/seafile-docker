@@ -15,3 +15,6 @@ COPY scripts /scripts
 COPY templates /templates
 
 CMD ["/sbin/my_init", "--", "/scripts/start.py"]
+
+VOLUME /shared
+EXPOSE 80
