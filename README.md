@@ -12,6 +12,19 @@ If you are not familiar with docker commands, please refer to [docker documentat
 
 ### Getting Started
 
+Create a new Network
+```sh
+docker network create Seafile
+```
+
+Create a Mariadb Database
+```sh
+docker run -d --name database \
+-v /opt/maradb:/var/lib/mysql \
+-e MYSQL_ROOT_PASSWORD=my-secret-pw
+mariadb:latest
+```
+
 To run the seafile server container:
 
 ```sh
