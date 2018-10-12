@@ -7,7 +7,7 @@ ENV UPDATED_AT=20180412 \
 
 CMD ["/sbin/my_init", "--", "bash", "-l"]
 
-RUN apt-get update && apt-get -y install memcached nginx #mariadb-server 
+RUN apt-get update && apt-get -y install memcached nginx 
 
 # Utility tools
 RUN apt-get install -y vim htop net-tools psmisc git wget curl
