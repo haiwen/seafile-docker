@@ -21,7 +21,8 @@ Create a Mariadb Database
 ```sh
 docker run -d --name database \
 -v /opt/maradb:/var/lib/mysql \
--e MYSQL_ROOT_PASSWORD=my-secret-pw
+-e MYSQL_ROOT_PASSWORD=my-secret-pw \
+--network Seafile
 mariadb:latest
 ```
 
@@ -32,6 +33,7 @@ docker run -d --name seafile \
   -e SEAFILE_SERVER_HOSTNAME=seafile.example.com \
   -v /opt/seafile-data:/shared \
   -p 80:80 \
+  --network Seafile
   seafileltd/seafile:latest
 ```
 
