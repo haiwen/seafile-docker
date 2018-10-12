@@ -52,11 +52,21 @@ def parse_upgrade_script_version(script):
     m = re.match(r'upgrade_([0-9+.]+)_([0-9+.]+).sh', basename(script))
     return m.groups()
 
+def run_script_and_update_version_stamp(script, new_version):
+    replace_file_pattern(script, 'read dummy', '')
+    call(script)
+    update_version_stamp(new_version)
+
 def check_upgrade():
     last_version = read_version_stamp()
     current_version = os.environ['SEAFILE_VERSION']
     if last_version == current_version:
         return
+    elif is_minor_upgrade(last_version, current_version):
+        minor_upgrade_script = join(installdir, 'upgrade', 'minor-upgrade.sh')
+        run_script_and_update_version_stamp(minor_upgrade_script, current_version)
+        return
+
 
     scripts_to_run = collect_upgrade_scripts(from_version=last_version, to_version=current_version)
     for script in scripts_to_run:
@@ -64,11 +74,7 @@ def check_upgrade():
         # Here we use a trick: use a version stamp like 6.1.0 to prevent running
         # all upgrade scripts before 6.1 again (because 6.1 < 6.1.0 in python)
         new_version = parse_upgrade_script_version(script)[1] + '.0'
-
-        replace_file_pattern(script, 'read dummy', '')
-        call(script)
-
-        update_version_stamp(new_version)
+        run_script_and_update_version_stamp(script, new_version)
 
     update_version_stamp(current_version)
 
