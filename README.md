@@ -33,6 +33,11 @@ docker run -d --name seafile \
   -e SEAFILE_SERVER_HOSTNAME=seafile.example.com \
   -v /opt/seafile-data:/shared \
   -p 80:80 \
+  -e MYSQL_HOST=database
+  -e MYSQL_USER=seafile
+  -e MYSQL_USER_PASSWD=seafile
+  -e MYSQL_USER_HOST=%
+  -e MYSQL_ROOT_PASSWD=my-secret-pw
   --network Seafile
   seafileltd/seafile:latest
 ```
