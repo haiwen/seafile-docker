@@ -15,7 +15,7 @@ import time
 
 from utils import (
     call, get_conf, get_install_dir, get_script, get_command_output,
-    render_template, wait_for_mysql
+    render_template, wait_for_mysql, setup_logging
 )
 from upgrade import check_upgrade
 from bootstrap import init_seafile_server, is_https, init_letsencrypt, generate_local_nginx_conf
@@ -82,4 +82,5 @@ def main():
         sys.exit(0)
 
 if __name__ == '__main__':
+    setup_logging()
     main()

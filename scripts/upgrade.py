@@ -8,6 +8,7 @@ This script is used to run proper upgrade scripts automatically.
 import json
 import re
 import glob
+import logging
 import os
 from os.path import abspath, basename, exists, dirname, join, isdir
 import shutil
@@ -21,6 +22,7 @@ from utils import (
 
 installdir = get_install_dir()
 topdir = dirname(installdir)
+logger = logging.getLogger(__name__)
 
 def collect_upgrade_scripts(from_version, to_version):
     """
@@ -53,6 +55,7 @@ def parse_upgrade_script_version(script):
     return m.groups()
 
 def run_script_and_update_version_stamp(script, new_version):
+    logging.info('Running script %s', script)
     replace_file_pattern(script, 'read dummy', '')
     call(script)
     update_version_stamp(new_version)
