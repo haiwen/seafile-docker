@@ -10,7 +10,7 @@ import re
 import glob
 import logging
 import os
-from os.path import abspath, basename, exists, dirname, join, isdir
+from os.path import abspath, basename, exists, dirname, join, isdir, islink
 import shutil
 import sys
 import time
@@ -64,14 +64,39 @@ def is_minor_upgrade(v1, v2):
     get_major_version = lambda x: x.split('.')[:2]
     return v1 != v2 and get_major_version(v1) == get_major_version(v2)
 
+def fix_media_symlinks(current_version):
+    """
+    If the container was recreated and it's not a minor/major upgrade,
+    we need to fix the media/avatars and media/custom symlink.
+    """
+    media_dir = join(
+        installdir,
+        'seafile-server-{}/seahub/media'.format(current_version)
+    )
+    avatars_dir = join(media_dir, 'avatars')
+    if not islink(avatars_dir):
+        logger.info('The container was recreated, running minor-upgrade.sh to fix the media symlinks')
+        run_minor_upgrade(current_version)
+
+def run_minor_upgrade(current_version):
+    minor_upgrade_script = join(installdir, 'upgrade', 'minor-upgrade.sh')
+    run_script_and_update_version_stamp(minor_upgrade_script, current_version)
+
+def fix_custom_dir():
+    real_custom_dir = '/shared/seafile/seahub-data/custom'
+    if not exists(real_custom_dir):
+        os.mkdir(real_custom_dir)
+
 def check_upgrade():
+    fix_custom_dir()
     last_version = read_version_stamp()
     current_version = os.environ['SEAFILE_VERSION']
+
     if last_version == current_version:
+        fix_media_symlinks(current_version)
         return
     elif is_minor_upgrade(last_version, current_version):
-        minor_upgrade_script = join(installdir, 'upgrade', 'minor-upgrade.sh')
-        run_script_and_update_version_stamp(minor_upgrade_script, current_version)
+        run_minor_upgrade(current_version)
         return
 
     # Now we do the major upgrade
