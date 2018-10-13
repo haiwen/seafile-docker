@@ -5,8 +5,8 @@ services:
   - docker
 
 install:
-  # Must put something here, or travis would ask us for requirments.txt
-  - echo "Nothing to install"
+  - pip install -r ci/requirements.txt
 
 script:
+  - ./run-tests.sh
   - ci/ci.sh

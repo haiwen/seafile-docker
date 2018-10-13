@@ -57,6 +57,10 @@ def run_script_and_update_version_stamp(script, new_version):
     call(script)
     update_version_stamp(new_version)
 
+def is_minor_upgrade(v1, v2):
+    get_major_version = lambda x: x.split('.')[:2]
+    return v1 != v2 and get_major_version(v1) == get_major_version(v2)
+
 def check_upgrade():
     last_version = read_version_stamp()
     current_version = os.environ['SEAFILE_VERSION']
@@ -67,7 +71,7 @@ def check_upgrade():
         run_script_and_update_version_stamp(minor_upgrade_script, current_version)
         return
 
-
+    # Now we do the major upgrade
     scripts_to_run = collect_upgrade_scripts(from_version=last_version, to_version=current_version)
     for script in scripts_to_run:
         loginfo('Running scripts {}'.format(script))
