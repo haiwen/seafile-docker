@@ -1,4 +1,6 @@
-[![Build Status](https://secure.travis-ci.org/haiwen/seafile-docker.png?branch=master)](http://travis-ci.org/haiwen/seafile-docker)
+# Seafile Raspi Docker
+This is a direct port of the official docker files for seafile to the Raspberry pi.
+At the moment, they are not uploaded to the registry. Feel free to clone the repo and call make in ./images yourself.
 
 ### About
 
@@ -19,7 +21,7 @@ docker run -d --name seafile \
   -e SEAFILE_SERVER_HOSTNAME=seafile.example.com \
   -v /opt/seafile-data:/shared \
   -p 80:80 \
-  seafileltd/seafile:latest
+  seafileltd/seafile:pi
 ```
 
 Wait for a few minutes for the first time initialization, then visit `http://seafile.example.com` to open Seafile Web UI.
@@ -40,7 +42,7 @@ docker run -d --name seafile \
   -e SEAFILE_ADMIN_PASSWORD=a_very_secret_password \
   -v /opt/seafile-data:/shared \
   -p 80:80 \
-  seafileltd/seafile:latest
+  seafileltd/seafile:pi
 ```
 
 If you forget the admin password, you can add a new admin account and then go to the sysadmin panel to reset user password.
@@ -60,7 +62,7 @@ docker run -d --name seafile \
   -v /opt/seafile-data:/shared \
   -p 80:80 \
   -p 443:443 \
-  seafileltd/seafile:latest
+  seafileltd/seafile:pi
 ```
 
 If you want to use your own SSL certificate:
@@ -111,7 +113,7 @@ Placeholder spot for shared volumes. You may elect to store certain persistent i
 TO upgrade to latest version of seafile server:
 
 ```sh
-docker pull seafileltd/seafile:latest
+docker pull seafileltd/seafile:pi
 docker rm -f seafile
 docker run -d --name seafile \
   -e SEAFILE_SERVER_LETSENCRYPT=true \
@@ -121,7 +123,7 @@ docker run -d --name seafile \
   -v /opt/seafile-data:/shared \
   -p 80:80 \
   -p 443:443 \
-  seafileltd/seafile:latest
+  seafileltd/seafile:pi
 ```
 
 If you are one of the early users who use the `launcher` script, you should refer to [upgrade from old format](https://github.com/haiwen/seafile-docker/blob/master/upgrade_from_old_format.md) document.
