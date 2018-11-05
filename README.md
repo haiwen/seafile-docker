@@ -1,6 +1,12 @@
 # Seafile Raspi Docker
 This is a direct port of the official docker files for seafile to the Raspberry pi.
 At the moment, they are not uploaded to the registry. Feel free to clone the repo and call make in ./images yourself.
+```sh
+git clone https://github.com/domenukk/seafile-docker-pi
+cd ./seafile-docker-pi/images
+sudo make base && sudo make server 
+```
+P.S.: Always use sudo for docker, never add a user to the docker group.
 
 ### About
 
