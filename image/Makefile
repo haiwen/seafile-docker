@@ -12,7 +12,7 @@ all:
 	@echo
 
 base:
-	docker pull phusion/baseimage:0.11
+	docker pull abrodkin/baseimage:0.11
 	cd base && docker build -t $(base_image) .
 
 server:
