@@ -57,9 +57,10 @@ for d in ${media_dirs[*]}; do
     if [ -e ${source_media_dir} ] && [ ! -e ${seahub_data_dir}/$d ]; then
         mv $source_media_dir ${seahub_data_dir}/$d
     fi
-    if [ -e ${seahub_data_dir}/$d ]; then
-        rm -rf $source_media_dir && ln -sf ${seahub_data_dir}/$d $source_media_dir
+    if [ ! -e ${seahub_data_dir}/$d ]; then
+        mkdir -p ${seahub_data_dir}/$d
     fi
+    rm -rf $source_media_dir && ln -sf ${seahub_data_dir}/$d $source_media_dir
 done
 
 rm -rf /var/lib/mysql
