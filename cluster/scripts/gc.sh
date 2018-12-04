@@ -18,7 +18,7 @@ fi
 # Do it
 (
     set +e
-    $SEAFILE_DIR/seaf-gc.sh | tee -a /var/log/gc.log
+    $SEAFILE_DIR/seaf-gc.sh "$@" | tee -a /var/log/gc.log
     # We want to presevent the exit code of seaf-gc.sh
     exit "${PIPESTATUS[0]}"
 )
