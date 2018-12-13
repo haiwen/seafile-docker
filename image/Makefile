@@ -1,9 +1,9 @@
-server_version=6.3.3
+server_version=6.3.7
 
-base_image=seafileltd/base:16.04
-base_image_squashed=seafileltd/base:16.04-squashed
-pro_base_image=seafileltd/pro-base:16.04
-pro_base_image_squashed=seafileltd/pro-base:16.04-squashed
+base_image=seafileltd/base:18.04
+base_image_squashed=seafileltd/base:18.04-squashed
+pro_base_image=seafileltd/pro-base:18.04
+pro_base_image_squashed=seafileltd/pro-base:18.04-squashed
 server_image=seafileltd/seafile:$(server_version)
 server_image_squashed=seafileltd/seafile:$(server_version)-squashed
 pro_server_image=seafileltd/seafile-pro:$(server_version)
@@ -17,9 +17,9 @@ all:
 	@echo
 
 base:
-	docker pull phusion/baseimage:0.9.19
-	docker-squash --tag phusion/baseimage:latest phusion/baseimage:0.9.19
-	docker tag phusion/baseimage:latest phusion/baseimage:0.9.19
+	docker pull phusion/baseimage:0.11
+	docker-squash --tag phusion/baseimage:latest phusion/baseimage:0.11
+	docker tag phusion/baseimage:latest phusion/baseimage:0.11
 	cd base && docker build -t $(base_image) .
 	docker-squash --tag $(base_image_squashed) $(base_image)
 	docker tag $(base_image_squashed) $(base_image)
