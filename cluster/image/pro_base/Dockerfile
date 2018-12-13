@@ -2,7 +2,10 @@ FROM seafileltd/cluster-base:18.04
 
 # syslog-ng and syslog-forwarder would mess up the container stdout, not good
 # when debugging/upgrading.
-RUN mkdir -p /usr/share/man/man1mkdir -p /usr/share/man/man1
+
+# Fixing the "Sub-process /usr/bin/dpkg returned an error code (1)", 
+# when RUN apt-get
+RUN mkdir -p /usr/share/man/man1
 
 RUN apt update
 
@@ -11,7 +14,12 @@ libreoffice-script-provider-python ttf-wqy-microhei ttf-wqy-zenhei xfonts-wqy py
 
 RUN apt-get install -y tzdata python-pip python-setuptools python-urllib3 python-ldap python-ceph
 
-RUN pip install boto twilio oss2
-
+# The S3 storage, oss storage and psd online preview etc, 
+# depends on the python-backages as follow:
+RUN pip install boto==2.43.0 \ 
+    oss2==2.3.0 \ 
+    psd-tools==1.4 \ 
+    pycryptodome==3.7.2 \ 
+    twilio==5.7.0
 
 RUN apt clean
