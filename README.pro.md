@@ -34,6 +34,21 @@ Wait for a few minutes for the first time initialization, then visit `http://sea
 
 This command will mount folder `/opt/seafile-data` at the local server to the docker instance. You can find logs and other data under this folder.
 
+### Put your licence file
+
+If you have a `seafile-license.txt` licence file, simply put it in the folder `/opt/seafile-data/seafile/`. In your host machine:
+
+```sh
+mkdir -p /opt/seafile-data/seafile/
+cp /path/to/seafile-license.txt /opt/seafile-data/seafile/
+```
+
+Then restart the container.
+
+```sh
+docker restart seafile
+```
+
 ### More configuration Options
 
 #### Custom Admin Username and Password

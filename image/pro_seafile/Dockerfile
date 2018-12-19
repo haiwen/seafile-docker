@@ -1,4 +1,4 @@
-FROM seafileltd/pro-base:16.04
+FROM seafileltd/pro-base:18.04
 WORKDIR /opt/seafile
 
 ENV SEAFILE_VERSION=6.3.7 SEAFILE_SERVER=seafile-pro-server

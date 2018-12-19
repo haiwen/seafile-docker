@@ -1,6 +1,6 @@
-# Lastet phusion baseimage as of 20180412, based on ubuntu 16.04
+# Lastet phusion baseimage as of 20180412, based on ubuntu 18.04
 # See https://hub.docker.com/r/phusion/baseimage/tags/
-FROM phusion/baseimage:0.10.1
+FROM phusion/baseimage:0.11
 
 ENV UPDATED_AT=20180412 \
     DEBIAN_FRONTEND=noninteractive
@@ -15,7 +15,7 @@ RUN apt-get install -qq -y vim htop net-tools psmisc git wget curl
 # Guidline for installing python libs: if a lib has C-compoment (e.g.
 # python-imaging depends on libjpeg/libpng), we install it use apt-get.
 # Otherwise we install it with pip.
-RUN apt-get install -y python2.7-dev python-imaging python-ldap python-mysqldb
+RUN apt-get install -y python2.7-dev python-ldap python-mysqldb libmemcached-dev zlib1g-dev gcc
 RUN curl -sSL -o /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py && \
     python /tmp/get-pip.py && \
     rm -rf /tmp/get-pip.py && \
