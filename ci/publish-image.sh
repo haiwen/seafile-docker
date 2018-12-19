@@ -14,7 +14,7 @@ docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
 ## Always use the base image we build manually to reduce the download size of the end user.
 docker rm -f $(docker ps -a -q)
 docker rmi -f $(docker images -a -q)
-docker pull seafileltd/base:16.04
+docker pull seafileltd/base:18.04
 
 (
     cd image
