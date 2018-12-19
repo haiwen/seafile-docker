@@ -4,7 +4,16 @@
 server {
     listen 80;
     server_name _ default_server;
-    rewrite ^ https://{{ domain }}$request_uri? permanent;
+    # allow certbot to connect to challenge location via HTTP Port 80
+    # otherwise renewal request will fail
+    location /.well-known/acme-challenge/ {
+        alias /var/www/challenges/;
+        try_files $uri =404;
+    }
+
+    location / {
+        rewrite ^ https://{{ domain }}$request_uri? permanent;
+    }
 }
 {% endif -%}
 
