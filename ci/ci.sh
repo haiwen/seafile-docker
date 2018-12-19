@@ -1,6 +1,6 @@
 #!/bin/bash
 
-version=6.3.7
+version=6.3.9
 set -e -x
 ./ci/install_deps.sh
 
