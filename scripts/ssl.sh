@@ -14,7 +14,7 @@ ssl_key=${domain}.key
 ssl_crt=${domain}.crt
 
 mkdir -p /var/www/challenges && chmod -R 777 /var/www/challenges
-mkdir -p ssldir
+mkdir -p $ssldir
 
 if ! [[ -d $letsencryptdir ]]; then
     git clone git://github.com/diafygi/acme-tiny.git $letsencryptdir
