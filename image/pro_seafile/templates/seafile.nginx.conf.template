@@ -2,7 +2,7 @@
 # Auto generated at {{ current_timestr }}
 {% if https -%}
 server {
-    listen 80;
+    listen {{ http_port }};
     server_name _ default_server;
     # allow certbot to connect to challenge location via HTTP Port 80
     # otherwise renewal request will fail
@@ -19,7 +19,7 @@ server {
 
 server {
 {% if https -%}
-    listen 443;
+    listen {{ https_port }};
     ssl on;
     ssl_certificate      /shared/ssl/{{ domain }}.crt;
     ssl_certificate_key  /shared/ssl/{{ domain }}.key;
@@ -32,7 +32,7 @@ server {
     # ssl_session_cache shared:SSL:10m;
     # ssl_session_timeout 10m;
 {% else -%}
-    listen 80;
+    listen {{ http_port }};
 {% endif -%}
 
     server_name {{ domain }};
