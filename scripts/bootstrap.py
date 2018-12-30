@@ -74,9 +74,13 @@ def init_letsencrypt():
 def generate_local_nginx_conf():
     # Now create the final nginx configuratin
     domain = get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com')
+    http_port = get_conf('SEAFILE_SERVER_HTTP_PORT', '80')
+    https_port = get_conf('SEAFILE_SERVER_HTTPS_PORT', '443')    
     context = {
         'https': is_https(),
         'domain': domain,
+        'http_port': http_port,
+        'https_port': https_port,
     }
     render_template(
         '/templates/seafile.nginx.conf.template',
