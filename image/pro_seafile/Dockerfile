@@ -1,7 +1,7 @@
 FROM seafileltd/pro-base:18.04
 WORKDIR /opt/seafile
 
-ENV SEAFILE_VERSION=6.3.9 SEAFILE_SERVER=seafile-pro-server
+ENV SEAFILE_VERSION=6.3.11 SEAFILE_SERVER=seafile-pro-server
 
 RUN mkdir -p /etc/my_init.d
 
