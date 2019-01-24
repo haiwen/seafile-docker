@@ -3,7 +3,7 @@ WORKDIR /opt/seafile
 
 RUN mkdir -p /etc/my_init.d
 
-ENV SEAFILE_VERSION=6.3.3 SEAFILE_SERVER=seafile-server
+ENV SEAFILE_VERSION=6.3.4 SEAFILE_SERVER=seafile-server
 
 RUN mkdir -p /opt/seafile/ && \
     curl -sSL -o - https://download.seadrive.org/seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz \
