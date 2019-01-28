@@ -106,7 +106,7 @@ When building the docker container, use:
 
 ```
 -e SEAFILE_SERVER_NGINX_CONF_CUSTOM=true
--v <local path to seafile.nginx.conf>:/etc/nginx/sites-enabled/nginx.seafile.conf
+-v <local folder path>:/etc/nginx/sites-enabled
 ```
 
 #### Find logs
