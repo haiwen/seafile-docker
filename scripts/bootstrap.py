@@ -72,7 +72,12 @@ def init_letsencrypt():
 
 
 def generate_local_nginx_conf():
-    # Now create the final nginx configuratin
+    custom = get_conf('SEAFILE_SERVER_NGINX_CONF_CUSTOM', 'false')
+    
+    if custom:
+        return
+    
+    # Now create the final nginx configuration
     domain = get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com')
     context = {
         'https': is_https(),
