@@ -265,9 +265,17 @@ def update_version_stamp(version, fn=get_version_stamp_file()):
         fp.write(version + '\n')
 
 def wait_for_mysql():
+    try_one = 1
     while not exists('/var/run/mysqld/mysqld.sock'):
         logdbg('waiting for mysql server to be ready')
         time.sleep(2)
+        """
+        Try to solve the MySQL startup failure caused by the permission problem 
+        caused by the MySQL user's uid change.
+        """
+        if try_one != 0:
+        	os.system('rm /var/lib/mysql/tc.log -f  && chown -R mysql.mysql /var/lib/mysql/')
+        	try_one -= 1
     logdbg('mysql server is ready')
 
 def wait_for_nginx():
