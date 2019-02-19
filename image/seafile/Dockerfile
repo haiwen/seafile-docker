@@ -14,4 +14,6 @@ ADD scripts/create_data_links.sh /etc/my_init.d/01_create_data_links.sh
 COPY scripts /scripts
 COPY templates /templates
 
+EXPOSE 80
+
 CMD ["/sbin/my_init", "--", "/scripts/start.py"]
