@@ -118,6 +118,7 @@ docker run -d --name seafile \
   -e SEAFILE_SERVER_HOSTNAME=seafile.example.com \
   -e SEAFILE_ADMIN_EMAIL=me@example.com \
   -e SEAFILE_ADMIN_PASSWORD=a_very_secret_password \
+  -e SEAFILE_VERSION=6.3.4 \
   -v /opt/seafile-data:/shared \
   -p 80:80 \
   -p 443:443 \
