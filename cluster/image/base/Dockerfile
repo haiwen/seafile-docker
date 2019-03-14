@@ -7,7 +7,7 @@ ENV UPDATED_AT=20180412 \
 
 CMD ["/sbin/my_init", "--", "bash", "-l"]
 
-RUN apt-get update -qq && apt-get -qq -y install memcached nginx tzdata
+RUN apt-get update -qq && apt-get -qq -y install nginx tzdata
 
 # Utility tools
 RUN apt-get install -qq -y vim htop net-tools psmisc git wget curl

@@ -22,4 +22,4 @@ RUN pip install boto==2.43.0 \
     pycryptodome==3.7.2 \ 
     twilio==5.7.0
 
-RUN apt clean
+RUN apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

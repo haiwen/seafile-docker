@@ -39,12 +39,6 @@ if [[ ! -e /shared/logs/seafile ]]; then
 fi
 rm -rf /opt/seafile/logs && ln -sf /shared/logs/seafile/ /opt/seafile/logs
 
-rm -rf /var/lib/mysql
-if [[ ! -e /shared/db ]];then
-    mkdir -p /shared/db
-fi
-ln -sf /shared/db /var/lib/mysql
-
 if [[ ! -e /shared/logs/var-log ]]; then
     mv /var/log /shared/logs/var-log
 fi
