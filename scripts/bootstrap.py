@@ -154,6 +154,8 @@ def init_seafile_server():
 }
 COMPRESS_CACHE_BACKEND = 'locmem'""")
         fp.write('\n')
+        fp.write("TIME_ZONE = '{time_zone}'".format(time_zone=os.getenv('TIME_ZONE')))
+        fp.write('\n')
         fp.write('FILE_SERVER_ROOT = "{proto}://{domain}/seafhttp"'.format(proto=proto, domain=domain))
         fp.write('\n')
 

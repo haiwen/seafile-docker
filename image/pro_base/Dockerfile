@@ -1,4 +1,4 @@
-FROM seafileltd/base:18.04
+FROM seafileltd/base-mc:18.04
 
 # syslog-ng and syslog-forwarder would mess up the container stdout, not good
 # when debugging/upgrading.
