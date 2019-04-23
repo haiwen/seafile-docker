@@ -1,4 +1,4 @@
-FROM seafileltd/base:18.04
+FROM seafileltd/base-mc:18.04
 WORKDIR /opt/seafile
 
 RUN mkdir -p /etc/my_init.d
