@@ -173,16 +173,17 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
 
     # Disabled the Elasticsearch process on Seafile-container
     # Connection to the Elasticsearch-container
-    with open(join(topdir, 'conf', 'seafevents.conf'), 'r') as fp:
-        fp_lines = fp.readlines()
-        if '[INDEX FILES]\n' in fp_lines:
-           insert_index = fp_lines.index('[INDEX FILES]\n') + 1
-           insert_lines = ['es_port = 9200\n', 'es_host = elasticsearch\n', 'external_es_server = true\n']
-           for line in insert_lines:
-               fp_lines.insert(insert_index, line)
-
-    with open(join(topdir, 'conf', 'seafevents.conf'), 'w') as fp:
-        fp.writelines(fp_lines)
+    if os.path.exists(join(topdir, 'conf', 'seafevents.conf')):
+        with open(join(topdir, 'conf', 'seafevents.conf'), 'r') as fp:
+            fp_lines = fp.readlines()
+            if '[INDEX FILES]\n' in fp_lines:
+               insert_index = fp_lines.index('[INDEX FILES]\n') + 1
+               insert_lines = ['es_port = 9200\n', 'es_host = elasticsearch\n', 'external_es_server = true\n']
+               for line in insert_lines:
+                   fp_lines.insert(insert_index, line)
+    
+        with open(join(topdir, 'conf', 'seafevents.conf'), 'w') as fp:
+            fp.writelines(fp_lines)
 
     # After the setup script creates all the files inside the
     # container, we need to move them to the shared volume
