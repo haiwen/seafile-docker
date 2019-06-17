@@ -1,6 +1,6 @@
 [![Build Status](https://secure.travis-ci.org/haiwen/seafile-docker.png?branch=master)](http://travis-ci.org/haiwen/seafile-docker)
 
-### About
+## About
 
 - [Docker](https://docker.com/) is an open source project to pack, ship and run any Linux application in a lighter weight, faster container than a traditional virtual machine.
 
@@ -9,6 +9,16 @@
 - The base image configures Seafile with the Seafile team's recommended optimal defaults.
 
 If you are not familiar with docker commands, please refer to [docker documentation](https://docs.docker.com/engine/reference/commandline/cli/).
+
+## For seafile 7.x.x
+
+Starting with 7.0, we have adjusted seafile-docker image to use multiple containers. The old image runs MariaDB-Server and Memcached in the same container with Seafile server. Now, we strip the MariaDB-Server and Memcached services from the Seafile image and run them in their respective containers.
+
+If you plan to deploy seafile 7.0, you should refer to the [Deploy Documentation](https://download.seafile.com/published/support/docker/deploy%20seafile%20with%20docker.md).
+
+If you plan to upgrade 6.3 to 7.0, you can refer to the [Upgrade Documentation](https://download.seafile.com/published/support/docker/6.3%20upgrade%20to%207.0.md).
+
+## For seafile 6.x.x
 
 ### Getting Started
 
