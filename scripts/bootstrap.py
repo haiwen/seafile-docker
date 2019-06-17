@@ -50,6 +50,9 @@ def init_letsencrypt():
         loginfo('Found existing cert file {}'.format(ssl_crt))
         if cert_has_valid_days(ssl_crt, 30):
             loginfo('Skip letsencrypt verification since we have a valid certificate')
+	    if exists(join(ssl_dir, 'letsencrypt')):
+                # Create a crontab to auto renew the cert for letsencrypt.
+                call('/scripts/auto_renew_crt.sh {0} {1}'.format(ssl_dir, domain))
             return
 
     loginfo('Starting letsencrypt verification')
@@ -69,6 +72,9 @@ def init_letsencrypt():
     #     eprint('Now waiting 1000s for postmortem')
     #     time.sleep(1000)
     #     sys.exit(1)
+
+    call('/scripts/auto_renew_crt.sh {0} {1}'.format(ssl_dir, domain))
+    # Create a crontab to auto renew the cert for letsencrypt.
 
 
 def generate_local_nginx_conf():
@@ -113,14 +119,22 @@ def init_seafile_server():
         'SERVER_IP': get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com'),
         'MYSQL_USER': 'seafile',
         'MYSQL_USER_PASSWD': str(uuid.uuid4()),
-        'MYSQL_USER_HOST': '127.0.0.1',
+        'MYSQL_USER_HOST': '%.%.%.%',
+	'MYSQL_HOST': get_conf('DB_HOST','127.0.0.1'),
         # Default MariaDB root user has empty password and can only connect from localhost.
-        'MYSQL_ROOT_PASSWD': '',
+        'MYSQL_ROOT_PASSWD': get_conf('DB_ROOT_PASSWD', ''),
     }
 
     # Change the script to allow mysql root password to be empty
-    call('''sed -i -e 's/if not mysql_root_passwd/if not mysql_root_passwd and "MYSQL_ROOT_PASSWD" not in os.environ/g' {}'''
-         .format(get_script('setup-seafile-mysql.py')))
+    # call('''sed -i -e 's/if not mysql_root_passwd/if not mysql_root_passwd and "MYSQL_ROOT_PASSWD" not in os.environ/g' {}'''
+    #     .format(get_script('setup-seafile-mysql.py')))
+
+    # Change the script to disable check MYSQL_USER_HOST
+    call('''sed -i -e '/def validate_mysql_user_host(self, host)/a \ \ \ \ \ \ \ \ return host' {}'''
+        .format(get_script('setup-seafile-mysql.py')))
+
+    call('''sed -i -e '/def validate_mysql_host(self, host)/a \ \ \ \ \ \ \ \ return host' {}'''
+        .format(get_script('setup-seafile-mysql.py')))
 
     setup_script = get_script('setup-seafile-mysql.sh')
     call('{} auto -n seafile'.format(setup_script), env=env)
@@ -132,13 +146,15 @@ def init_seafile_server():
         fp.write("""CACHES = {
     'default': {
         'BACKEND': 'django_pylibmc.memcached.PyLibMCCache',
-        'LOCATION': '127.0.0.1:11211',
+        'LOCATION': 'memcached:11211',
     },
     'locmem': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     },
 }
 COMPRESS_CACHE_BACKEND = 'locmem'""")
+        fp.write('\n')
+        fp.write("TIME_ZONE = '{time_zone}'".format(time_zone=os.getenv('TIME_ZONE',default='Etc/UTC')))
         fp.write('\n')
         fp.write('FILE_SERVER_ROOT = "{proto}://{domain}/seafhttp"'.format(proto=proto, domain=domain))
         fp.write('\n')
@@ -154,6 +170,20 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
         fp.write('[Client]\n')
         fp.write('UNIX_SOCKET = /opt/seafile/ccnet.sock\n')
         fp.write('\n')
+
+    # Disabled the Elasticsearch process on Seafile-container
+    # Connection to the Elasticsearch-container
+    if os.path.exists(join(topdir, 'conf', 'seafevents.conf')):
+        with open(join(topdir, 'conf', 'seafevents.conf'), 'r') as fp:
+            fp_lines = fp.readlines()
+            if '[INDEX FILES]\n' in fp_lines:
+               insert_index = fp_lines.index('[INDEX FILES]\n') + 1
+               insert_lines = ['es_port = 9200\n', 'es_host = elasticsearch\n', 'external_es_server = true\n']
+               for line in insert_lines:
+                   fp_lines.insert(insert_index, line)
+    
+        with open(join(topdir, 'conf', 'seafevents.conf'), 'w') as fp:
+            fp.writelines(fp_lines)
 
     # After the setup script creates all the files inside the
     # container, we need to move them to the shared volume

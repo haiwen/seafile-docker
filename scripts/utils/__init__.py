@@ -15,6 +15,7 @@ import logging.config
 import click
 import termcolor
 import colorlog
+import MySQLdb
 
 logger = logging.getLogger('.utils')
 
@@ -265,18 +266,19 @@ def update_version_stamp(version, fn=get_version_stamp_file()):
         fp.write(version + '\n')
 
 def wait_for_mysql():
-    tried = False
-    while not exists('/var/run/mysqld/mysqld.sock'):
-        logdbg('waiting for mysql server to be ready')
-        """
-        Try to solve the MySQL startup failure caused by the permission problem 
-        caused by the MySQL user's uid change.
-        """
-        if not tried:
-            os.system('rm /var/lib/mysql/tc.log -f  && chown -R mysql.mysql /var/lib/mysql/')
-            tried = True
-        time.sleep(2)
-    logdbg('mysql server is ready')
+    db_host = get_conf('DB_HOST', '127.0.0.1')
+    db_user = 'root'
+    db_passwd = get_conf('DB_ROOT_PASSWD', '')
+
+    while True:
+        try:
+	    MySQLdb.connect(host=db_host, port=3306, user=db_user, passwd=db_passwd)
+	except Exception as e:
+	    print ('waiting for mysql server to be ready: %s', e)
+	    time.sleep(2)
+	    continue
+	logdbg('mysql server is ready')
+	return
 
 def wait_for_nginx():
     while True:
