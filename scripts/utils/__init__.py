@@ -267,7 +267,7 @@ def update_version_stamp(version, fn=get_version_stamp_file()):
 
 def wait_for_mysql():
     db_host = get_conf('DB_HOST', '127.0.0.1')
-    db_port = get_conf('DB_PORT', '3306')
+    db_port = int(get_conf('DB_PORT', 3306))
     db_user = 'root'
     db_passwd = get_conf('DB_ROOT_PASSWD', '')
 
