@@ -9,6 +9,9 @@ RUN mkdir -p /opt/seafile/ && \
     curl -sSL -o - https://download.seadrive.org/seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz \
     | tar xzf - -C /opt/seafile/
 
+# For using TLS connection to LDAP/AD server with docker-ce.
+RUN find /opt/seafile/ \( -name "liblber-*" -o -name "libldap-*" -o -name "libldap_r*" -o -name "libsasl2.so*" \) -delete
+
 ADD scripts/create_data_links.sh /etc/my_init.d/01_create_data_links.sh
 
 COPY scripts /scripts
