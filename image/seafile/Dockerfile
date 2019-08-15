@@ -1,4 +1,8 @@
 FROM seafileltd/base-mc:18.04
+
+# For suport set local time zone.
+RUN export DEBIAN_FRONTEND=noninteractive && apt-get update && apt-get install tzdata -y
+
 WORKDIR /opt/seafile
 
 RUN mkdir -p /etc/my_init.d
