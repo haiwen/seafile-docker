@@ -1,4 +1,4 @@
-server_version=7.0.4
+server_version=7.0.9
 
 base_image=seafileltd/base-mc:18.04
 base_image_squashed=seafileltd/base-mc:18.04-squashed
