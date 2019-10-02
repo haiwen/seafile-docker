@@ -14,9 +14,9 @@ If you are not familiar with docker commands, please refer to [docker documentat
 
 Starting with 7.0, we have adjusted seafile-docker image to use multiple containers. The old image runs MariaDB-Server and Memcached in the same container with Seafile server. Now, we strip the MariaDB-Server and Memcached services from the Seafile image and run them in their respective containers.
 
-If you plan to deploy seafile 7.0, you should refer to the [Deploy Documentation](https://download.seafile.com/published/support/docker/deploy%20seafile%20with%20docker.md).
+If you plan to deploy seafile 7.0, you should refer to the [Deploy Documentation](https://download.seafile.com/published/seafile-manual/docker/deploy%20seafile%20with%20docker.md).
 
-If you plan to upgrade 6.3 to 7.0, you can refer to the [Upgrade Documentation](https://download.seafile.com/published/support/docker/6.3%20upgrade%20to%207.0.md).
+If you plan to upgrade 6.3 to 7.0, you can refer to the [Upgrade Documentation](https://download.seafile.com/published/seafile-manual/docker/6.3%20upgrade%20to%207.0.md).
 
 ## For seafile 6.x.x
 
@@ -138,7 +138,7 @@ If you are one of the early users who use the `launcher` script, you should refe
 
 ### Garbage Collection
 
-When files are deleted, the blocks comprising those files are not immediately removed as there may be other files that reference those blocks (due to the magic of deduplication). To remove them, Seafile requires a ['garbage collection'](https://manual.seafile.com/maintain/seafile_gc.html) process to be run, which detects which blocks no longer used and purges them. (NOTE: for technical reasons, the GC process does not guarantee that _every single_ orphan block will be deleted.)
+When files are deleted, the blocks comprising those files are not immediately removed as there may be other files that reference those blocks (due to the magic of deduplication). To remove them, Seafile requires a ['garbage collection'](https://download.seafile.com/published/seafile-manual/maintain/seafile_gc.md) process to be run, which detects which blocks no longer used and purges them. (NOTE: for technical reasons, the GC process does not guarantee that _every single_ orphan block will be deleted.)
 
 The required scripts can be found in the `/scripts` folder of the docker container. To perform garbage collection, simply run `docker exec seafile /scripts/gc.sh`. For the community edition, this process will stop the seafile server, but it is a relatively quick process and the seafile server will start automatically once the process has finished. The Professional supports an online garbage collection.
 
