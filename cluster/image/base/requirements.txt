@@ -6,11 +6,10 @@
 #
 click==6.6
 colorlog==2.7.0
-Jinja2==2.8
-MarkupSafe==0.23          # via jinja2
+jinja2==2.8
+markupsafe==0.23          # via jinja2
 prettytable==0.7.2
+python-memcached==1.58
+six==1.12.0               # via python-memcached
 termcolor==1.1.0
-urllib3==1.19
-Pillow==4.3.0
-pylibmc
-django-pylibmc
+urllib3==1.24.2
