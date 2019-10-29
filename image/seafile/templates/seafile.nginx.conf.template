@@ -25,8 +25,8 @@ server {
     ssl_certificate      /shared/ssl/{{ domain }}.crt;
     ssl_certificate_key  /shared/ssl/{{ domain }}.key;
 
-    ssl_ciphers ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS;
-
+    ssl_ciphers EECDH+CHACHA20:EECDH+CHACHA20-draft:EECDH+AES128:RSA+AES128:EECDH+AES256:RSA+AES256::!MD5;
+    ssl_protocols TLSv1.1 TLSv1.2 TLSv1.3;
     # TODO: More SSL security hardening: ssl_session_tickets & ssl_dhparam
     # ssl_session_tickets on;
     # ssl_session_ticket_key /etc/nginx/sessionticket.key;
@@ -37,7 +37,7 @@ server {
 {% endif -%}
 
     server_name {{ domain }};
-
+    add_header Strict-Transport-Security "max-age=31536000";
     client_max_body_size 10m;
 
     location / {
