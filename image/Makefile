@@ -1,4 +1,5 @@
-server_version=7.0.9
+server_version:=$(shell grep 'SEAFILE_VERSION=' seafile/Dockerfile | sed -Ee 's@.*SEAFILE_VERSION=(\S+).*@\1@')
+pro_server_version:=$(shell grep 'SEAFILE_VERSION=' pro_seafile/Dockerfile | sed -Ee 's@.*SEAFILE_VERSION=(\S+).*@\1@')
 
 base_image=seafileltd/base-mc:18.04
 base_image_squashed=seafileltd/base-mc:18.04-squashed
@@ -6,8 +7,8 @@ pro_base_image=seafileltd/pro-base-mc:18.04
 pro_base_image_squashed=seafileltd/pro-base-mc:18.04-squashed
 server_image=seafileltd/seafile-mc:$(server_version)
 server_image_squashed=seafileltd/seafile-mc:$(server_version)-squashed
-pro_server_image=seafileltd/seafile-pro-mc:$(server_version)
-pro_server_image_squashed=seafileltd/seafile-pro-mc:$(server_version)-squashed
+pro_server_image=seafileltd/seafile-pro-mc:$(pro_server_version)
+pro_server_image_squashed=seafileltd/seafile-pro-mc:$(pro_server_version)-squashed
 latest_pro_server_image=seafileltd/seafile-pro-mc:latest
 latest_server_image=seafileltd/seafile-mc:latest
 

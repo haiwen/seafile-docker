@@ -1,0 +1,31 @@
+*** seafile-server-7.0.4.orig/seahub/thirdpart/wsgidav/addons/seafile/seahub_db.py      2019-05-28 04:13:37.000000000 +0000
+--- seafile-server-7.0.4/seahub/thirdpart/wsgidav/addons/seafile/seahub_db.py   2019-10-30 18:19:08.451625194 +0000
+*************** from sqlalchemy.orm import sessionmaker
+*** 7,12 ****
+--- 7,16 ----
+  from sqlalchemy.pool import Pool
+  from sqlalchemy.ext.automap import automap_base
+  
++ from seaf_utils import SEAFILE_CENTRAL_CONF_DIR, SEAFILE_CONF_DIR
++ import os
++ import sys
++ 
+  Base = automap_base()
+  
+  import wsgidav.util as util
+*************** def init_db_session_class():
+*** 24,29 ****
+--- 28,39 ----
+          return None
+  
+  def create_seahub_db_engine():
++     path = SEAFILE_CENTRAL_CONF_DIR if SEAFILE_CENTRAL_CONF_DIR else SEAFILE_CONF_DIR;
++     if os.path.exists(path):
++         sys.path.insert(0, path)
++ 
++ 
++ 
+      import seahub_settings
+      db_infos = seahub_settings.DATABASES['default']
+      #import local_settings
+
