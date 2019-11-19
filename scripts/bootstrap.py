@@ -61,8 +61,9 @@ def init_letsencrypt():
         'https': False,
         'domain': domain,
     }
-    render_template('/templates/seafile.nginx.conf.template',
-                    '/etc/nginx/sites-enabled/seafile.nginx.conf', context)
+    if not os.path.isfile('/shared/nginx/conf/seafile.nginx.conf'):
+        render_template('/templates/seafile.nginx.conf.template',
+                        '/etc/nginx/sites-enabled/seafile.nginx.conf', context)
 
     call('nginx -s reload')
     time.sleep(2)
@@ -84,12 +85,16 @@ def generate_local_nginx_conf():
         'https': is_https(),
         'domain': domain,
     }
-    render_template(
-        '/templates/seafile.nginx.conf.template',
-        '/etc/nginx/sites-enabled/seafile.nginx.conf',
-        context
-    )
 
+    if not os.path.isfile('/shared/nginx/conf/seafile.nginx.conf'):
+        render_template(
+            '/templates/seafile.nginx.conf.template',
+            '/etc/nginx/sites-enabled/seafile.nginx.conf',
+            context
+        )
+        nginx_etc_file = '/etc/nginx/sites-enabled/seafile.nginx.conf'
+        nginx_shared_file = '/shared/nginx/conf/seafile.nginx.conf'
+        call('mv {0} {1} && ln -sf {1} {0}'.format(nginx_etc_file, nginx_shared_file))
 
 def is_https():
     return get_conf('SEAFILE_SERVER_LETSENCRYPT', 'false').lower() == 'true'
@@ -189,7 +194,7 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
     # container, we need to move them to the shared volume
     #
     # e.g move "/opt/seafile/seafile-data" to "/shared/seafile/seafile-data"
-    files_to_copy = ['conf', 'ccnet', 'seafile-data', 'seahub-data', 'pro-data']
+    files_to_copy = ['conf', 'ccnet', 'seafile-data', 'seahub-data', 'pro-data', 'logs']
     for fn in files_to_copy:
         src = join(topdir, fn)
         dst = join(shared_seafiledir, fn)
