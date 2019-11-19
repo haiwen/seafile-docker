@@ -194,7 +194,7 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
     # container, we need to move them to the shared volume
     #
     # e.g move "/opt/seafile/seafile-data" to "/shared/seafile/seafile-data"
-    files_to_copy = ['conf', 'ccnet', 'seafile-data', 'seahub-data', 'pro-data', 'logs']
+    files_to_copy = ['conf', 'ccnet', 'seafile-data', 'seahub-data', 'pro-data']
     for fn in files_to_copy:
         src = join(topdir, fn)
         dst = join(shared_seafiledir, fn)
