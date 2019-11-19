@@ -18,17 +18,12 @@ if [[ $TIME_ZONE != "" ]]; then
     fi
 fi
 
-if [[ -e /shared/logs/seafile ]]; then
-    mv /shared/logs/seafile /shared/seafile/logs
-fi
-
 dirs=(
     conf
     ccnet
     seafile-data
     seahub-data
     pro-data
-    logs
     seafile-license.txt
 )
 
@@ -39,8 +34,15 @@ for d in ${dirs[*]}; do
     fi
 done
 
+if [[ -e /shared/logs/seafile ]]; then
+    mv /shared/logs/seafile /shared/seafile/logs
+    rm -rf /opt/seafile/logs && ln -sf /shared/seafile/logs /opt/seafile/
+else
+    mkdir -p /shared/seafile/logs && ln -sf /shared/seafile/logs /opt/seafile/
+fi
+
 if [[ ! -e /shared/logs/var-log ]]; then
-    mv /var/log /shared/logs/var-log
+    mkdir -p /shared/logs/ && mv /var/log /shared/logs/var-log
 fi
 rm -rf /var/log && ln -sf /shared/logs/var-log /var/log
 
