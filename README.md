@@ -16,6 +16,34 @@ Starting with 7.0, we have adjusted seafile-docker image to use multiple contain
 
 If you plan to deploy seafile 7.0, you should refer to the [Deploy Documentation](https://download.seafile.com/published/seafile-manual/docker/deploy%20seafile%20with%20docker.md).
 
+
+### UPDATES for PR 187
+Until the changes in this PR gets merged and I know where I can update documentation ...
+
+#### Environment variables
+- DB_USER: user for the mysql connection. Default = 'seafile'
+- DB_PASSWD: password to use for the mysql connection. If not given, one will be auto generated.
+- DB_HOST: the mysql hostname to use to connect to. Defaults to '127.0.0.1' which is actually not useful since this
+  docker image is NOT starting a mysql server
+- SEAFILE_DB: name of the database for the seafile component. Defaults to 'seafile_db'
+- SEAHUB_DB: name of the database for the seahub component (web gui). Defaults to 'seahub_db'
+- CCNET_DB:  name of the database for the ccnet component. Defaults to 'ccnet_db'
+- WEBDAV_ENABLE: if non empty, it will activate the webdav component
+- USE_EXISTING_DB: if non empty, you will NOT need to give mysql root user password, code will assume that the 3   databases where already created and the $DB_USER can access them, with $DB_PASSWD.
+  If you use this, you should also set the value to DB_PASSWD
+- MEMCACHED_HOST: the hostname of the memcached instance. Defaults to 'memcached'.
+- MEMCACHED_PORT: Default is 11211
+- TIME_ZONE: String. Defaults to 'Etc/UTC'
+- SEAFILE_DOCKER_VERBOSE: if set to 'true', '1' or 'yes', more messages are logged. Default is empty
+- SEAFILE_SERVER_LETSENCRYPT: if set to 'true', '1' or 'yes', setup will be added for automatic use of Letsencrypt certificates + listen on  https port (443)
+- BEHIND_SSL_TERMINATION: if not empty, it means you want to use HTTPS access to your seafile server but you already taken care about the SSL part (like a front nginx proxy in a kubernetes cluster). With this setting, more appropriate settings are used for internal nginx server.
+  Note that BEHIND_SSL_TERMINATION and SEAFILE_SERVER_LETSENCRYPT are exclusive.
+
+
+#### Docker compose
+There is also a docker-composer setup in here. Go to directory ```docker-compose``` and run ```docker-compose up```. 
+It runs a mysql container, memcached and seafile-server. DB is created separately, thus no root password is given to seafile container. Also, it enables Webdav support.
+
 If you plan to upgrade 6.3 to 7.0, you can refer to the [Upgrade Documentation](https://download.seafile.com/published/seafile-manual/docker/6.3%20upgrade%20to%207.0.md).
 
 ## For seafile 6.x.x

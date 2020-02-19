@@ -58,8 +58,8 @@ def init_letsencrypt():
             return
 
     loginfo('Starting letsencrypt verification')
-    # Create a temporary nginx conf to start a server, which would accessed by letsencrypt
-    utils.nginx.change_nginx_config(False)
+    # Create a temporary nginx conf to start a server, which would be accessed by letsencrypt
+    utils.nginx.change_nginx_config(False, True)
 
     call('/scripts/ssl.sh {0} {1}'.format(ssl_dir, domain))
     # if call('/scripts/ssl.sh {0} {1}'.format(ssl_dir, domain), check_call=False) != 0:
@@ -69,7 +69,6 @@ def init_letsencrypt():
 
     call('/scripts/auto_renew_crt.sh {0} {1}'.format(ssl_dir, domain))
     # Create a crontab to auto renew the cert for letsencrypt.
-
 
 
 def parse_args():

@@ -86,7 +86,7 @@ def main():
 
     if listen_on_https():
         init_letsencrypt()
-    
+    utils.nginx.wait_for_nginx()
     utils.nginx.change_nginx_config()
 
     wait_for_mysql()

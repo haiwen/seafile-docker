@@ -12,7 +12,7 @@ def from_environment():
         'MYSQL_USER': get_conf('DB_USER', 'seafile'),
         'MYSQL_USER_PASSWD': get_conf('DB_PASSWD', str(uuid.uuid4())),
         'MYSQL_USER_HOST': '%.%.%.%',
-	'MYSQL_HOST': get_conf('DB_HOST','127.0.0.1'),
+	    'MYSQL_HOST': get_conf('DB_HOST','127.0.0.1'),
         # Default MariaDB root user has empty password and can only connect from localhost.
         'MYSQL_ROOT_PASSWD': get_conf('DB_ROOT_PASSWD', ''),
         'MEMCACHED_HOST': get_conf('MEMCACHED_HOST', 'memcached'),

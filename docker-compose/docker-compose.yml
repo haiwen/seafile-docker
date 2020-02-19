@@ -1,0 +1,36 @@
+version: '2'
+services:
+  mc:
+    image: memcached:1.5.6
+    container_name: seafile-memcached
+    entrypoint: memcached -m 256
+            
+  db:
+    container_name: db
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: r00t
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+
+
+    # ports:
+    #   - "9906:3306"
+
+  seafile:
+    container_name: seafile
+    image: seafileltd/seafile-mc:7.0.5
+    environment:
+      # must be in sync with mysql-init/create.sql
+      DB_USER: seafile_dev_user
+      DB_PASSWD: pass
+      DB_HOST: db
+      CCNET_DB: ccnet_dev
+      SEAHUB_DB: seahub_dev
+      SEAFILE_DB: seafile_dev
+      USE_EXISTING_DB: 1
+      ENABLE_WEBDAV: 1
+      MEMCACHED_HOST: mc
+    ports:
+      - "8081:80"
