@@ -23,5 +23,6 @@ COPY scripts /scripts
 COPY templates /templates
 
 EXPOSE 8000
+EXPOSE 8082
 
 CMD ["/sbin/my_init", "--", "/scripts/start.py"]
