@@ -14,6 +14,7 @@ from os.path import abspath, basename, exists, dirname, join, isdir, islink
 import shutil
 import sys
 import time
+import configparser
 
 from utils import (
     call, get_install_dir, get_script, get_command_output, replace_file_pattern,
@@ -87,8 +88,40 @@ def fix_custom_dir():
     if not exists(real_custom_dir):
         os.mkdir(real_custom_dir)
 
+def fix_ccent_conf():
+    ccnet_conf_path = '/shared/seafile/conf/ccnet.conf'
+    if exists(ccnet_conf_path):
+        cp = configparser.ConfigParser({})
+        try:
+            cp.read(ccnet_conf_path)
+        except configparser.DuplicateSectionError as e:
+            with open(ccnet_conf_path, 'r+') as fp:
+                content_list = fp.readlines()
+                aim = '[Client]\n'
+                count = content_list.count(aim)
+                if count > 1:
+                    new_content_list = list()
+                    client_port_index = -1
+                    for index, text in enumerate(content_list):
+                        if text == aim and 'PORT = ' in content_list[index + 1]:
+                            client_port_index = index + 1
+                            continue
+                        if index == client_port_index:
+                            client_port_index = -1
+                            continue
+                        new_content_list.append(text)
+
+                    new_content = ''.join(new_content_list)
+                    fp.seek(0)
+                    fp.truncate() 
+                    fp.write(new_content)
+                    print('')
+                    print('Fix ccnet conf success')
+                    print('')
+
 def check_upgrade():
     fix_custom_dir()
+    fix_ccent_conf()
     last_version = read_version_stamp()
     current_version = os.environ['SEAFILE_VERSION']
 
