@@ -47,7 +47,8 @@ ENV SEAFILE_VERSION=7.1.3 SEAFILE_SERVER=seafile-server
 
 RUN mkdir -p /opt/seafile/ && cd /opt/seafile/ && \
     wget https://download.seadrive.org/seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz && \
-    tar -zxvf seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz
+    tar -zxvf seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz && \
+    rm -f seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz
 
 # For using TLS connection to LDAP/AD server with docker-ce.
 RUN find /opt/seafile/ \( -name "liblber-*" -o -name "libldap-*" -o -name "libldap_r*" -o -name "libsasl2.so*" \) -delete
