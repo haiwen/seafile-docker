@@ -18,7 +18,7 @@ RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap
 RUN python3.6 -m pip install --upgrade pip && rm -r /root/.cache/pip
 
 RUN pip3 install --timeout=3600 click termcolor colorlog pymysql \
-    django==1.11.28 && rm -r /root/.cache/pip
+    django==1.11.29 && rm -r /root/.cache/pip
 
 RUN pip3 install --timeout=3600 Pillow pylibmc captcha jinja2 \
     sqlalchemy psd-tools django-pylibmc django-simple-captcha && \
@@ -31,6 +31,7 @@ COPY templates /templates
 COPY services /services
 
 RUN mkdir -p /etc/my_init.d && \
+    rm -f /etc/my_init.d/* && \
     cp /scripts/create_data_links.sh /etc/my_init.d/01_create_data_links.sh
 
 RUN mkdir -p /etc/service/nginx && \
@@ -46,7 +47,8 @@ ENV SEAFILE_VERSION=7.1.3 SEAFILE_SERVER=seafile-server
 
 RUN mkdir -p /opt/seafile/ && cd /opt/seafile/ && \
     wget https://download.seadrive.org/seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz && \
-    tar -zxvf seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz
+    tar -zxvf seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz && \
+    rm -f seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz
 
 # For using TLS connection to LDAP/AD server with docker-ce.
 RUN find /opt/seafile/ \( -name "liblber-*" -o -name "libldap-*" -o -name "libldap_r*" -o -name "libsasl2.so*" \) -delete
