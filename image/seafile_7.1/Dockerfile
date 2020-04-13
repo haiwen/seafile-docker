@@ -26,7 +26,7 @@ RUN pip3 install --timeout=3600 Pillow pylibmc captcha jinja2 \
 
 
 # Scripts
-COPY scripts /scripts
+COPY scripts_7.1 /scripts
 COPY templates /templates
 COPY services /services
 
