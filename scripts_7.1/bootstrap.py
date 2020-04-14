@@ -223,7 +223,7 @@ FILE_SERVER_ROOT = '%s://%s/seafhttp'
             shutil.move(src, shared_seafiledir)
             call('ln -sf ' + join(shared_seafiledir, fn) + ' ' + src)
 
-    generate_seafevents_conf()
+    # generate_seafevents_conf()  # Only in pro version
 
     loginfo('Updating version stamp')
     update_version_stamp(os.environ['SEAFILE_VERSION'])
