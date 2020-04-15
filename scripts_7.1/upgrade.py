@@ -119,6 +119,33 @@ def fix_ccent_conf():
                     print('Fix ccnet conf success')
                     print('')
 
+def fix_office_config():
+    seafevents_conf_path = '/shared/seafile/conf/seafevents.conf'
+    seahub_conf_path = '/shared/seafile/conf/seahub_settings.py'
+    if exists(seafevents_conf_path):
+        with open(seafevents_conf_path, 'r') as fp:
+            fp_lines = fp.readlines()
+            if '[OFFICE CONVERTER]\n' in fp_lines and 'port = 6000\n' not in fp_lines:
+               insert_index = fp_lines.index('[OFFICE CONVERTER]\n') + 1
+               insert_lines = ['host = 127.0.0.1\n', 'port = 6000\n']
+               for line in insert_lines:
+                   fp_lines.insert(insert_index, line)
+
+        with open(seafevents_conf_path, 'w') as fp:
+            fp.writelines(fp_lines)
+
+        with open(seahub_conf_path, 'r') as fp:
+            fp_lines = fp.readlines()
+            if "OFFICE_CONVERTOR_ROOT = 'http://127.0.0.1:6000/'\n" not in fp_lines:
+                fp_lines.append("OFFICE_CONVERTOR_ROOT = 'http://127.0.0.1:6000/'\n")
+
+        with open(seahub_conf_path, 'w') as fp:
+            fp.writelines(fp_lines)
+
+        print('')
+        print('Fix office config success')
+        print('')
+
 def check_upgrade():
     fix_custom_dir()
     fix_ccent_conf()
@@ -140,6 +167,8 @@ def check_upgrade():
         # all upgrade scripts before 6.1 again (because 6.1 < 6.1.0 in python)
         new_version = parse_upgrade_script_version(script)[1] + '.0'
         run_script_and_update_version_stamp(script, new_version)
+
+    fix_office_config()
 
     update_version_stamp(current_version)
 
