@@ -34,18 +34,21 @@ for d in ${dirs[*]}; do
     fi
 done
 
-if [[ ! -e /shared/logs/seafile ]]; then
-    mkdir -p /shared/logs/seafile
+if [[ -e /shared/logs/seafile ]]; then
+    mv /shared/logs/seafile /shared/seafile/logs
+    rm -rf /opt/seafile/logs && ln -sf /shared/seafile/logs /opt/seafile/
+else
+    mkdir -p /shared/seafile/logs && ln -sf /shared/seafile/logs /opt/seafile/
 fi
-rm -rf /opt/seafile/logs && ln -sf /shared/logs/seafile/ /opt/seafile/logs
-
-rm -rf /var/lib/mysql
-if [[ ! -e /shared/db ]];then
-    mkdir -p /shared/db
-fi
-ln -sf /shared/db /var/lib/mysql
 
 if [[ ! -e /shared/logs/var-log ]]; then
-    mv /var/log /shared/logs/var-log
+    mkdir -p /shared/logs/ && mv /var/log /shared/logs/var-log
 fi
 rm -rf /var/log && ln -sf /shared/logs/var-log /var/log
+
+mkdir -p /shared/nginx/conf/
+
+if [[ -e /shared/nginx/conf/seafile.nginx.conf ]]; then
+    rm -rf /etc/nginx/sites-enabled/seafile.nginx.conf && \
+    ln -sf /shared/nginx/conf/seafile.nginx.conf /etc/nginx/sites-enabled
+fi

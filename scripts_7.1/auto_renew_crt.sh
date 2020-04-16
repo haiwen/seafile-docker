@@ -26,12 +26,12 @@ EOF
         mkdir -p /var/www/challenges
     fi
 
-    cat >> /var/spool/cron/crontabs/root << EOF
-0 1 1 * * ${renew_cert_script} 2>> /var/log/acme_tiny.log
+    cat >> /etc/crontab << EOF
+00 1    1 * *   root    /scripts/renew_cert.sh 2>> /var/log/acme_tiny.log
 EOF
 
     echo 'Created a crontab to auto renew the cert for letsencrypt.'
 else
     echo 'Found existing the script for renew the cert.'
-	echo 'Skip create the crontab for letscncrypt since maybe we have created before.'
+    echo 'Skip create the crontab for letscncrypt since maybe we have created before.'
 fi
