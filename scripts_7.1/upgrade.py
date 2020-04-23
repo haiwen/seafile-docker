@@ -115,16 +115,28 @@ def fix_ccent_conf():
                     fp.seek(0)
                     fp.truncate() 
                     fp.write(new_content)
-                    print('')
+                    print('\n------------------------------')
                     print('Fix ccnet conf success')
-                    print('')
+                    print('------------------------------\n')
 
-def fix_office_config():
+def fix_seafevents_conf():
     seafevents_conf_path = '/shared/seafile/conf/seafevents.conf'
     seahub_conf_path = '/shared/seafile/conf/seahub_settings.py'
+    pro_data_dir = '/shared/seafile/pro-data/'
     if exists(seafevents_conf_path):
+        os.makedirs(pro_data_dir, exist_ok=True)
+
         with open(seafevents_conf_path, 'r') as fp:
             fp_lines = fp.readlines()
+            if 'port = 6000\n' in fp_lines:
+                return
+
+            if '[INDEX FILES]\n' in fp_lines and 'external_es_server = true\n' not in fp_lines:
+               insert_index = fp_lines.index('[INDEX FILES]\n') + 1
+               insert_lines = ['es_port = 9200\n', 'es_host = elasticsearch\n', 'external_es_server = true\n']
+               for line in insert_lines:
+                   fp_lines.insert(insert_index, line)
+
             if '[OFFICE CONVERTER]\n' in fp_lines and 'port = 6000\n' not in fp_lines:
                insert_index = fp_lines.index('[OFFICE CONVERTER]\n') + 1
                insert_lines = ['host = 127.0.0.1\n', 'port = 6000\n']
@@ -141,14 +153,15 @@ def fix_office_config():
 
         with open(seahub_conf_path, 'w') as fp:
             fp.writelines(fp_lines)
-
-        print('')
-        print('Fix office config success')
-        print('')
+        print('\n------------------------------')
+        print('Fix seafevents conf success')
+        print('------------------------------\n')
 
 def check_upgrade():
     fix_custom_dir()
     fix_ccent_conf()
+    fix_seafevents_conf()
+
     last_version = read_version_stamp()
     current_version = os.environ['SEAFILE_VERSION']
 
@@ -167,8 +180,6 @@ def check_upgrade():
         # all upgrade scripts before 6.1 again (because 6.1 < 6.1.0 in python)
         new_version = parse_upgrade_script_version(script)[1] + '.0'
         run_script_and_update_version_stamp(script, new_version)
-
-    fix_office_config()
 
     update_version_stamp(current_version)
 
