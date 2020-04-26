@@ -16,7 +16,7 @@ renew_cert_script=/scripts/renew_cert.sh
 if [[ ! -x ${renew_cert_script} ]]; then
     cat > ${renew_cert_script} << EOF
 #!/bin/bash
-python ${letsencrypt_script} --account-key ${ssldir}/${ssl_account_key} --csr ${ssldir}/${ssl_csr} --acme-dir /var/www/challenges/ > ${ssldir}/${ssl_crt} || exit
+python3 ${letsencrypt_script} --account-key ${ssldir}/${ssl_account_key} --csr ${ssldir}/${ssl_csr} --acme-dir /var/www/challenges/ > ${ssldir}/${ssl_crt} || exit
 $(which nginx) -s reload
 EOF
 

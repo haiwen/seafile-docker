@@ -171,7 +171,7 @@ def git_current_commit():
 
 def get_command_output(cmd):
     shell = not isinstance(cmd, list)
-    return subprocess.check_output(cmd, shell=shell)
+    return str(subprocess.check_output(cmd, shell=shell))
 
 def ask_yes_or_no(msg, prompt='', default=None):
     print('\n' + msg + '\n')
