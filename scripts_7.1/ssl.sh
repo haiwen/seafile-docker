@@ -37,7 +37,7 @@ if [[ ! -e ${ssl_csr} ]]; then
     openssl req -new -sha256 -key ${ssl_key} -subj "/CN=$domain" > $ssl_csr
 fi
 
-python $letsencrypt_script --account-key ${ssl_account_key} --csr $ssl_csr --acme-dir /var/www/challenges/ > ./signed.crt
+python3 $letsencrypt_script --account-key ${ssl_account_key} --csr $ssl_csr --acme-dir /var/www/challenges/ > ./signed.crt
 curl -sSL -o intermediate.pem https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem
 cat signed.crt intermediate.pem > ${ssl_crt}
 

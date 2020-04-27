@@ -5,7 +5,7 @@ FROM phusion/baseimage:0.11
 RUN apt-get update --fix-missing
 
 # Utility tools
-RUN apt-get install -y vim htop net-tools psmisc wget curl
+RUN apt-get install -y vim htop net-tools psmisc wget curl git
 
 # For suport set local time zone.
 RUN export DEBIAN_FRONTEND=noninteractive && apt-get install tzdata -y
