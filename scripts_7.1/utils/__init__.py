@@ -144,7 +144,7 @@ def get_process_cmd(pid, env=False):
     env = 'e' if env else ''
     try:
         return subprocess.check_output('ps {} -o command {}'.format(env, pid),
-                                       shell=True).strip().splitlines()[1]
+                                       shell=True).decode('utf8').strip().splitlines()[1]
     # except Exception, e:
     #     print(e)
     except:
@@ -153,7 +153,7 @@ def get_process_cmd(pid, env=False):
 def get_match_pids(pattern):
     pgrep_output = subprocess.check_output(
         'pgrep -f "{}" || true'.format(pattern),
-        shell=True).strip()
+        shell=True).decode('utf8').strip()
     return [int(pid) for pid in pgrep_output.splitlines()]
 
 def ask_for_confirm(msg):
@@ -171,7 +171,7 @@ def git_current_commit():
 
 def get_command_output(cmd):
     shell = not isinstance(cmd, list)
-    return str(subprocess.check_output(cmd, shell=shell))
+    return subprocess.check_output(cmd, shell=shell).decode('utf8')
 
 def ask_yes_or_no(msg, prompt='', default=None):
     print('\n' + msg + '\n')
