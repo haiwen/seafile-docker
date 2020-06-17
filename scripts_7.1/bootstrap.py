@@ -206,6 +206,18 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
         with open(join(topdir, 'conf', 'seahub_settings.py'), 'w') as fp:
             fp.writelines(fp_lines)
 
+    # Modify seafdav config
+    if os.path.exists(join(topdir, 'conf', 'seafdav.conf')):
+        with open(join(topdir, 'conf', 'seafdav.conf'), 'r') as fp:
+            fp_lines = fp.readlines()
+            if 'share_name = /\n' in fp_lines:
+               replace_index = fp_lines.index('share_name = /\n')
+               replace_line = 'share_name = /seafdav\n'
+               fp_lines[replace_index] = replace_line
+
+        with open(join(topdir, 'conf', 'seafdav.conf'), 'w') as fp:
+            fp.writelines(fp_lines)
+
     # After the setup script creates all the files inside the
     # container, we need to move them to the shared volume
     #
