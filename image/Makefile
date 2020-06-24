@@ -1,10 +1,11 @@
-server_version=7.0.11
+server_version=7.1.4
 
 base_image=seafileltd/base-mc:18.04
 base_image_squashed=seafileltd/base-mc:18.04-squashed
 pro_base_image=seafileltd/pro-base-mc:18.04
 pro_base_image_squashed=seafileltd/pro-base-mc:18.04-squashed
 server_image=seafileltd/seafile-mc:$(server_version)
+server_image_rpi=seafileltd/seafile-mc:$(server_version)-rpi
 server_image_squashed=seafileltd/seafile-mc:$(server_version)-squashed
 pro_server_image=seafileltd/seafile-pro-mc:$(server_version)
 pro_server_image_squashed=seafileltd/seafile-pro-mc:$(server_version)-squashed
@@ -31,6 +32,9 @@ server:
 	docker tag $(server_image_squashed) $(server_image)
 	docker tag $(server_image) $(latest_server_image)
 	docker rmi `docker images --filter "dangling=true" -q --no-trunc`
+
+server-rpi:
+	cd seafile_7.1 && cp -rf ../../scripts_7.1 ./ && docker build -t $(server_image_rpi) .
 
 pro-base:
 	cd pro_base && docker build -t $(pro_base_image) .
