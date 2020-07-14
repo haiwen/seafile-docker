@@ -1,8 +1,6 @@
-#!/usr/bin/env python3
 #coding: UTF-8
 
 '''This script would guide the seafile admin to setup seafile with MySQL'''
-
 import argparse
 import sys
 import os
@@ -27,7 +25,7 @@ except ImportError:
     pass
 
 
-SERVER_MANUAL_HTTP = 'https://github.com/haiwen/seafile/wiki'
+SERVER_MANUAL_HTTP = 'https://download.seafile.com/published/seafile-manual/home.md'
 
 class Utils(object):
     '''Groups all helper functions here'''
@@ -304,6 +302,8 @@ class EnvManager(object):
         self.top_dir = os.path.dirname(self.install_path)
         self.bin_dir = os.path.join(self.install_path, 'seafile', 'bin')
         self.central_config_dir = os.path.join(self.top_dir, 'conf')
+        self.central_pids_dir = os.path.join(self.top_dir, 'pids')
+        self.central_logs_dir = os.path.join(self.top_dir, 'logs')
         Utils.must_mkdir(self.central_config_dir)
 
     def check_pre_condiction(self):
@@ -346,10 +346,8 @@ class EnvManager(object):
             os.path.join(install_path, 'seahub-extra'),
             os.path.join(install_path, 'seahub-extra', 'thirdparts'),
 
-            os.path.join(install_path, 'seafile/lib/python2.6/site-packages'),
-            os.path.join(install_path, 'seafile/lib64/python2.6/site-packages'),
-            os.path.join(install_path, 'seafile/lib/python2.7/site-packages'),
-            os.path.join(install_path, 'seafile/lib64/python2.7/site-packages'),
+            os.path.join(install_path, 'seafile/lib/python3.6/site-packages'),
+            os.path.join(install_path, 'seafile/lib64/python3.6/site-packages'),
         ]
 
         for path in extra_python_path:
@@ -382,12 +380,13 @@ class AbstractDBConfigurator(AbstractConfigurator):
         AbstractConfigurator.__init__(self)
         self.mysql_host = 'localhost'
         self.mysql_port = 3306
+        self.unix_socket = None
 
         self.use_existing_db = False
 
         self.seafile_mysql_user = ''
         self.seafile_mysql_password = ''
-        self.seafile_mysql_userhost = 'localhost'
+        self.seafile_mysql_userhost = '127.0.0.1'
 
         self.root_password = ''
         self.root_conn = ''
@@ -482,17 +481,20 @@ Please choose a way to initialize seafile databases:
 
         print('done')
 
-    def check_mysql_user(self, user, password, host=None):
+    def check_mysql_user(self, user, password, host=None, unix_socket=None):
         print('\nverifying password of user %s ... ' % user, end=' ')
-        kwargs = dict(host=host or self.mysql_host,
-                      port=self.mysql_port,
+        kwargs = dict(port=self.mysql_port,
                       user=user,
                       passwd=password)
+        if unix_socket:
+            kwargs['unix_socket'] = unix_socket
+        else:
+            kwargs['host'] = host or self.mysql_host
 
         try:
             conn = pymysql.connect(**kwargs)
         except Exception as e:
-            if isinstance(e, pymysql.OperationalError):
+            if isinstance(e, pymysql.err.OperationalError):
                 raise InvalidAnswer('Failed to connect to mysql server using user "%s" and password "***": %s' \
                                     % (user, e.args[1]))
             else:
@@ -510,7 +512,7 @@ Please choose a way to initialize seafile databases:
                                    passwd=self.seafile_mysql_password,
                                    db=self.ccnet_db_name)
         except Exception as e:
-            if isinstance(e, pymysql.OperationalError):
+            if isinstance(e, pymysql.err.OperationalError):
                 Utils.error('Failed to connect to mysql database %s: %s' % (self.ccnet_db_name, e.args[1]))
             else:
                 Utils.error('Failed to connect to mysql database %s: %s' % (self.ccnet_db_name, e))
@@ -522,7 +524,7 @@ CREATE TABLE IF NOT EXISTS EmailUser (id INTEGER NOT NULL PRIMARY KEY AUTO_INCRE
         try:
             cursor.execute(sql)
         except Exception as e:
-            if isinstance(e, pymysql.OperationalError):
+            if isinstance(e, pymysql.err.OperationalError):
                 Utils.error('Failed to create ccnet user table: %s' % e.args[1])
             else:
                 Utils.error('Failed to create ccnet user table: %s' % e)
@@ -533,7 +535,7 @@ CREATE TABLE IF NOT EXISTS EmailUser (id INTEGER NOT NULL PRIMARY KEY AUTO_INCRE
         try:
             cursor.execute(sql)
         except Exception as e:
-            if isinstance(e, pymysql.OperationalError):
+            if isinstance(e, pymysql.err.OperationalError):
                 Utils.error('Failed to create admin user: %s' % e.args[1])
             else:
                 Utils.error('Failed to create admin user: %s' % e)
@@ -572,7 +574,7 @@ class NewDBConfigurator(AbstractDBConfigurator):
             # accessed from localhost with unix socket. So we retry with
             # localhost when failing with 127.0.0.1.
             if self.mysql_host == '127.0.0.1':
-                self.root_conn = self.check_mysql_user('root', password, host='localhost')
+                self.root_conn = self.check_mysql_user('root', password, unix_socket=self.unix_socket)
             else:
                 raise
         return password
@@ -595,7 +597,7 @@ class NewDBConfigurator(AbstractDBConfigurator):
             cursor.execute(sql)
             return cursor.fetchall()[0][0]
         except Exception as e:
-            if isinstance(e, pymysql.OperationalError):
+            if isinstance(e, pymysql.err.OperationalError):
                 Utils.error('Failed to check mysql user %s@%s: %s' % \
                             (user, self.seafile_mysql_userhost, e.args[1]))
             else:
@@ -658,7 +660,7 @@ class NewDBConfigurator(AbstractDBConfigurator):
         try:
             cursor.execute(sql)
         except Exception as e:
-            if isinstance(e, pymysql.OperationalError):
+            if isinstance(e, pymysql.err.OperationalError):
                 Utils.error('Failed to create mysql user {}@{}: {}'.format(self.seafile_mysql_user, self.seafile_mysql_userhost, e.args[1]))
             else:
                 Utils.error('Failed to create mysql user {}@{}: {}'.format(self.seafile_mysql_user, self.seafile_mysql_userhost, e))
@@ -674,7 +676,7 @@ class NewDBConfigurator(AbstractDBConfigurator):
         try:
             cursor.execute(sql)
         except Exception as e:
-            if isinstance(e, pymysql.OperationalError):
+            if isinstance(e, pymysql.err.OperationalError):
                 Utils.error('Failed to create database %s: %s' % (db_name, e.args[1]))
             else:
                 Utils.error('Failed to create database %s: %s' % (db_name, e))
@@ -692,7 +694,7 @@ class NewDBConfigurator(AbstractDBConfigurator):
         try:
             cursor.execute(sql)
         except Exception as e:
-            if isinstance(e, pymysql.OperationalError):
+            if isinstance(e, pymysql.err.OperationalError):
                 Utils.error('Failed to grant permission of database %s: %s' % (db_name, e.args[1]))
             else:
                 Utils.error('Failed to grant permission of database %s: %s' % (db_name, e))
@@ -774,7 +776,7 @@ class ExistingDBConfigurator(AbstractDBConfigurator):
             cursor.execute('show tables')
             cursor.close()
         except Exception as e:
-            if isinstance(e, pymysql.OperationalError):
+            if isinstance(e, pymysql.err.OperationalError):
                 raise InvalidAnswer('Failed to access database %s using user "%s" and password "***": %s' \
                                     % (db_name, user, e.args[1]))
             else:
@@ -813,7 +815,6 @@ class CcnetConfigurator(AbstractConfigurator):
             ccnet_init,
             '-F', env_mgr.central_config_dir,
             '--config-dir', self.ccnet_dir,
-            '--name', self.server_name,
             '--host', self.ip_or_domain,
         ]
 
@@ -836,7 +837,7 @@ class CcnetConfigurator(AbstractConfigurator):
             config.add_section(db_section)
         config.set(db_section, 'ENGINE', 'mysql')
         config.set(db_section, 'HOST', db_config.mysql_host)
-        config.set(db_section, 'PORT', db_config.mysql_port)
+        config.set(db_section, 'PORT', str(db_config.mysql_port))
         config.set(db_section, 'USER', db_config.seafile_mysql_user)
         config.set(db_section, 'PASSWD', db_config.seafile_mysql_password)
         config.set(db_section, 'DB', db_config.ccnet_db_name)
@@ -888,14 +889,14 @@ class CcnetConfigurator(AbstractConfigurator):
 class SeafileConfigurator(AbstractConfigurator):
     def __init__(self):
         AbstractConfigurator.__init__(self)
-        self.seafile_dir = None
+        self.seafile_dir = os.path.join(env_mgr.top_dir, 'seafile-data')
         self.port = 12001
         self.fileserver_port = None
         self.seafile_conf = os.path.join(env_mgr.central_config_dir, 'seafile.conf')
 
     def ask_questions(self):
-        if not self.seafile_dir:
-            self.ask_seafile_dir()
+        # if not self.seafile_dir:
+        #     self.ask_seafile_dir()
         # self.ask_port()
         if not self.fileserver_port:
             self.ask_fileserver_port()
@@ -915,7 +916,10 @@ class SeafileConfigurator(AbstractConfigurator):
 
         time.sleep(1)
         self.generate_db_conf()
-        self.write_seafile_ini()
+
+        ## use default seafile-data path: seafile_data_dir=${TOPDIR}/seafile-data
+        # self.write_seafile_ini()
+
         print('done')
 
     def generate_db_conf(self):
@@ -932,7 +936,7 @@ class SeafileConfigurator(AbstractConfigurator):
             config.add_section(db_section)
         config.set(db_section, 'type', 'mysql')
         config.set(db_section, 'host', db_config.mysql_host)
-        config.set(db_section, 'port', db_config.mysql_port)
+        config.set(db_section, 'port', str(db_config.mysql_port))
         config.set(db_section, 'user', db_config.seafile_mysql_user)
         config.set(db_section, 'password', db_config.seafile_mysql_password)
         config.set(db_section, 'db_name', db_config.seafile_db_name)
@@ -1085,41 +1089,6 @@ class SeahubConfigurator(AbstractConfigurator):
                                                  password=True,
                                                  validate=validate)
 
-    def do_syncdb(self):
-        print('----------------------------------------')
-        print('Now creating seahub database tables ...\n')
-        print('----------------------------------------')
-
-        try:
-            conn = pymysql.connect(host=db_config.mysql_host,
-                                   port=db_config.mysql_port,
-                                   user=db_config.seafile_mysql_user,
-                                   passwd=db_config.seafile_mysql_password,
-                                   db=db_config.seahub_db_name)
-        except Exception as e:
-            if isinstance(e, pymysql.OperationalError):
-                Utils.error('Failed to connect to mysql database %s: %s' % (db_config.seahub_db_name, e.args[1]))
-            else:
-                Utils.error('Failed to connect to mysql database %s: %s' % (db_config.seahub_db_name, e))
-
-        cursor = conn.cursor()
-
-        sql_file = os.path.join(env_mgr.install_path, 'seahub', 'sql', 'mysql.sql')
-        with open(sql_file, 'r') as fp:
-            content = fp.read()
-
-        sqls = [line.strip() for line in content.split(';') if line.strip()]
-        for sql in sqls:
-            try:
-                cursor.execute(sql)
-            except Exception as e:
-                if isinstance(e, pymysql.OperationalError):
-                    Utils.error('Failed to init seahub database: %s' % e.args[1])
-                else:
-                    Utils.error('Failed to init seahub database: %s' % e)
-
-        conn.commit()
-
     def prepare_avatar_dir(self):
         # media_dir=${INSTALLPATH}/seahub/media
         # orig_avatar_dir=${INSTALLPATH}/seahub/media/avatars
@@ -1195,6 +1164,42 @@ class ProfessionalConfigurator(AbstractConfigurator):
         if Utils.run_argv(argv, env=env_mgr.get_seahub_env()) != 0:
             Utils.error('Failed to generate seafile pro configuration')
 
+class GunicornConfigurator(AbstractConfigurator):
+    def __init__(self):
+        AbstractConfigurator.__init__(self)
+        self.gunicorn_conf = None
+
+    def ask_questions(self):
+        pass
+
+    def generate(self):
+        self.gunicorn_conf = os.path.join(env_mgr.central_config_dir, 'gunicorn.conf.py')
+        template = '''
+import os
+
+daemon = True
+workers = 5
+
+# default localhost:8000
+bind = "127.0.0.1:8000"
+
+# Pid
+pids_dir = '%(pids_dir)s'
+pidfile = os.path.join(pids_dir, 'seahub.pid')
+
+# for file upload, we need a longer timeout value (default is only 30s, too short)
+timeout = 1200
+
+limit_request_line = 8190
+'''
+
+        text = template % dict(pids_dir=env_mgr.central_pids_dir,
+                               logs_dir=env_mgr.central_logs_dir)
+
+        with open(self.gunicorn_conf, 'w') as fp:
+            fp.write(text)
+
+
 class UserManualHandler(object):
     def __init__(self):
         self.src_docs_dir = os.path.join(env_mgr.install_path, 'seafile', 'docs')
@@ -1258,6 +1263,17 @@ def report_config():
         input()
 
 
+def create_seafile_server_symlink():
+    print('\ncreating seafile-server-latest symbolic link ... ', end=' ')
+    seafile_server_symlink = os.path.join(env_mgr.top_dir, 'seafile-server-latest')
+    try:
+        os.symlink(os.path.basename(env_mgr.install_path), seafile_server_symlink)
+    except Exception as e:
+        print('\n')
+        Utils.error('Failed to create symbolic link %s: %s' % (seafile_server_symlink, e))
+    else:
+        print('done\n\n')
+
 def set_file_perm():
     filemode = 0o600
     dirmode = 0o700
@@ -1279,6 +1295,7 @@ env_mgr = EnvManager()
 ccnet_config = CcnetConfigurator()
 seafile_config = SeafileConfigurator()
 seafdav_config = SeafDavConfigurator()
+gunicorn_config = GunicornConfigurator()
 seahub_config = SeahubConfigurator()
 user_manuals_handler = UserManualHandler()
 pro_config = ProfessionalConfigurator()
@@ -1362,7 +1379,7 @@ def check_params(args):
         if db_config.mysql_host != '127.0.0.1' and not mysql_user_host:
             raise InvalidParams('mysql user host parameter is missing in creating new db mode')
         if not mysql_user_host:
-            db_config.seafile_mysql_userhost = 'localhost'
+            db_config.seafile_mysql_userhost = '127.0.0.1'
         else:
             db_config.seafile_mysql_userhost = db_config.validate_mysql_user_host(mysql_user_host)
 
@@ -1445,16 +1462,15 @@ def main():
     ccnet_config.generate()
     seafile_config.generate()
     seafdav_config.generate()
+    gunicorn_config.generate()
     seahub_config.generate()
     pro_config.generate()
 
-    #seahub_config.do_syncdb()
     seahub_config.prepare_avatar_dir()
     # db_config.create_seahub_admin()
     user_manuals_handler.copy_user_manuals()
     #create_seafile_server_symlink()
 
-    #set_file_perm()
     set_file_perm()
 
     report_success()
