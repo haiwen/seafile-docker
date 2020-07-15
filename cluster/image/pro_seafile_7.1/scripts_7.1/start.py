@@ -30,7 +30,7 @@ def watch_controller():
 
 def main(args):
     call('/scripts/create_data_links.sh')
-    check_upgrade()
+    # check_upgrade()
     os.chdir(installdir)
     call('service nginx start &')
 

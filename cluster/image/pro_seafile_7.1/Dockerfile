@@ -35,7 +35,7 @@ RUN pip3 install --timeout=3600 Pillow pylibmc captcha jinja2 \
     sqlalchemy django-pylibmc django-simple-captcha && \
     rm -r /root/.cache/pip
 
-RUN pip3 install --timeout=3600 boto oss2 pycryptodome twilio python-ldap configparser psd-tools && \
+RUN pip3 install --timeout=3600 boto oss2 pycryptodome twilio python-ldap configparser && \
     rm -r /root/.cache/pip
 
 
@@ -68,4 +68,4 @@ RUN mkdir -p /opt/seafile/ && cd /opt/seafile/ && \
 EXPOSE 80
 
 
-CMD ["/sbin/my_init", "--", "/scripts/start.py"]
+CMD ["/sbin/my_init", "--", "bash", "-l"]

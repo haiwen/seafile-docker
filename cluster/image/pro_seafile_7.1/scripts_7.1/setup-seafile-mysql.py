@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 #coding: UTF-8
 
 '''This script would guide the seafile admin to setup seafile with MySQL'''
