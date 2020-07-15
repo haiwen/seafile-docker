@@ -1,6 +1,6 @@
-# Lastet phusion baseimage as of 20180412, based on ubuntu 18.04
 # See https://hub.docker.com/r/phusion/baseimage/tags/
 FROM phusion/baseimage:0.11
+ENV SEAFILE_SERVER=seafile-pro-server SEAFILE_VERSION=
 
 RUN apt-get update --fix-missing
 
@@ -43,6 +43,7 @@ RUN pip3 install --timeout=3600 boto oss2 pycryptodome twilio python-ldap config
 COPY scripts_7.1 /scripts
 COPY templates /templates
 COPY services /services
+RUN chmod u+x /scripts/*
 
 RUN mkdir -p /etc/my_init.d && \
     rm -f /etc/my_init.d/* && \
@@ -56,8 +57,6 @@ RUN mkdir -p /etc/service/nginx && \
 
 # Seafile
 WORKDIR /opt/seafile
-
-ENV SEAFILE_VERSION=7.1.3 SEAFILE_SERVER=seafile-pro-server
 
 RUN mkdir -p /opt/seafile/ && cd /opt/seafile/ && \
     wget -O seafile-pro-server_${SEAFILE_VERSION}_x86-64_Ubuntu.tar.gz \
