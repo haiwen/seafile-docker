@@ -40,7 +40,10 @@ def main():
     generate_local_nginx_conf()
 
     if not exists(join(shared_seafiledir, 'conf')):
+        print('Start init')
         init_seafile_server()
+    else:
+        print('Conf exists')
 
 if __name__ == '__main__':
     main()

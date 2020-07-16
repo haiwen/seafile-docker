@@ -75,7 +75,7 @@ if [[ ! -e latest_version_dir ]]; then
     ln -sf $current_version_dir $latest_version_dir
 fi
 
-chmod u+x /scripts/*
+# chmod u+x /scripts/*
 
-echo $PYTHON
-$PYTHON /scripts/init.py
+# echo $PYTHON
+# $PYTHON /scripts/init.py
