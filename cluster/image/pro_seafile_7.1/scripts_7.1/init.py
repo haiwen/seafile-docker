@@ -35,13 +35,21 @@ def main():
     if not exists(generated_dir):
         os.makedirs(generated_dir)
 
-    if is_https():
-        init_letsencrypt()
-    generate_local_nginx_conf()
-
     if not exists(join(shared_seafiledir, 'conf')):
         print('Start init')
+
+        # conf
         init_seafile_server()
+
+        # nginx conf
+        if is_https():
+            init_letsencrypt()
+        generate_local_nginx_conf()
+        call('mv -f /etc/nginx/sites-enabled/seafile.nginx.conf /shared/seafile/conf/nginx.conf')
+        call('ln -snf /shared/seafile/conf/nginx.conf /etc/nginx/sites-enabled/default')
+        call('nginx -s reload')
+
+        print('Init success')
     else:
         print('Conf exists')
 

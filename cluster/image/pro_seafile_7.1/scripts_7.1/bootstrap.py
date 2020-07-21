@@ -129,8 +129,34 @@ def init_seafile_server():
     proto = 'https' if is_https() else 'http'
     with open(join(topdir, 'conf', 'seahub_settings.py'), 'a+') as fp:
         fp.write('\n')
-        fp.write('FILE_SERVER_ROOT = "{proto}://{domain}/seafhttp"'.format(proto=proto, domain=domain))
-        fp.write('\n')
+        fp.write("""CACHES = {
+    'default': {
+        'BACKEND': 'django_pylibmc.memcached.PyLibMCCache',
+        'LOCATION': '127.0.0.1:11211',
+    },
+    'locmem': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    },
+}
+COMPRESS_CACHE_BACKEND = 'locmem'
+
+OFFICE_CONVERTOR_ROOT = 'http://127.0.0.1:6000/'\n""")
+        fp.write("\nFILE_SERVER_ROOT = '{proto}://{domain}/seafhttp'\n".format(proto=proto, domain=domain))
+        fp.write("""
+TIME_ZONE                           = 'Europe/Berlin'
+SITE_BASE                           = 'http://127.0.0.1'
+SITE_NAME                           = 'Seafile Server'
+SITE_TITLE                          = 'Seafile Server'
+SITE_ROOT                           = '/'
+ENABLE_SIGNUP                       = False
+ACTIVATE_AFTER_REGISTRATION         = False
+SEND_EMAIL_ON_ADDING_SYSTEM_MEMBER  = True
+SEND_EMAIL_ON_RESETTING_USER_PASSWD = True
+CLOUD_MODE                          = False
+FILE_PREVIEW_MAX_SIZE               = 30 * 1024 * 1024
+SESSION_COOKIE_AGE                  = 60 * 60 * 24 * 7 * 2
+SESSION_SAVE_EVERY_REQUEST          = False
+SESSION_EXPIRE_AT_BROWSER_CLOSE     = False\n""")
 
     # By default ccnet-server binds to the unix socket file
     # "/opt/seafile/ccnet/ccnet.sock", but /opt/seafile/ccnet/ is a mounted
@@ -143,6 +169,24 @@ def init_seafile_server():
         fp.write('[Client]\n')
         fp.write('UNIX_SOCKET = /opt/seafile/ccnet.sock\n')
         fp.write('\n')
+
+    # Disabled the Elasticsearch process on Seafile-container
+    # Connection to the Elasticsearch-container
+    with open(join(topdir, 'conf', 'seafevents.conf'), 'r') as fp:
+        seafevents_lines = fp.readlines()
+        # es
+        es_insert_index = seafevents_lines.index('[INDEX FILES]\n') + 1
+        es_insert_lines = ['external_es_server = true\n', 'es_host = 127.0.0.1\n', 'es_port = 9200\n']
+        for line in es_insert_lines:
+            seafevents_lines.insert(es_insert_index, line)
+        # office
+        office_insert_index = seafevents_lines.index('[OFFICE CONVERTER]\n') + 1
+        office_insert_lines = ['host = 127.0.0.1\n', 'port = 6000\n']
+        for line in office_insert_lines:
+            seafevents_lines.insert(office_insert_index, line)
+
+    with open(join(topdir, 'conf', 'seafevents.conf'), 'w') as fp:
+        fp.writelines(seafevents_lines)
 
     files_to_copy = ['conf', 'ccnet', 'seafile-data', 'seahub-data', 'pro-data']
     for fn in files_to_copy:

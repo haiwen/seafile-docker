@@ -21,6 +21,11 @@ while [ 1 ]; do
     fi
 done
 
+if [[ ! -L /etc/nginx/sites-enabled/default ]]; then
+    ln -s /opt/seafile/conf/nginx.conf /etc/nginx/sites-enabled/default
+    nginx -s reload
+fi
+
 
 log "This is a idle script (infinite loop) to keep container running."
 
