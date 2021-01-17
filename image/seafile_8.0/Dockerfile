@@ -16,6 +16,7 @@ libmysqlclient-dev \
 RUN python3.6 -m pip install --upgrade pip \
 && pip3 install --timeout=3600 click termcolor colorlog pymysql \
 Pillow pylibmc captcha jinja2 sqlalchemy django==1.11.29 django-pylibmc django-simple-captcha \
+future mysqlclient \
 && rm -r /root/.cache/pip
 
 # Scripts
