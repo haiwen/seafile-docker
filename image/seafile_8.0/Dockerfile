@@ -9,6 +9,7 @@ RUN apt-get update --fix-missing && apt-get install -y vim htop net-tools psmisc
 tzdata \
 nginx \
 python3 python3-pip python3-setuptools \
+libmysqlclient-dev \
 && rm -rf /var/lib/apt/lists/*
 
 # Python3
