@@ -2,19 +2,16 @@
 FROM phusion/baseimage:0.11
 ENV SEAFILE_SERVER=seafile-server SEAFILE_VERSION=8.0.2
 
-RUN apt-get update --fix-missing
+RUN export DEBIAN_FRONTEND=noninteractive
 
-# Utility tools
-RUN apt-get install -y vim htop net-tools psmisc wget curl git
-
-# For suport set local time zone.
-RUN export DEBIAN_FRONTEND=noninteractive && apt-get install tzdata -y
-
-# Nginx
-RUN apt-get install -y nginx
+# Package installation
+RUN apt-get update --fix-missing && apt-get install -y vim htop net-tools psmisc wget curl git \
+tzdata \
+nginx \
+python3 python3-pip python3-setuptools \
+&& rm -rf /var/lib/apt/lists/*
 
 # Python3
-RUN apt-get install -y python3 python3-pip python3-setuptools
 RUN python3.6 -m pip install --upgrade pip && rm -r /root/.cache/pip
 
 RUN pip3 install --timeout=3600 click termcolor colorlog pymysql \
