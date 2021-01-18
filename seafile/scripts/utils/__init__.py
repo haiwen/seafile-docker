@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-# coding: UTF-8
-
+#coding: UTF-8
 
 from configparser import ConfigParser
 from contextlib import contextmanager
@@ -16,7 +15,6 @@ import logging.config
 import click
 import termcolor
 import colorlog
-import pymysql
 
 logger = logging.getLogger('.utils')
 
@@ -144,7 +142,7 @@ def get_process_cmd(pid, env=False):
     env = 'e' if env else ''
     try:
         return subprocess.check_output('ps {} -o command {}'.format(env, pid),
-                                       shell=True).decode('utf8').strip().splitlines()[1]
+                                       shell=True).strip().splitlines()[1]
     # except Exception, e:
     #     print(e)
     except:
@@ -153,7 +151,7 @@ def get_process_cmd(pid, env=False):
 def get_match_pids(pattern):
     pgrep_output = subprocess.check_output(
         'pgrep -f "{}" || true'.format(pattern),
-        shell=True).decode('utf8').strip()
+        shell=True).strip()
     return [int(pid) for pid in pgrep_output.splitlines()]
 
 def ask_for_confirm(msg):
@@ -171,7 +169,7 @@ def git_current_commit():
 
 def get_command_output(cmd):
     shell = not isinstance(cmd, list)
-    return subprocess.check_output(cmd, shell=shell).decode('utf8')
+    return subprocess.check_output(cmd, shell=shell)
 
 def ask_yes_or_no(msg, prompt='', default=None):
     print('\n' + msg + '\n')
@@ -198,7 +196,7 @@ def to_unicode(s):
         return s
 
 def to_utf8(s):
-    if isinstance(s, unicode):
+    if isinstance(s, str):
         return s.encode('utf-8')
     else:
         return s
@@ -267,19 +265,10 @@ def update_version_stamp(version, fn=get_version_stamp_file()):
         fp.write(version + '\n')
 
 def wait_for_mysql():
-    db_host = get_conf('DB_HOST', '127.0.0.1')
-    db_user = 'root'
-    db_passwd = get_conf('DB_ROOT_PASSWD', '')
-
-    while True:
-        try:
-            pymysql.connect(host=db_host, port=3306, user=db_user, passwd=db_passwd)
-        except Exception as e:
-            print ('waiting for mysql server to be ready: %s', e)
-            time.sleep(2)
-            continue
-        logdbg('mysql server is ready')
-        return
+    while not exists('/var/run/mysqld/mysqld.sock'):
+        logdbg('waiting for mysql server to be ready')
+        time.sleep(2)
+    logdbg('mysql server is ready')
 
 def wait_for_nginx():
     while True:

@@ -50,4 +50,4 @@ RUN find /opt/seafile/ \( -name "liblber-*" -o -name "libldap-*" -o -name "libld
 EXPOSE 80
 
 
-CMD ["/sbin/my_init", "--", "/scripts/start.py"]
+CMD ["/sbin/my_init", "--", "/scripts/enterpoint.sh"]
