@@ -45,10 +45,3 @@ if [[ ! -e /shared/logs/var-log ]]; then
     mkdir -p /shared/logs/ && mv /var/log /shared/logs/var-log
 fi
 rm -rf /var/log && ln -sf /shared/logs/var-log /var/log
-
-mkdir -p /shared/nginx/conf/
-
-if [[ -e /shared/nginx/conf/seafile.nginx.conf ]]; then
-    rm -rf /etc/nginx/sites-enabled/seafile.nginx.conf && \
-    ln -sf /shared/nginx/conf/seafile.nginx.conf /etc/nginx/sites-enabled
-fi
