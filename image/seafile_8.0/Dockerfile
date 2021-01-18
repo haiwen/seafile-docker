@@ -1,5 +1,5 @@
 # See https://hub.docker.com/r/phusion/baseimage/tags/
-FROM phusion/baseimage:0.11
+FROM phusion/baseimage:bionic-1.0.0
 ENV SEAFILE_SERVER=seafile-server SEAFILE_VERSION=8.0.2
 
 RUN export DEBIAN_FRONTEND=noninteractive
