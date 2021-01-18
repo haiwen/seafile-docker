@@ -50,9 +50,6 @@ def init_letsencrypt():
         loginfo('Found existing cert file {}'.format(ssl_crt))
         if cert_has_valid_days(ssl_crt, 30):
             loginfo('Skip letsencrypt verification since we have a valid certificate')
-            if exists(join(ssl_dir, 'letsencrypt')):
-                # Create a crontab to auto renew the cert for letsencrypt.
-                call('/scripts/auto_renew_crt.sh {0} {1}'.format(ssl_dir, domain))
             return
 
     loginfo('Starting letsencrypt verification')
@@ -61,9 +58,8 @@ def init_letsencrypt():
         'https': False,
         'domain': domain,
     }
-    if not os.path.isfile('/shared/nginx/conf/seafile.nginx.conf'):
-        render_template('/templates/seafile.nginx.conf.template',
-                        '/etc/nginx/sites-enabled/seafile.nginx.conf', context)
+    render_template('/templates/seafile.nginx.conf.template',
+                    '/etc/nginx/sites-enabled/seafile.nginx.conf', context)
 
     call('nginx -s reload')
     time.sleep(2)
@@ -74,9 +70,6 @@ def init_letsencrypt():
     #     time.sleep(1000)
     #     sys.exit(1)
 
-    call('/scripts/auto_renew_crt.sh {0} {1}'.format(ssl_dir, domain))
-    # Create a crontab to auto renew the cert for letsencrypt.
-
 
 def generate_local_nginx_conf():
     # Now create the final nginx configuratin
@@ -85,16 +78,12 @@ def generate_local_nginx_conf():
         'https': is_https(),
         'domain': domain,
     }
+    render_template(
+        '/templates/seafile.nginx.conf.template',
+        '/etc/nginx/sites-enabled/seafile.nginx.conf',
+        context
+    )
 
-    if not os.path.isfile('/shared/nginx/conf/seafile.nginx.conf'):
-        render_template(
-            '/templates/seafile.nginx.conf.template',
-            '/etc/nginx/sites-enabled/seafile.nginx.conf',
-            context
-        )
-        nginx_etc_file = '/etc/nginx/sites-enabled/seafile.nginx.conf'
-        nginx_shared_file = '/shared/nginx/conf/seafile.nginx.conf'
-        call('mv {0} {1} && ln -sf {1} {0}'.format(nginx_etc_file, nginx_shared_file))
 
 def is_https():
     return get_conf('SEAFILE_SERVER_LETSENCRYPT', 'false').lower() == 'true'
@@ -124,22 +113,14 @@ def init_seafile_server():
         'SERVER_IP': get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com'),
         'MYSQL_USER': 'seafile',
         'MYSQL_USER_PASSWD': str(uuid.uuid4()),
-        'MYSQL_USER_HOST': '%.%.%.%',
-        'MYSQL_HOST': get_conf('DB_HOST','127.0.0.1'),
+        'MYSQL_USER_HOST': '127.0.0.1',
         # Default MariaDB root user has empty password and can only connect from localhost.
-        'MYSQL_ROOT_PASSWD': get_conf('DB_ROOT_PASSWD', ''),
+        'MYSQL_ROOT_PASSWD': '',
     }
 
     # Change the script to allow mysql root password to be empty
-    # call('''sed -i -e 's/if not mysql_root_passwd/if not mysql_root_passwd and "MYSQL_ROOT_PASSWD" not in os.environ/g' {}'''
-    #     .format(get_script('setup-seafile-mysql.py')))
-
-    # Change the script to disable check MYSQL_USER_HOST
-    call('''sed -i -e '/def validate_mysql_user_host(self, host)/a \ \ \ \ \ \ \ \ return host' {}'''
-        .format(get_script('setup-seafile-mysql.py')))
-
-    call('''sed -i -e '/def validate_mysql_host(self, host)/a \ \ \ \ \ \ \ \ return host' {}'''
-        .format(get_script('setup-seafile-mysql.py')))
+    call('''sed -i -e 's/if not mysql_root_passwd/if not mysql_root_passwd and "MYSQL_ROOT_PASSWD" not in os.environ/g' {}'''
+         .format(get_script('setup-seafile-mysql.py')))
 
     setup_script = get_script('setup-seafile-mysql.sh')
     call('{} auto -n seafile'.format(setup_script), env=env)
@@ -151,18 +132,31 @@ def init_seafile_server():
         fp.write("""CACHES = {
     'default': {
         'BACKEND': 'django_pylibmc.memcached.PyLibMCCache',
-        'LOCATION': 'memcached:11211',
+        'LOCATION': '127.0.0.1:11211',
     },
     'locmem': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     },
 }
-COMPRESS_CACHE_BACKEND = 'locmem'""")
-        fp.write('\n')
-        fp.write("TIME_ZONE = '{time_zone}'".format(time_zone=os.getenv('TIME_ZONE',default='Etc/UTC')))
-        fp.write('\n')
-        fp.write('FILE_SERVER_ROOT = "{proto}://{domain}/seafhttp"'.format(proto=proto, domain=domain))
-        fp.write('\n')
+COMPRESS_CACHE_BACKEND = 'locmem'
+
+OFFICE_CONVERTOR_ROOT = 'http://127.0.0.1:6000/'\n""")
+        fp.write("\nFILE_SERVER_ROOT = '{proto}://{domain}/seafhttp'\n".format(proto=proto, domain=domain))
+        fp.write("""
+TIME_ZONE                           = 'Europe/Berlin'
+SITE_BASE                           = 'http://127.0.0.1'
+SITE_NAME                           = 'Seafile Server'
+SITE_TITLE                          = 'Seafile Server'
+SITE_ROOT                           = '/'
+ENABLE_SIGNUP                       = False
+ACTIVATE_AFTER_REGISTRATION         = False
+SEND_EMAIL_ON_ADDING_SYSTEM_MEMBER  = True
+SEND_EMAIL_ON_RESETTING_USER_PASSWD = True
+CLOUD_MODE                          = False
+FILE_PREVIEW_MAX_SIZE               = 30 * 1024 * 1024
+SESSION_COOKIE_AGE                  = 60 * 60 * 24 * 7 * 2
+SESSION_SAVE_EVERY_REQUEST          = False
+SESSION_EXPIRE_AT_BROWSER_CLOSE     = False\n""")
 
     # By default ccnet-server binds to the unix socket file
     # "/opt/seafile/ccnet/ccnet.sock", but /opt/seafile/ccnet/ is a mounted
@@ -178,50 +172,22 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
 
     # Disabled the Elasticsearch process on Seafile-container
     # Connection to the Elasticsearch-container
-    if os.path.exists(join(topdir, 'conf', 'seafevents.conf')):
-        with open(join(topdir, 'conf', 'seafevents.conf'), 'r') as fp:
-            fp_lines = fp.readlines()
-            if '[INDEX FILES]\n' in fp_lines:
-               insert_index = fp_lines.index('[INDEX FILES]\n') + 1
-               insert_lines = ['es_port = 9200\n', 'es_host = elasticsearch\n', 'external_es_server = true\n']
-               for line in insert_lines:
-                   fp_lines.insert(insert_index, line)
-
-            # office
-            if '[OFFICE CONVERTER]\n' in fp_lines:
-               insert_index = fp_lines.index('[OFFICE CONVERTER]\n') + 1
-               insert_lines = ['host = 127.0.0.1\n', 'port = 6000\n']
-               for line in insert_lines:
-                   fp_lines.insert(insert_index, line)
-
-        with open(join(topdir, 'conf', 'seafevents.conf'), 'w') as fp:
-            fp.writelines(fp_lines)
-
+    with open(join(topdir, 'conf', 'seafevents.conf'), 'r') as fp:
+        seafevents_lines = fp.readlines()
+        # es
+        es_insert_index = seafevents_lines.index('[INDEX FILES]\n') + 1
+        es_insert_lines = ['external_es_server = true\n', 'es_host = 127.0.0.1\n', 'es_port = 9200\n']
+        for line in es_insert_lines:
+            seafevents_lines.insert(es_insert_index, line)
         # office
-        with open(join(topdir, 'conf', 'seahub_settings.py'), 'r') as fp:
-            fp_lines = fp.readlines()
-            if "OFFICE_CONVERTOR_ROOT = 'http://127.0.0.1:6000/'\n" not in fp_lines:
-                fp_lines.append("OFFICE_CONVERTOR_ROOT = 'http://127.0.0.1:6000/'\n")
+        office_insert_index = seafevents_lines.index('[OFFICE CONVERTER]\n') + 1
+        office_insert_lines = ['host = 127.0.0.1\n', 'port = 6000\n']
+        for line in office_insert_lines:
+            seafevents_lines.insert(office_insert_index, line)
 
-        with open(join(topdir, 'conf', 'seahub_settings.py'), 'w') as fp:
-            fp.writelines(fp_lines)
+    with open(join(topdir, 'conf', 'seafevents.conf'), 'w') as fp:
+        fp.writelines(seafevents_lines)
 
-    # Modify seafdav config
-    if os.path.exists(join(topdir, 'conf', 'seafdav.conf')):
-        with open(join(topdir, 'conf', 'seafdav.conf'), 'r') as fp:
-            fp_lines = fp.readlines()
-            if 'share_name = /\n' in fp_lines:
-               replace_index = fp_lines.index('share_name = /\n')
-               replace_line = 'share_name = /seafdav\n'
-               fp_lines[replace_index] = replace_line
-
-        with open(join(topdir, 'conf', 'seafdav.conf'), 'w') as fp:
-            fp.writelines(fp_lines)
-
-    # After the setup script creates all the files inside the
-    # container, we need to move them to the shared volume
-    #
-    # e.g move "/opt/seafile/seafile-data" to "/shared/seafile/seafile-data"
     files_to_copy = ['conf', 'ccnet', 'seafile-data', 'seahub-data', 'pro-data']
     for fn in files_to_copy:
         src = join(topdir, fn)
