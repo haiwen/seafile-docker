@@ -1,9 +1,10 @@
-localhost
+{
+	auto_https disable_redirects
+}
 
-reverse_proxy / seafile:8000
-
-reverse_proxy /seafhttp seafile:8082
-
-reverse_proxy /seafdav seafile:8080
-
-reverse_proxy /media seahub-media:80
+http:// https:// {
+    reverse_proxy /* seafile:8000
+    reverse_proxy /seafhttp seafile:8082
+    reverse_proxy /seafdav seafile:8080
+    reverse_proxy /media seahub-media:80
+}
