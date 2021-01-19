@@ -6,4 +6,4 @@ reverse_proxy /seafhttp seafile:8082
 
 reverse_proxy /seafdav seafile:8080
 
-reverse_proxy /media seahub-media:8000
+reverse_proxy /media seahub-media:80
