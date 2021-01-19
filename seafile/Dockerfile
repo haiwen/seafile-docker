@@ -40,7 +40,7 @@ RUN mkdir -p /opt/seafile/ && cd /opt/seafile/ && \
 RUN find /opt/seafile/ \( -name "liblber-*" -o -name "libldap-*" -o -name "libldap_r*" -o -name "libsasl2.so*" \) -delete
 
 
-EXPOSE 80
+EXPOSE 8000 8080 8082
 
 
 CMD ["/sbin/my_init", "--", "/scripts/start.py"]
