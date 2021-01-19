@@ -21,18 +21,11 @@ future mysqlclient \
 
 # Scripts
 COPY scripts /scripts
-COPY templates /templates
-COPY services /services
 RUN chmod u+x /scripts/*
 
 RUN mkdir -p /etc/my_init.d && \
     rm -f /etc/my_init.d/* && \
     cp /scripts/create_data_links.sh /etc/my_init.d/01_create_data_links.sh
-
-RUN mkdir -p /etc/service/nginx && \
-    rm -f /etc/nginx/sites-enabled/* /etc/nginx/conf.d/* && \
-    mv /services/nginx.conf /etc/nginx/nginx.conf && \
-    mv /services/nginx.sh /etc/service/nginx/run
 
 
 # Seafile
