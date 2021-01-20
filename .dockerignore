@@ -3,6 +3,3 @@
 *.swp
 .DS_Store
 *.pyc
-
-shared/*
-.snapshot/*

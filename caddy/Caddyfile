@@ -1,0 +1,13 @@
+{
+	auto_https disable_redirects
+}
+
+http:// https:// {
+    reverse_proxy seafile:8000
+    handle_path /seafhttp* {
+        uri strip_prefix seafhttp
+        reverse_proxy seafile:8082
+    }
+    reverse_proxy /seafdav/* seafile:8080
+    reverse_proxy /media/* seahub-media:80
+}

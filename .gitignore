@@ -3,8 +3,3 @@
 *.swp
 .DS_Store
 *.pyc
-
-bootstrap/*
-shared/*
-image/seafile/scripts
-image/pro-seafile/scripts
