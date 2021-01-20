@@ -4,6 +4,8 @@ services:
     image: ggogel/seafile:8.0.2
     volumes:
       - seafile-data:/shared 
+      - seafile-avatars:/seafile/seahub-data/avatars
+      - seafile-custom:/seafile/seahub-data/custom
     environment:
       - DB_HOST=db
       - DB_ROOT_PASSWD=db_dev
@@ -20,8 +22,8 @@ services:
   seahub-media:
     image: ggogel/seahub-media:8.0.2
     volumes:
-     - seafile-data/seafile/seahub-data/avatars:/usr/share/caddy/media/avatars
-     - seafile-data/seafile/seahub-data/custom:/usr/share/caddy/media/custom
+     - seafile-avatars:/usr/share/caddy/media/avatars
+     - seafile-custom:/usr/share/caddy/media/custom
     networks:
       - seafile-net
 
@@ -50,9 +52,10 @@ services:
 
 networks:
   seafile-net:
-    driver: overlay
     internal: true
 
 volumes:
   seafile-data:
   seafile-mariadb:
+  seafile-avatars:
+  seafile-custom:
