@@ -47,9 +47,10 @@ def fix_gunicorn_bind():
     if os.path.exists(join(shared_seafiledir, 'conf', 'gunicorn.conf.py')):
         with open(join(shared_seafiledir, 'conf', 'gunicorn.conf.py'), 'r') as fp:
             fp_lines = fp.readlines()
-            replace_index = fp_lines.index('bind = "127.0.0.1:8000"\n')
-            replace_line = 'bind = "0.0.0.0:8000"\n'
-            fp_lines[replace_index] = replace_line
+            if 'bind = "127.0.0.1:8000"\n' in fp_lines:
+                replace_index = fp_lines.index('bind = "127.0.0.1:8000"\n')
+                replace_line = 'bind = "0.0.0.0:8000"\n'
+                fp_lines[replace_index] = replace_line
 
         with open(join(shared_seafiledir, 'conf', 'gunicorn.conf.py'), 'w') as fp:
             fp.writelines(fp_lines)
@@ -80,7 +81,7 @@ def main():
 
     try:
         call('{} start'.format(get_script('seafile.sh')))
-        call('{} start'.format(get_script('seahub.sh')))
+        #call('{} start'.format(get_script('seahub.sh')))
     finally:
         if exists(password_file):
             os.unlink(password_file)
