@@ -10,9 +10,7 @@ RUN cd /tmp && \
 
 FROM alpine:3.13
 
-RUN mkdir -p /opt/seafile/ && cd /opt/seafile/
-
-COPY --from=get /tmp/seafile-server*/seahub* /opt/seafile/
+# TODO seperate pip stage
 
 RUN apk add \
 python3-dev \
@@ -54,8 +52,15 @@ requests_oauthlib \
 && rm -r /root/.cache/pip
 
 
-WORKDIR /opt/seafile
+RUN apk add bash
+
+RUN mkdir -p /opt/seafile/ && cd /opt/seafile/
+
+COPY --from=get /tmp/seafile-server*/seahub/ /opt/seafile/seahub
+COPY --from=get /tmp/seafile-server*/seahub.sh /opt/seafile
 
 EXPOSE 8000
 
-CMD ["seahub.sh start"]
+WORKDIR /opt/seafile
+
+CMD ["/opt/seafile/seahub.sh", "start", "8000"]
