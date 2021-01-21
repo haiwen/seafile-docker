@@ -51,16 +51,14 @@ pycryptodome \
 requests_oauthlib \
 && rm -r /root/.cache/pip
 
-
 RUN apk add bash
 
-RUN mkdir -p /opt/seafile/ && cd /opt/seafile/
 
-COPY --from=get /tmp/seafile-server*/seahub/ /opt/seafile/seahub
-COPY --from=get /tmp/seafile-server*/seahub.sh /opt/seafile
+COPY --from=get /tmp/seafile-server*/seahub/ /opt/seafile/seafile-server-latest/seahub
+COPY scripts/seahub.sh /opt/seafile/seafile-server-latest
+COPY scripts /scripts
+RUN chmod u+x /scripts/*
 
 EXPOSE 8000
 
-WORKDIR /opt/seafile
-
-CMD ["/opt/seafile/seahub.sh", "start", "8000"]
+CMD ["/scripts/start.sh"]
