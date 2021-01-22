@@ -57,7 +57,7 @@ RUN apk add bash socat
 
 
 COPY --from=get /tmp/seafile-server*/seahub/ /opt/seafile/seafile-server-latest/seahub
-COPY scripts/seahub.sh /opt/seafile/seafile-server-latest
+COPY --from=get /tmp/seafile-server*/seafile/lib64/python3.6/site-packages /usr/lib/python3.6/site-packages
 COPY scripts /scripts
 RUN chmod u+x /scripts/*
 
