@@ -5,7 +5,7 @@ ENV SEAFILE_SERVER=seafile-server SEAFILE_VERSION=8.0.2
 RUN export DEBIAN_FRONTEND=noninteractive
 
 # Package installation
-RUN apt-get update --fix-missing && apt-get install -y vim htop net-tools psmisc wget curl git \
+RUN apt-get update --fix-missing && apt-get install -y vim htop net-tools psmisc wget curl git socat \
 tzdata \
 nginx \
 python3 python3-pip python3-setuptools \
@@ -40,7 +40,7 @@ WORKDIR /opt/seafile
 RUN find /opt/seafile/ \( -name "liblber-*" -o -name "libldap-*" -o -name "libldap_r*" -o -name "libsasl2.so*" \) -delete
 
 
-EXPOSE 8000 8080 8082
+EXPOSE 8080 8082 8001
 
 
 CMD ["/sbin/my_init", "--", "/scripts/start.py"]
