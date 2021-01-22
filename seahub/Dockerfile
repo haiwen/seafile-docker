@@ -25,7 +25,8 @@ lcms2-dev \
 openjpeg-dev \
 tiff-dev \
 tk-dev \
-tcl-dev
+tcl-dev \
+libmemcached-dev
 
 RUN python3 -m pip install --upgrade pip \
 && pip3 install --timeout=3600 \
@@ -49,6 +50,7 @@ pillow \
 pyjwt \
 pycryptodome \
 requests_oauthlib \
+django-pylibmc \
 && rm -r /root/.cache/pip
 
 RUN apk add bash
