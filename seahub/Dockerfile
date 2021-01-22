@@ -8,9 +8,7 @@ RUN cd /tmp && \
     tar -zxvf seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz && \
     rm -f seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz
 
-FROM alpine:3.13
-
-# TODO seperate pip stage
+FROM alpine:3.9 AS pip
 
 RUN apk add \
 python3-dev \
@@ -28,8 +26,8 @@ tk-dev \
 tcl-dev \
 libmemcached-dev
 
-RUN python3 -m pip install --upgrade pip \
-&& pip3 install --timeout=3600 \
+RUN python3 -m pip install --upgrade pip &&\
+pip3 install --timeout=3600 \
 Django==2.2.14 \
 future \
 captcha \
@@ -53,15 +51,29 @@ requests_oauthlib \
 django-pylibmc \
 && rm -r /root/.cache/pip
 
-RUN apk add bash socat
+FROM alpine:3.9
 
+RUN apk add \
+bash \
+socat \
+python3 \
+jpeg \
+zlib \
+freetype \
+lcms2 \
+openjpeg \
+tiff \
+tk \
+mariadb-dev \
+libmemcached
 
-COPY --from=get /tmp/seafile-server*/seahub/ /opt/seafile/seafile-server-latest/seahub
-COPY --from=get /tmp/seafile-server*/seafile/lib64/python3.6/site-packages /usr/lib/python3.6/site-packages
+COPY --from=get /tmp/seafile-server*/seahub /opt/seafile/seafile-server-latest/seahub
+COPY --from=get /tmp/seafile-server*/seafile/lib64/python3.6/site-packages /opt/seafile/seafile-server-latest/seafile/lib64/python3.6/site-packages
+COPY --from=pip /usr/lib/python3.6/site-packages /usr/lib/python3.6/site-packages
 COPY scripts /scripts
 RUN chmod u+x /scripts/*
 
-ENV PYTHONPATH=/usr/lib/python3.6/site-packages:/opt/seafile/seafile-server-latest/seahub/thirdpart
+ENV PYTHONPATH=/usr/lib/python3.6/site-packages:/opt/seafile/seafile-server-latest/seahub/thirdpart:/opt/seafile/seafile-server-latest/seafile/lib64/python3.6/site-packages
 ENV CCNET_CONF_DIR=/opt/seafile/conf/ccnet
 ENV SEAFILE_CONF_DIR=/opt/seafile/seafile-data
 ENV SEAFILE_CENTRAL_CONF_DIR=/opt/seafile/conf
