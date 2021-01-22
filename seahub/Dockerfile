@@ -53,7 +53,7 @@ requests_oauthlib \
 django-pylibmc \
 && rm -r /root/.cache/pip
 
-RUN apk add bash
+RUN apk add bash socat
 
 
 COPY --from=get /tmp/seafile-server*/seahub/ /opt/seafile/seafile-server-latest/seahub
