@@ -23,8 +23,8 @@ services:
     image: ggogel/seahub:8.0.2
     volumes:
       - seafile-data:/shared
-      - seafile-avatars:/shared/seafile/seahub-data/avatars
-      - seafile-custom:/shared/seafile/seahub-data/custom 
+      - seahub-avatars:/shared/seafile/seahub-data/avatars
+      - seahub-custom:/shared/seafile/seahub-data/custom 
     depends_on:
       - seafile-server
       - seafile-caddy
@@ -34,8 +34,8 @@ services:
   seahub-media:
     image: ggogel/seahub-media:8.0.2
     volumes:
-     - seafile-avatars:/usr/share/caddy/media/avatars
-     - seafile-custom:/usr/share/caddy/media/custom
+     - seahub-avatars:/usr/share/caddy/media/avatars
+     - seahub-custom:/usr/share/caddy/media/custom
     depends_on:
       - seafile-server
       - db
@@ -74,5 +74,5 @@ networks:
 volumes:
   seafile-data:
   seafile-mariadb:
-  seafile-avatars:
-  seafile-custom:
+  seahub-avatars:
+  seahub-custom:
