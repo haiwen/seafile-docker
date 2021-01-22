@@ -28,19 +28,12 @@ future mysqlclient \
 COPY scripts /scripts
 RUN chmod u+x /scripts/*
 
-RUN mkdir -p /etc/my_init.d && \
-    rm -f /etc/my_init.d/* && \
-    cp /scripts/create_data_links.sh /etc/my_init.d/01_create_data_links.sh
-
-
 # Seafile
 WORKDIR /opt/seafile
 
 # For using TLS connection to LDAP/AD server with docker-ce.
 RUN find /opt/seafile/ \( -name "liblber-*" -o -name "libldap-*" -o -name "libldap_r*" -o -name "libsasl2.so*" \) -delete
 
-
 EXPOSE 8080 8082 8001
 
-
-CMD ["/sbin/my_init", "--", "/scripts/start.py"]
+CMD ["/sbin/my_init", "--", "/scripts/start.sh"]
