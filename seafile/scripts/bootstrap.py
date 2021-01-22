@@ -29,7 +29,7 @@ generated_dir = '/bootstrap/generated'
 
 
 def is_https():
-    return get_conf('SEAFILE_SERVER_LETSENCRYPT', 'false').lower() == 'true'
+    return get_conf('HTTPS', 'false').lower() == 'true'
 
 def parse_args():
     ap = argparse.ArgumentParser()

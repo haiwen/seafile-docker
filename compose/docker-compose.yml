@@ -1,21 +1,33 @@
 version: '3.8'
-services:        
-  seafile:
-    image: ggogel/seafile:8.0.2
+services:
+  seafile-server:
+    image: ggogel/seafile-server:8.0.2
     volumes:
       - seafile-data:/shared 
-      - seafile-avatars:/seafile/seahub-data/avatars
-      - seafile-custom:/seafile/seahub-data/custom
     environment:
       - DB_HOST=db
       - DB_ROOT_PASSWD=db_dev
       - TIME_ZONE=Europe/Berlin
       - SEAFILE_ADMIN_EMAIL=me@example.com
       - SEAFILE_ADMIN_PASSWORD=asecret
+      - HTTPS=false # Set this to true if you plan to use a reverse proxy with HTTPS. Can be changed later in the admin settings on the web-ui.
       - SEAFILE_SERVER_HOSTNAME=seafile.mydomain.com # Mandatory on first deployment!
     depends_on:
       - db
       - memcached
+      - seafile-caddy
+    networks:
+      - seafile-net
+
+  seahub:
+    image: ggogel/seahub:8.0.2
+    volumes:
+      - seafile-data:/shared
+      - seafile-avatars:/shared/seafile/seahub-data/avatars
+      - seafile-custom:/shared/seafile/seahub-data/custom 
+    depends_on:
+      - seafile-server
+      - seafile-caddy
     networks:
       - seafile-net
   
@@ -24,11 +36,16 @@ services:
     volumes:
      - seafile-avatars:/usr/share/caddy/media/avatars
      - seafile-custom:/usr/share/caddy/media/custom
+    depends_on:
+      - seafile-server
+      - db
+      - memcached
+      - seafile-caddy
     networks:
       - seafile-net
 
   db:
-    image: mariadb:latest
+    image: mariadb:10.5.8
     environment:
       - MYSQL_ROOT_PASSWORD=db_dev
       - MYSQL_LOG_CONSOLE=true
@@ -38,13 +55,13 @@ services:
       - seafile-net
 
   memcached:
-    image: memcached:latest
+    image: memcached:1.6.9
     entrypoint: memcached -m 1024
     networks:
       - seafile-net
 
-  caddy:
-    image: ggogel/seafile-caddy
+  seafile-caddy:
+    image: ggogel/seafile-caddy:0.1
     ports:
       - 80:80 # Point your reverse proxy to port 80 of this service
     networks:
