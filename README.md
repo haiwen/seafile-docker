@@ -136,9 +136,9 @@ Networks:
     The caddy reverse proxy integrated in the deployment exposes **port 80**. Point your reverse proxy to that port.
     
     Long version:
-    This deployment does by design **not** include a reverse proxy that is capable of https and Let's Encrypt, because basically everybody, who uses Docker, already has some docker-based reverse proxy in place that does exactly that. If you're using Docker for a while already, you probably know what to do and you can skip this section.
+    This deployment does by design **not** include a reverse proxy that is capable of https and Let's Encrypt, because usually Docker users already have some reverse docker-based proxy solution deployed, which does exactly that. If you're using Docker for a while already, you probably know what to do and you can skip this section.
 
-    If you are new to Docker or you are interested in another solution, have a look a those options:
+    If you are new to Docker or you are interested in another revers proxy solution, have a look at those options:
     - [jwilder/nginx-proxy](https://github.com/nginx-proxy/nginx-proxy) (recommended for beginners)
         - popular solution for beginners
         - doesn't support Docker Swarm
