@@ -3,11 +3,15 @@
 }
 
 http:// https:// {
-    reverse_proxy seahub:8000
+    reverse_proxy seahub:8000 {
+	    lb_policy ip_hash
+    }
     handle_path /seafhttp* {
         uri strip_prefix seafhttp
         reverse_proxy seafile-server:8082
     }
     reverse_proxy /seafdav/* seafile-server:8080
-    reverse_proxy /media/* seahub-media:80
+    reverse_proxy /media/* seahub-media:80 {
+	    lb_policy ip_hash
+    }
 }
