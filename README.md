@@ -234,3 +234,9 @@ seafile-server:
 ### OAuth
 
 For OAuth the same network problem as with LDAP will occur, but here you will need to hook up the *seahub* service to the external network.
+
+*Tip:* If you always want to use OAuth without clicking on the *Single Sign-On* button, you can rewrite the following paths in your reverse proxy:
+```
+caddy.rewrite: /accounts/login* /oauth/login/?
+```
+
