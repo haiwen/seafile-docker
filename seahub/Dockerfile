@@ -10,7 +10,7 @@ RUN cd /tmp && \
 
 FROM alpine:3.9 AS pip
 
-RUN apk add \
+RUN apk add --no-cache \
 python3-dev \
 py3-pip \
 py3-setuptools \
@@ -53,7 +53,7 @@ django-pylibmc \
 
 FROM alpine:3.9
 
-RUN apk add \
+RUN apk add --no-cache \
 bash \
 socat \
 python3 \
