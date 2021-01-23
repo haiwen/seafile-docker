@@ -55,7 +55,9 @@ Networks:
     - isolated local network used by the services to communicate with each other
 
 ## Getting Started
+
 1. Prerequisites
+
     Requires Docker and docker-compose to be installed.
 2. Get the compose file
     
