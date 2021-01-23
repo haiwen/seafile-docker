@@ -58,7 +58,7 @@ services:
       - seafile-net
 
   seafile-caddy:
-    image: ggogel/seafile-caddy:swarm
+    image: ggogel/seafile-caddy:0.1
     networks:
       - seafile-net
       - caddy
