@@ -112,7 +112,7 @@ Networks:
      ```
     - HTTPS=false
      ```
-     
+
     ### *db*
     Password of the mariadb root user. Must match DB_ROOT_PASSWD.
      ```
@@ -175,26 +175,26 @@ Networks:
     Example for [jwilder/nginx-proxy](https://github.com/nginx-proxy/nginx-proxy)
     ```
     seafile-caddy:
-    image: ggogel/seafile-caddy:0.1
-    ports:
-        80:80
-    networks:
-      - seafile-net
-    environment:
-      - VIRTUAL_HOST=seafile.mydomain.com
+        image: ggogel/seafile-caddy:0.1
+        ports:
+            80:80
+        networks:
+        - seafile-net
+        environment:
+        - VIRTUAL_HOST=seafile.mydomain.com
     ```
 
     Example for [lucaslorentz/caddy-docker-proxy](https://manual.seafile.com/docker/deploy%20seafile%20with%20docker/) on Docker Swarm
     ```
     seafile-caddy:
-    image: ggogel/seafile-caddy:0.1
-    networks:
-      - seafile-net
-      - caddy
-    deploy:
-      labels:
-        caddy: seafile.mydomain.com #this will automatically enable https and Let's Encrypt
-        caddy.reverse_proxy: "{{upstreams 80}}"
+        image: ggogel/seafile-caddy:0.1
+        networks:
+        - seafile-net
+        - caddy
+        deploy:
+        labels:
+            caddy: seafile.mydomain.com #this will automatically enable https and Let's Encrypt
+            caddy.reverse_proxy: "{{upstreams 80}}"
     ```
     Note that you don't need the ports definition any longer with this reverse proxy, because it connects to the service through its own network.
 
