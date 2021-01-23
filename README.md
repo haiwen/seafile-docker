@@ -81,31 +81,45 @@ Networks:
     **Important:** The environment variables are only relevant for the first deployment. Existing configuration in the volumes is **not** overwritten.
 
     On a first deployment you need to carefully set those values. Changing them later can be tricky. Refer to the Seafile documentation on how to change configuration values.
-    ```
-    # seafile-server
-    # The name of the mariadb service, which is automatically the hostname.
+   
+    ### *seafile-server*
+    The name of the mariadb service, which is automatically the docker-internal hostname.
+     ```
     - DB_HOST=db 
-    # Password of the mariadb root user. This must equal MYSQL_ROOT_PASSWORD.
+     ```
+    Password of the mariadb root user. This must equal MYSQL_ROOT_PASSWORD.
+     ```
     - DB_ROOT_PASSWD=db_dev
-    # Time zone
+     ```
+    Time zone used by Seafile.
+     ```
     - TIME_ZONE=Europe/Berlin
-    # Username / E-Mail of the first admin user.
+     ```
+    Username / E-Mail of the first admin user.
+     ```
     - SEAFILE_ADMIN_EMAIL=me@example.com
-    # Password of the first admin user.
+     ```
+    Password of the first admin user.
+     ```
     - SEAFILE_ADMIN_PASSWORD=asecret
-    # This will be used for the SERVICE_URL and FILE_SERVER_ROOT. 
-    # Important: Changing those values in the config files later won't have any effect because they are written to the database
-    # Those values have priority over the config files. To change them enter "System Admin" section on the web-ui.
-    # If you encounter issues with file upload, it's likely that those are configured wrong.
+     ```
+    This will be used for the SERVICE_URL and FILE_SERVER_ROOT. 
+    Important: Changing those values in the config files later won't have any effect because they are written to the database. Those values have priority over the config files. To change them enter the "System Admin" section on the web-ui. If you encounter issues with file upload, it's likely that those are configured incorrectly.
+     ```
     - SEAFILE_SERVER_HOSTNAME=seafile.mydomain.com 
-    # If you plan to use a reverse proxy with https, set this to true. 
-    # This will replace http with https in the SERVICE_URL and FILE_SERVER_ROOT.
+     ```
+    If you plan to use a reverse proxy with https, set this to true. This will replace http with https in the SERVICE_URL and FILE_SERVER_ROOT.
+     ```
     - HTTPS=false
-
-    # db
-    # Password of the mariadb root user. Must match DB_ROOT_PASSWD.
+     ```
+     
+    ### *db*
+    Password of the mariadb root user. Must match DB_ROOT_PASSWD.
+     ```
     - MYSQL_ROOT_PASSWORD=db_dev
-    # Enable logging console.
+     ```
+    Enable logging console.
+     ```
     - MYSQL_LOG_CONSOLE=true
     ```
 
