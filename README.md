@@ -210,3 +210,27 @@ Networks:
     ```
     docker stack deploy -c docker-compose.yml seafile
     ```
+## Additional Information
+    
+### LDAP
+
+In order for LDAP to work, the *seafile-server* needs to be able to establish a connection to the LDAP server. Because the `seafile-net` is defined as `internal: true`, the service won't reach the LDAP server, as long as you don't deploy it in to the same stack and also connect it to `seafile-net`. As a workaround define another network in the `networks` top-level element. Like this:
+```
+networks:
+  seafile-net:
+    internal: true
+  ext:
+```
+If not defined otherwise, the network will automatically have external access.
+Then hook up *seafile-server* to this network:
+```
+seafile-server:
+    ...
+    networks:
+    - seafile-net
+    - ext
+```
+
+### OAuth
+
+For OAuth the same network problem as with LDAP will occur, but here you will need to hook up the *seahub* service to the external network.
