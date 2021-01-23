@@ -56,10 +56,11 @@ Networks:
 
 ## Getting Started
 
-1. Prerequisites
+1. ***Prerequisites***
 
     Requires Docker and docker-compose to be installed.
-2. Get the compose file
+
+2. ***Get the compose file***
     
     #### Docker
    Use this compose file as a starting point.
@@ -75,7 +76,7 @@ Networks:
     wget https://github.com/ggogel/seafile-containerized/blob/master/compose/docker-compose-swarm.yml
     ```
 
-3. Set environment variables
+3. ***Set environment variables***
 
     **Important:** The environment variables are only relevant for the first deployment. Existing configuration in the volumes is **not** overwritten.
 
@@ -108,7 +109,7 @@ Networks:
     - MYSQL_LOG_CONSOLE=true
     ```
 
-4. *(Optional)* Migrating volumes from official Docker deployment or native install
+4. ***(Optional) Migrating volumes from official Docker deployment or native install***
 
     **If you set up Seafile from scratch you can skip this part.**
 
@@ -129,7 +130,7 @@ Networks:
     ```
     Of course you could also just use the old paths but I would strongly advise against that.
 
-5. *(Optional)* Reverse Proxy
+5. ***(Optional) Reverse Proxy***
     
     Short version:
     The caddy reverse proxy integrated in the deployment exposes **port 80**. Point your reverse proxy to that port.
@@ -183,7 +184,7 @@ Networks:
     ```
     Note that you don't need the ports definition any longer with this reverse proxy, because it connects to the service through its own network.
 
-6. Deployment
+6. ***Deployment***
     
     #### Docker Compose
     After you followed the above steps and you have configured everything correctly run:
