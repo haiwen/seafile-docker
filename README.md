@@ -15,6 +15,44 @@ A fully containerized deployment of Seafile for Docker and Docker Swarm.
 
 ## Structure
 
+Services:
+- *seafile-server*
+    - contains the backend component called [seafile-server](https://github.com/haiwen/seafile-server)
+    - handles storage, some direct client access and seafdav
+- *seahub*
+    - dynamic frontend component called [seahub](https://github.com/haiwen/seahub)
+    - serves the web-ui
+    - communicates with seafile-server
+- *seahub-media*
+    - serves static website content as well as avatars and custom logos
+- *db*
+    - the database used by *seafile-server* and *seahub*
+- *memcached*
+    - database cache for *seahub*
+- *seafile-caddy*
+    - reverse proxy that forwards paths to the correct endpoints: *seafile-server*, *seahub* or *seahub-media*
+    - is the single external entrypoint to the deployment
+
+Volumes:
+
+- *seafile-data*
+    - shared data volume of *seafile-server* and *seahub*
+    - also contains configuration and log files
+- *seafile-mariadb*
+    - volume of the *db* service
+    - stores the database
+- *seahub-custom*
+    - contains custom logos
+    - stored by *seahub* and served by *seahub-media*
+- *seahub-avatars*
+    - contains user avatars
+    - stored by *seahub* and served by *seahub-media*
+
+*Note: In the official docker deployment custom and avatars are served by nginx. Seahub alone is not able to serve them for some reason, hence the separate volumes.*
+
+Networks:
+- *seafile-net*
+    - isolated local network used by the services to communicate with each other
 
 ## Getting Started
 1. Prerequisites
