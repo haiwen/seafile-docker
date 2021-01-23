@@ -130,6 +130,7 @@ Networks:
     Of course you could also just use the old paths but I would strongly advise against that.
 
 5. *(Optional)* Reverse Proxy
+    
     Short version:
     The caddy reverse proxy integrated in the deployment exposes **port 80**. Point your reverse proxy to that port.
     
