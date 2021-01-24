@@ -162,7 +162,7 @@ Networks:
         - designed for Docker Swarm but can be used on regular Docker too
         - automatic Let's Encrypt integrated
         - very feature rich
-        - easy configuration but rather complicated setup
+        - first setup can be difficult
     - [traefik](https://doc.traefik.io/traefik/providers/docker/) 
         - very popular
         - supports Docker and Docker Swarm
