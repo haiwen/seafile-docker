@@ -35,13 +35,11 @@ for d in ${dirs[*]}; do
 done
 
 if [[ -e /shared/logs/seafile ]]; then
-    mv /shared/logs/seafile /shared/seafile/logs
-    rm -rf /opt/seafile/logs && ln -sf /shared/seafile/logs /opt/seafile/
-else
-    mkdir -p /shared/seafile/logs && ln -sf /shared/seafile/logs /opt/seafile/
+    rm -rf /shared/logs/seafile /shared/seafile/logs
 fi
-
-if [[ ! -e /shared/logs/var-log ]]; then
-    mkdir -p /shared/logs/ && mv /var/log /shared/logs/var-log
+if [[ -e /shared/seafile/logs ]]; then
+    rm -rf /shared/seafile/logs
 fi
-rm -rf /var/log && ln -sf /shared/logs/var-log /var/log
+if [[ -e /shared/logs/var-log ]]; then
+    rm -rf /shared/logs/var-log
+fi
