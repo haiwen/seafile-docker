@@ -5,3 +5,6 @@ bash \
 bind-tools
 
 COPY Caddyfile /etc/caddy/Caddyfile
+COPY scripts /scripts
+
+CMD ["/scripts/start.sh"]
