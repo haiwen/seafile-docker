@@ -1,4 +1,4 @@
-FROM alpine:3.13 AS alpine
+FROM alpine:3.13 AS get
 ENV SEAFILE_SERVER=seafile-server SEAFILE_VERSION=8.0.2
 
 RUN apk add --no-cache wget
@@ -10,4 +10,4 @@ RUN cd /tmp && \
 
 FROM caddy:2.2.1-alpine
 
-COPY --from=alpine /tmp/seafile-server*/seahub/media/ /usr/share/caddy/media
+COPY --from=get /tmp/seafile-server*/seahub/media/ /usr/share/caddy/media
