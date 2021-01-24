@@ -33,15 +33,3 @@ for d in ${dirs[*]}; do
         rm -rf /opt/seafile/$d && ln -sf $src /opt/seafile
     fi
 done
-
-if [[ -e /shared/logs/seafile ]]; then
-    mv /shared/logs/seafile /shared/seafile/logs
-    rm -rf /opt/seafile/logs && ln -sf /shared/seafile/logs /opt/seafile/
-else
-    mkdir -p /shared/seafile/logs && ln -sf /shared/seafile/logs /opt/seafile/
-fi
-
-if [[ ! -e /shared/logs/var-log ]]; then
-    mkdir -p /shared/logs/ && mv /var/log /shared/logs/var-log
-fi
-rm -rf /var/log && ln -sf /shared/logs/var-log /var/log

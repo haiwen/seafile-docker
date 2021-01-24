@@ -31,6 +31,11 @@ COPY scripts /scripts
 RUN chmod u+x /scripts/*
 COPY --from=get /tmp/seafile-server-${SEAFILE_VERSION} /opt/seafile/seafile-server-${SEAFILE_VERSION}
 
+RUN mkdir -p /opt/seafile/logs &&\
+ln -sf /dev/stdout /opt/seafile/logs/seafile.log &&\
+ln -sf /dev/stdout /opt/seafile/logs/controller.log &&\
+ln -sf /dev/stdout /opt/seafile/logs/ccnet.log
+
 EXPOSE 8080 8082 8001
 
 CMD ["/scripts/start.sh"]
