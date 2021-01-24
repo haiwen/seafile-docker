@@ -10,4 +10,4 @@ RUN cd /tmp && \
 
 FROM caddy:2.2.1-alpine
 
-COPY --from=get /tmp/seafile-server*/seahub/media/ /usr/share/caddy/media
+COPY --from=get /tmp/seafile-server*/seahub/media /usr/share/caddy/media
