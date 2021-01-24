@@ -9,4 +9,4 @@ while [ ! -S /opt/seafile/seafile-server-latest/runtime/seafile.sock ]; do
     sleep 1
 done
 
-socat -v -d -d -d TCP-LISTEN:8001,fork,reuseaddr UNIX:/opt/seafile/seafile-server-latest/runtime/seafile.sock,forever,keepalive
+socat -d -d TCP-LISTEN:8001,fork,reuseaddr UNIX:/opt/seafile/seafile-server-latest/runtime/seafile.sock,forever,keepalive
