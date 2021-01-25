@@ -142,7 +142,7 @@ Networks:
     ```
     Of course you could also just use the old paths but I would strongly advise against that.
 
-     *Tip:* If you want to use a different path, like a separate drive, to store your Docker volumes, simply create a dynamic link like this:
+     *Tip:* If you want to use a different path, like a separate drive, to store your Docker volumes, simply create a symbolic link like this:
     ```
     docker service stop
     mv /var/lib/docker/volumes /var/lib/docker/volumes-bak
