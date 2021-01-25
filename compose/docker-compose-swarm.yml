@@ -29,7 +29,9 @@ services:
     networks:
       - seafile-net
     deploy:
-      replicas: 1
+      mode: replicated
+      replicas: 4
+      endpoint_mode: dnsrr
 
   seahub-media:
     image: ggogel/seahub-media
@@ -39,7 +41,9 @@ services:
     networks:
       - seafile-net
     deploy:
-      replicas: 1
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
 
   db:
     image: mariadb:latest
@@ -58,18 +62,20 @@ services:
       - seafile-net
 
   seafile-caddy:
-    image: ggogel/seafile-caddy:1.0.0
+    image: ggogel/seafile-caddy:1.0.1
+    environment:
+      - SWARM_DNS=true
     networks:
       - seafile-net
       - caddy
     deploy:
-      endpoint_mode: dnsrr # this enables caddy to see all IPs of service's replicas
       labels:
         caddy: http://seafile.gogel.me
         caddy.reverse_proxy: "{{upstreams 80}}"
 
 networks:
   seafile-net:
+    driver: overlay
     internal: true
   caddy:
     external: true

@@ -62,19 +62,16 @@ Networks:
 
 2. ***Get the compose file***
     
-    #### Docker
-   Use this compose file as a starting point.
+    #### Docker Compose
+
+    Use this compose file as a starting point.
     ```
     wget https://github.com/ggogel/seafile-containerized/blob/master/compose/docker-compose.yml
     ```
-    #### Docker Swarm
-    With only one node you can use the above file. If you have multiple nodes, you will either need to force most of the services to run on the same node or you will need some kind of distributed storage or network storage.
-    
-    You can check out this example using [lucaslorentz/caddy-docker-proxy](https://manual.seafile.com/docker/deploy%20seafile%20with%20docker/) as reverse proxy and the GlusterFS plugin [marcelo-ochoa/docker-volume-plugins](https://github.com/marcelo-ochoa/docker-volume-plugins). This resembles my personal setup.
+    #### Docker Swarm 
 
-    ```
-    wget https://github.com/ggogel/seafile-containerized/blob/master/compose/docker-compose-swarm.yml
-    ```
+    If you run a single node swarm and don't want to run multiple replicas, you can use the same compose file. Otherwise refer to [Additional Information / Docker Swarm](#Docker-Swarm-1).
+   
 
 3. ***Set environment variables***
 
@@ -129,6 +126,7 @@ Networks:
 
     The [official Docker deployment](https://manual.seafile.com/docker/deploy%20seafile%20with%20docker/) uses [bind mounts](https://docs.docker.com/storage/bind-mounts/) to the host path instead of actual docker volumes. This was probably chosen to create compatibility between a native install and the docker deployment. This deployment uses [named volumes](https://docs.docker.com/storage/volumes/), which come with several advantages over bind mounts and are the recommended mechanism for persisted storage on Docker. The default path for named volumes on Docker is `/var/lib/docker/volumes/VOLUME_NAME/_data`.
 
+   
     To migrate storage from the official Docker deployment run:
     ```
     mkdir -p /var/lib/docker/volumes/seafile-data/_data
@@ -143,6 +141,15 @@ Networks:
 
     ```
     Of course you could also just use the old paths but I would strongly advise against that.
+
+     *Tip:* If you want to use a different path, like a separate drive, to store your Docker volumes, simply create a dynamic link like this:
+    ```
+    docker service stop
+    mv /var/lib/docker/volumes /var/lib/docker/volumes-bak
+    mkdir -p /mnt/external/volumes
+    ln -sf /mnt/external/volumes /var/lib/docker
+    docker service start
+    ```
 
 5. ***(Optional) Reverse Proxy***
     
@@ -240,3 +247,49 @@ For OAuth the same network problem as with LDAP will occur, but here you will ne
 caddy.rewrite: /accounts/login* /oauth/login/?
 ```
 
+### Docker Swarm
+
+If you want to stacks on a Docker Swarm with multiple nodes or if you want to run replicas of the frontend (clustering), there several things you have to consider first.
+
+**Important:** You can only deploy multiple replicas of the frontend services *seahub* and *seahub-media*. Deploying replicas of the backend or the database would cause data inconsistency or even data corruption.
+
+#### Storage
+In order to make the same volumes available to services running on different nodes, you need an advanced storage solution. This could either be distributed storage like GlusterFS and Ceph or a network storage like a NFS share. The volumes are then usually mounted through storage plugins. The repository [marcelo-ochoa/docker-volume-plugins](https://github.com/marcelo-ochoa/docker-volume-plugins) contains some good storage plugins for Docker Swarm.
+
+```
+wget https://github.com/ggogel/seafile-containerized/blob/master/compose/docker-compose-swarm.yml
+```
+
+#### Network
+If you have services running on different nodes, which have to communicate to each other, you have to define their network as an overlay network. This will span the network across the whole Swarm.
+```
+seafile-net:
+    driver: overlay
+    internal: true
+```
+
+#### Reverse Proxy load balancing
+If you want to run frontend replicas (clustering), you'll need to enable IP hash based load balancing. The load balancer, in this case *seafile-caddy*, will then create so called sticky sessions, which means that a client connecting with a certain IP will be forwarded to the same service for the time being.
+
+To enable IP hash based load balancing you have to configure the following options:
+
+Set the endpoint mode for the frontend services to dnsrr. This will enable *seafile-caddy* to see the IPs of all replicas, instead the default virtual IP (VIP) created by the Swarm routing mesh.
+```
+deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+
+```
+Then you have to set the following environment variable for *seafile-caddy*, which will enable a periodic DNS resolution for the frontend services.
+```
+environment:
+      - SWARM_DNS=true
+```
+
+
+#### Example
+You can check out this example and use it as a starting point for you Docker Swarm deployment. It is using [lucaslorentz/caddy-docker-proxy](https://manual.seafile.com/docker/deploy%20seafile%20with%20docker/) as the external reverse proxy and the GlusterFS plugin from [marcelo-ochoa/docker-volume-plugins](https://github.com/marcelo-ochoa/docker-volume-plugins). This resembles my personal production setup.
+```
+    wget https://github.com/ggogel/seafile-containerized/blob/master/compose/docker-compose.yml
+```
