@@ -126,6 +126,7 @@ Networks:
 
     The [official Docker deployment](https://manual.seafile.com/docker/deploy%20seafile%20with%20docker/) uses [bind mounts](https://docs.docker.com/storage/bind-mounts/) to the host path instead of actual docker volumes. This was probably chosen to create compatibility between a native install and the docker deployment. This deployment uses [named volumes](https://docs.docker.com/storage/volumes/), which come with several advantages over bind mounts and are the recommended mechanism for persisted storage on Docker. The default path for named volumes on Docker is `/var/lib/docker/volumes/VOLUME_NAME/_data`.
 
+   
     To migrate storage from the official Docker deployment run:
     ```
     mkdir -p /var/lib/docker/volumes/seafile-data/_data
@@ -140,6 +141,15 @@ Networks:
 
     ```
     Of course you could also just use the old paths but I would strongly advise against that.
+
+     *Tip:* If you want to use a different path, like a separate drive, to store your Docker volumes, simply create a dynamic link like this:
+    ```
+    docker service stop
+    mv /var/lib/docker/volumes /var/lib/docker/volumes-bak
+    mkdir -p /mnt/external/volumes
+    ln -sf /mnt/external/volumes /var/lib/docker
+    docker service start
+    ```
 
 5. ***(Optional) Reverse Proxy***
     
