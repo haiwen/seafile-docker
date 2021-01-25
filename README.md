@@ -218,6 +218,9 @@ Networks:
     docker stack deploy -c docker-compose.yml seafile
     ```
 ## Additional Information
+
+### Upgrading Seafile Server
+The *seafile-server* images contains scripts that will detect if a newer version of *seafile-server* is deployed and will automatically run the migration scripts included in the Seafile package. Upgrade from 7.1 is succesfully tested.
     
 ### LDAP
 
@@ -256,9 +259,6 @@ If you want to stacks on a Docker Swarm with multiple nodes or if you want to ru
 #### Storage
 In order to make the same volumes available to services running on different nodes, you need an advanced storage solution. This could either be distributed storage like GlusterFS and Ceph or a network storage like a NFS share. The volumes are then usually mounted through storage plugins. The repository [marcelo-ochoa/docker-volume-plugins](https://github.com/marcelo-ochoa/docker-volume-plugins) contains some good storage plugins for Docker Swarm.
 
-```
-wget https://github.com/ggogel/seafile-containerized/blob/master/compose/docker-compose-swarm.yml
-```
 
 #### Network
 If you have services running on different nodes, which have to communicate to each other, you have to define their network as an overlay network. This will span the network across the whole Swarm.
