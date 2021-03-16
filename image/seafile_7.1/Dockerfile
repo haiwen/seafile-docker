@@ -1,4 +1,3 @@
-# Lastet phusion baseimage as of 20180412, based on ubuntu 18.04
 # See https://hub.docker.com/r/phusion/baseimage/tags/
 FROM phusion/baseimage:master-arm
 
@@ -59,6 +58,7 @@ RUN python3.6 -m pip install --timeout=3600 \
 COPY scripts_7.1 /scripts
 COPY templates /templates
 COPY services /services
+RUN chmod u+x /scripts/*
 
 RUN mkdir -p /etc/my_init.d && \
     rm -f /etc/my_init.d/* && \

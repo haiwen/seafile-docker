@@ -1,6 +1,6 @@
 # See https://hub.docker.com/r/phusion/baseimage/tags/
 FROM phusion/baseimage:0.11
-ENV SEAFILE_SERVER=seafile-pro-server SEAFILE_VERSION=
+ENV SEAFILE_SERVER=seafile-server SEAFILE_VERSION=
 
 RUN apt-get update --fix-missing
 
@@ -13,29 +13,18 @@ RUN export DEBIAN_FRONTEND=noninteractive && apt-get install tzdata -y
 # Nginx
 RUN apt-get install -y nginx
 
-# Java
-RUN apt-get install -y openjdk-8-jre
-
-# Libreoffice
-RUN apt-get install -y libreoffice libreoffice-script-provider-python libsm-dev
-RUN apt-get install -y ttf-wqy-microhei ttf-wqy-zenhei xfonts-wqy
-
-# Tools
-RUN apt-get install -y zlib1g-dev pwgen openssl poppler-utils
-
+#
+RUN apt-get install -y libmysqlclient-dev
 
 # Python3
-RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap python-rados
+RUN apt-get install -y python3 python3-pip python3-setuptools
 RUN python3.6 -m pip install --upgrade pip && rm -r /root/.cache/pip
 
 RUN pip3 install --timeout=3600 click termcolor colorlog pymysql \
-    django==1.11.29 && rm -r /root/.cache/pip
+    django==2.2.* && rm -r /root/.cache/pip
 
-RUN pip3 install --timeout=3600 Pillow pylibmc captcha jinja2 \
-    sqlalchemy django-pylibmc django-simple-captcha && \
-    rm -r /root/.cache/pip
-
-RUN pip3 install --timeout=3600 boto oss2 pycryptodome twilio python-ldap configparser && \
+RUN pip3 install --timeout=3600 future mysqlclient Pillow pylibmc captcha jinja2 \
+    sqlalchemy django-pylibmc django-simple-captcha pyjwt && \
     rm -r /root/.cache/pip
 
 
@@ -59,10 +48,12 @@ RUN mkdir -p /etc/service/nginx && \
 WORKDIR /opt/seafile
 
 RUN mkdir -p /opt/seafile/ && cd /opt/seafile/ && \
-    wget -O seafile-pro-server_${SEAFILE_VERSION}_x86-64_Ubuntu.tar.gz \
-    "https://download.seafile.com/d/6e5297246c/files/?p=/pro/seafile-pro-server_${SEAFILE_VERSION}_x86-64_Ubuntu.tar.gz&dl=1" && \
-    tar -zxvf seafile-pro-server_${SEAFILE_VERSION}_x86-64_Ubuntu.tar.gz && \
-    rm -f seafile-pro-server_${SEAFILE_VERSION}_x86-64_Ubuntu.tar.gz
+    wget https://download.seadrive.org/seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz && \
+    tar -zxvf seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz && \
+    rm -f seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz
+
+# For using TLS connection to LDAP/AD server with docker-ce.
+RUN find /opt/seafile/ \( -name "liblber-*" -o -name "libldap-*" -o -name "libldap_r*" -o -name "libsasl2.so*" \) -delete
 
 
 EXPOSE 80

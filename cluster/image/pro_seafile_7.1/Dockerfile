@@ -68,4 +68,4 @@ RUN mkdir -p /opt/seafile/ && cd /opt/seafile/ && \
 EXPOSE 80
 
 
-CMD ["/sbin/my_init", "--", "/scripts/start.py"]
+CMD ["/sbin/my_init", "--", "/scripts/enterpoint.sh"]
