@@ -73,12 +73,12 @@ RUN mkdir -p /etc/service/nginx && \
 # Seafile
 WORKDIR /opt/seafile
 
-ENV SEAFILE_VERSION=7.1.4 SEAFILE_SERVER=seafile-server
+ENV SEAFILE_VERSION=7.1.5 SEAFILE_SERVER=seafile-server
 
 RUN mkdir -p /opt/seafile/ && cd /opt/seafile/ && \
-    wget https://github.com/haiwen/seafile-rpi/releases/download/v7.1.4/seafile-server_7.1.4_pi-bionic-stable.tar.gz && \
-    tar -zxvf seafile-server_${SEAFILE_VERSION}_pi-bionic-stable.tar.gz && \
-    rm -f seafile-server_${SEAFILE_VERSION}_pi-bionic-stable.tar.gz 
+    wget https://github.com/haiwen/seafile-rpi/releases/download/v7.1.5/seafile-server-${SEAFILE_VERSION}-bionic-armv7.tar.gz && \
+    tar -zxvf seafile-server-${SEAFILE_VERSION}-bionic-armv7.tar.gz && \
+    rm -f seafile-server-${SEAFILE_VERSION}-bionic-armv7.tar.gz
     
 
 # For using TLS connection to LDAP/AD server with docker-ce.
@@ -88,4 +88,5 @@ RUN find /opt/seafile/ \( -name "liblber-*" -o -name "libldap-*" -o -name "libld
 EXPOSE 80
 
 
+#CMD ["tail", "-f", "/dev/null" ]
 CMD ["/sbin/my_init", "--", "/scripts/start.py"]
