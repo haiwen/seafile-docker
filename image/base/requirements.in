@@ -2,7 +2,7 @@
 
 # Required by seafile/seahub
 python-memcached==1.58
-urllib3==1.19
+urllib3==1.26.5
 
 # Utility libraries
 click==6.6
