@@ -22,6 +22,7 @@ from bootstrap import init_seafile_server, is_https, init_letsencrypt, generate_
 
 
 shared_seafiledir = '/shared/seafile'
+shared_nginxdir = '/shared/nginx'
 ssl_dir = '/shared/ssl'
 generated_dir = '/bootstrap/generated'
 installdir = get_install_dir()
@@ -44,6 +45,8 @@ def watch_controller():
 def main():
     if not exists(shared_seafiledir):
         os.mkdir(shared_seafiledir)
+    if not exists(shared_nginxdir):
+        os.mkdir(shared_nginxdir)
     if not exists(generated_dir):
         os.makedirs(generated_dir)
 
