@@ -1,17 +1,13 @@
 #!/bin/bash
 
+
 # log function
 function log() {
     local time=$(date +"%F %T")
     echo "$time $1 "
-    echo "[$time] $1 " &>> /opt/seafile/logs/cluster_start.log
+    echo "[$time] $1 " &>> /opt/seafile/logs/enterpoint.log
 }
 
-echo
-log "--- Seafile cluster mode ---"
-echo
-
-ln -sf /opt/seafile/seafile-pro-server-$SEAFILE_VERSION /opt/seafile/seafile-server-latest
 
 # check nginx
 while [ 1 ]; do
@@ -26,7 +22,14 @@ while [ 1 ]; do
 done
 
 
-echo
+# start server
+if [[ $CLUSTER_MODE == "true" && $SEAFILE_SERVER == "seafile-pro-server" ]] ;then
+    log "--- Seafile cluster mode ---"
+else
+    /scripts/start.py &
+fi
+
+
 log "This is a idle script (infinite loop) to keep container running."
 
 function cleanup() {

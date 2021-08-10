@@ -33,7 +33,7 @@ RUN pip3 install --timeout=3600 future mysqlclient Pillow pylibmc captcha jinja2
 
 
 # Scripts
-COPY scripts_7.1 /scripts
+COPY scripts_8.0 /scripts
 COPY templates /templates
 COPY services /services
 RUN chmod u+x /scripts/*
@@ -54,7 +54,8 @@ WORKDIR /opt/seafile
 RUN mkdir -p /opt/seafile/ && cd /opt/seafile/ && \
     wget https://seafile-downloads.oss-cn-shanghai.aliyuncs.com/seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz && \
     tar -zxvf seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz && \
-    rm -f seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz
+    rm -f seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz && \
+    ln -sf /opt/seafile/seafile-server-$SEAFILE_VERSION /opt/seafile/seafile-server-latest
 
 # For using TLS connection to LDAP/AD server with docker-ce.
 RUN find /opt/seafile/ \( -name "liblber-*" -o -name "libldap-*" -o -name "libldap_r*" -o -name "libsasl2.so*" -o -name "libcrypt.so.1" \) -delete
@@ -63,4 +64,4 @@ RUN find /opt/seafile/ \( -name "liblber-*" -o -name "libldap-*" -o -name "libld
 EXPOSE 80
 
 
-CMD ["/sbin/my_init", "--", "/scripts/start.py"]
+CMD ["/sbin/my_init", "--", "/scripts/enterpoint.sh"]
