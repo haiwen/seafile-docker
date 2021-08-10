@@ -21,6 +21,7 @@ RUN apt-get install -y libmemcached11 libmemcached-dev
 
 # Python3
 RUN apt-get install -y python3 python3-pip python3-setuptools
+RUN rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python
 RUN python3 -m pip install --upgrade pip && rm -r /root/.cache/pip
 
 RUN pip3 install --timeout=3600 click termcolor colorlog pymysql \
@@ -51,12 +52,12 @@ RUN mkdir -p /etc/service/nginx && \
 WORKDIR /opt/seafile
 
 RUN mkdir -p /opt/seafile/ && cd /opt/seafile/ && \
-    wget https://download.seadrive.org/seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz && \
+    wget https://seafile-downloads.oss-cn-shanghai.aliyuncs.com/seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz && \
     tar -zxvf seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz && \
     rm -f seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz
 
 # For using TLS connection to LDAP/AD server with docker-ce.
-RUN find /opt/seafile/ \( -name "liblber-*" -o -name "libldap-*" -o -name "libldap_r*" -o -name "libsasl2.so*" \) -delete
+RUN find /opt/seafile/ \( -name "liblber-*" -o -name "libldap-*" -o -name "libldap_r*" -o -name "libsasl2.so*" -o -name "libcrypt.so.1" \) -delete
 
 
 EXPOSE 80

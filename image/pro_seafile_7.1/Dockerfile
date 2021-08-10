@@ -60,7 +60,7 @@ WORKDIR /opt/seafile
 
 RUN mkdir -p /opt/seafile/ && cd /opt/seafile/ && \
     wget -O seafile-pro-server_${SEAFILE_VERSION}_x86-64_Ubuntu.tar.gz \
-    "https://download.seafile.com/d/6e5297246c/files/?p=/pro/seafile-pro-server_${SEAFILE_VERSION}_x86-64_Ubuntu.tar.gz&dl=1" && \
+    "https://download.seafile.top/d/8c29766a64d24122936f/files/?p=/seafile-pro-server_${SEAFILE_VERSION}_x86-64_Ubuntu.tar.gz&dl=1" && \
     tar -zxvf seafile-pro-server_${SEAFILE_VERSION}_x86-64_Ubuntu.tar.gz && \
     rm -f seafile-pro-server_${SEAFILE_VERSION}_x86-64_Ubuntu.tar.gz
 
