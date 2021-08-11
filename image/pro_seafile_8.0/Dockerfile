@@ -47,7 +47,7 @@ RUN pip3 install --timeout=3600 boto oss2 pycryptodome twilio python-ldap config
 
 
 # Scripts
-COPY scripts_7.1 /scripts
+COPY scripts_8.0 /scripts
 COPY templates /templates
 COPY services /services
 RUN chmod u+x /scripts/*
@@ -69,10 +69,11 @@ RUN mkdir -p /opt/seafile/ && cd /opt/seafile/ && \
     wget -O seafile-pro-server_${SEAFILE_VERSION}_x86-64_Ubuntu.tar.gz \
     "https://download.seafile.top/d/8c29766a64d24122936f/files/?p=/seafile-pro-server_${SEAFILE_VERSION}_x86-64_Ubuntu.tar.gz&dl=1" && \
     tar -zxvf seafile-pro-server_${SEAFILE_VERSION}_x86-64_Ubuntu.tar.gz && \
-    rm -f seafile-pro-server_${SEAFILE_VERSION}_x86-64_Ubuntu.tar.gz
+    rm -f seafile-pro-server_${SEAFILE_VERSION}_x86-64_Ubuntu.tar.gz && \
+    ln -sf /opt/seafile/seafile-pro-server-$SEAFILE_VERSION /opt/seafile/seafile-server-latest
 
 
 EXPOSE 80
 
 
-CMD ["/sbin/my_init", "--", "/scripts/start.py"]
+CMD ["/sbin/my_init", "--", "/scripts/enterpoint.sh"]
