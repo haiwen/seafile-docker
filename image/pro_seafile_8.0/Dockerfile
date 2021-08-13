@@ -13,10 +13,10 @@ RUN export DEBIAN_FRONTEND=noninteractive && apt-get install tzdata -y
 # Nginx
 RUN apt-get install -y nginx
 
-#
+# Mysqlclient
 RUN apt-get install -y libmysqlclient-dev
 
-#
+# Memcache
 RUN apt-get install -y libmemcached11 libmemcached-dev
 
 # Java
@@ -29,6 +29,8 @@ RUN apt-get install -y ttf-wqy-microhei ttf-wqy-zenhei xfonts-wqy
 # Tools
 RUN apt-get install -y zlib1g-dev pwgen openssl poppler-utils
 
+# Fuse
+RUN apt-get install -y fuse
 
 # Python3
 RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap python3-rados
@@ -69,8 +71,7 @@ RUN mkdir -p /opt/seafile/ && cd /opt/seafile/ && \
     wget -O seafile-pro-server_${SEAFILE_VERSION}_x86-64_Ubuntu.tar.gz \
     "https://download.seafile.top/d/8c29766a64d24122936f/files/?p=/seafile-pro-server_${SEAFILE_VERSION}_x86-64_Ubuntu.tar.gz&dl=1" && \
     tar -zxvf seafile-pro-server_${SEAFILE_VERSION}_x86-64_Ubuntu.tar.gz && \
-    rm -f seafile-pro-server_${SEAFILE_VERSION}_x86-64_Ubuntu.tar.gz && \
-    ln -sf /opt/seafile/seafile-pro-server-$SEAFILE_VERSION /opt/seafile/seafile-server-latest
+    rm -f seafile-pro-server_${SEAFILE_VERSION}_x86-64_Ubuntu.tar.gz
 
 
 EXPOSE 80

@@ -22,9 +22,11 @@ while [ 1 ]; do
 done
 
 
+# start cluster server
+if [[ $CLUSTER_SERVER == "true" && $SEAFILE_SERVER == "seafile-pro-server" ]] ;then
+    /scripts/cluster_server.sh enterpoint &
+
 # start server
-if [[ $CLUSTER_MODE == "true" && $SEAFILE_SERVER == "seafile-pro-server" ]] ;then
-    log "--- Seafile cluster mode ---"
 else
     /scripts/start.py &
 fi
