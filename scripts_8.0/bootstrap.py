@@ -27,6 +27,15 @@ shared_seafiledir = '/shared/seafile'
 ssl_dir = '/shared/ssl'
 generated_dir = '/bootstrap/generated'
 
+
+def gen_custom_dir():
+    dst_custom_dir = '/shared/seafile/seahub-data/custom'
+    custom_dir = join(installdir, 'seahub/media/custom')
+    if not exists(dst_custom_dir):
+        os.mkdir(dst_custom_dir)
+        call('rm -rf %s' % custom_dir)
+        call('ln -sf %s %s' % (dst_custom_dir, custom_dir))
+
 def init_letsencrypt():
     loginfo('Preparing for letsencrypt ...')
     wait_for_nginx()
@@ -164,18 +173,6 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
         fp.write('FILE_SERVER_ROOT = "{proto}://{domain}/seafhttp"'.format(proto=proto, domain=domain))
         fp.write('\n')
 
-    # By default ccnet-server binds to the unix socket file
-    # "/opt/seafile/ccnet/ccnet.sock", but /opt/seafile/ccnet/ is a mounted
-    # volume from the docker host, and on windows and some linux environment
-    # it's not possible to create unix sockets in an external-mounted
-    # directories. So we change the unix socket file path to
-    # "/opt/seafile/ccnet.sock" to avoid this problem.
-    with open(join(topdir, 'conf', 'ccnet.conf'), 'a+') as fp:
-        fp.write('\n')
-        fp.write('[Client]\n')
-        fp.write('UNIX_SOCKET = /opt/seafile/ccnet.sock\n')
-        fp.write('\n')
-
     # Disabled the Elasticsearch process on Seafile-container
     # Connection to the Elasticsearch-container
     if os.path.exists(join(topdir, 'conf', 'seafevents.conf')):
@@ -229,6 +226,8 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
         if not exists(dst) and exists(src):
             shutil.move(src, shared_seafiledir)
             call('ln -sf ' + join(shared_seafiledir, fn) + ' ' + src)
+
+    gen_custom_dir()
 
     loginfo('Updating version stamp')
     update_version_stamp(os.environ['SEAFILE_VERSION'])
