@@ -172,10 +172,12 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
         fp.write('\n')
         fp.write('FILE_SERVER_ROOT = "{proto}://{domain}/seafhttp"'.format(proto=proto, domain=domain))
         fp.write('\n')
+        # Connection to the Office-preview-container
+        fp.write("OFFICE_CONVERTOR_ROOT = 'http://office-preview:8089'")
+        fp.write('\n')
 
     # Disabled the Elasticsearch process on Seafile-container
     # Connection to the Elasticsearch-container
-    # Connection to the Office-preview-container
     if os.path.exists(join(topdir, 'conf', 'seafevents.conf')):
         with open(join(topdir, 'conf', 'seafevents.conf'), 'r') as fp:
             fp_lines = fp.readlines()
@@ -185,15 +187,6 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
                for line in insert_lines:
                    fp_lines.insert(insert_index, line)
         with open(join(topdir, 'conf', 'seafevents.conf'), 'w') as fp:
-            fp.writelines(fp_lines)
-
-        # office preview
-        office_conf = "OFFICE_CONVERTOR_ROOT = 'http://office-preview:8089'\n"
-        with open(join(topdir, 'conf', 'seahub_settings.py'), 'r') as fp:
-            fp_lines = fp.readlines()
-            if office_conf not in fp_lines:
-                fp_lines.append(office_conf)
-        with open(join(topdir, 'conf', 'seahub_settings.py'), 'w') as fp:
             fp.writelines(fp_lines)
 
     # Modify seafdav config
