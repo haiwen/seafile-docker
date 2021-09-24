@@ -175,6 +175,7 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
 
     # Disabled the Elasticsearch process on Seafile-container
     # Connection to the Elasticsearch-container
+    # Connection to the Office-preview-container
     if os.path.exists(join(topdir, 'conf', 'seafevents.conf')):
         with open(join(topdir, 'conf', 'seafevents.conf'), 'r') as fp:
             fp_lines = fp.readlines()
@@ -183,23 +184,15 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
                insert_lines = ['es_port = 9200\n', 'es_host = elasticsearch\n', 'external_es_server = true\n']
                for line in insert_lines:
                    fp_lines.insert(insert_index, line)
-
-            # office
-            if '[OFFICE CONVERTER]\n' in fp_lines:
-               insert_index = fp_lines.index('[OFFICE CONVERTER]\n') + 1
-               insert_lines = ['host = 127.0.0.1\n', 'port = 6000\n']
-               for line in insert_lines:
-                   fp_lines.insert(insert_index, line)
-
         with open(join(topdir, 'conf', 'seafevents.conf'), 'w') as fp:
             fp.writelines(fp_lines)
 
-        # office
+        # office preview
+        office_conf = "OFFICE_CONVERTOR_ROOT = 'http://office-preview:8089'\n"
         with open(join(topdir, 'conf', 'seahub_settings.py'), 'r') as fp:
             fp_lines = fp.readlines()
-            if "OFFICE_CONVERTOR_ROOT = 'http://127.0.0.1:6000/'\n" not in fp_lines:
-                fp_lines.append("OFFICE_CONVERTOR_ROOT = 'http://127.0.0.1:6000/'\n")
-
+            if office_conf not in fp_lines:
+                fp_lines.append(office_conf)
         with open(join(topdir, 'conf', 'seahub_settings.py'), 'w') as fp:
             fp.writelines(fp_lines)
 
