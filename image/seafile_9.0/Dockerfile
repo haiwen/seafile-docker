@@ -28,7 +28,7 @@ RUN rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python
 RUN python3 -m pip install --upgrade pip && rm -r /root/.cache/pip
 
 RUN pip3 install --timeout=3600 click termcolor colorlog pymysql \
-    django==2.2.* && rm -r /root/.cache/pip
+    django==3.2.* && rm -r /root/.cache/pip
 
 RUN pip3 install --timeout=3600 future mysqlclient Pillow pylibmc captcha jinja2 \
     sqlalchemy django-pylibmc django-simple-captcha pyjwt && \
@@ -36,10 +36,10 @@ RUN pip3 install --timeout=3600 future mysqlclient Pillow pylibmc captcha jinja2
 
 
 # Scripts
-COPY scripts_8.0 /scripts
+COPY scripts_9.0 /scripts
 COPY templates /templates
 COPY services /services
-RUN chmod u+x /scripts/*
+RUN chmod u+x /scripts/* && rm /scripts/cluster*
 
 RUN mkdir -p /etc/my_init.d && \
     rm -f /etc/my_init.d/* && \
