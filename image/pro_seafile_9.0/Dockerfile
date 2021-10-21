@@ -41,7 +41,7 @@ RUN pip3 install --timeout=3600 click termcolor colorlog pymysql \
     django==3.2.* && rm -r /root/.cache/pip
 
 RUN pip3 install --timeout=3600 future mysqlclient Pillow pylibmc captcha jinja2 \
-    sqlalchemy django-pylibmc django-simple-captcha pyjwt && \
+    sqlalchemy django-pylibmc django-simple-captcha pyjwt elasticsearch==6.8.2 elasticsearch-dsl==6.4.0 && \
     rm -r /root/.cache/pip
 
 RUN pip3 install --timeout=3600 boto oss2 pycryptodome twilio python-ldap configparser && \
