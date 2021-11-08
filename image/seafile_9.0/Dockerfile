@@ -25,13 +25,13 @@ RUN apt-get install -y fuse
 # Python3
 RUN apt-get install -y python3 python3-pip python3-setuptools
 RUN rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python
-RUN python3 -m pip install --upgrade pip && rm -r /root/.cache/pip
+RUN python3 -m pip install --upgrade pip -i https://mirrors.aliyun.com/pypi/simple && rm -r /root/.cache/pip
 
 RUN pip3 install --timeout=3600 click termcolor colorlog pymysql \
-    django==3.2.* && rm -r /root/.cache/pip
+    django==3.2.* -i https://mirrors.aliyun.com/pypi/simple && rm -r /root/.cache/pip
 
 RUN pip3 install --timeout=3600 future mysqlclient Pillow pylibmc captcha jinja2 \
-    sqlalchemy django-pylibmc django-simple-captcha pyjwt && \
+    sqlalchemy django-pylibmc django-simple-captcha pyjwt -i https://mirrors.aliyun.com/pypi/simple && \
     rm -r /root/.cache/pip
 
 
@@ -53,11 +53,7 @@ RUN mkdir -p /etc/service/nginx && \
 
 # Seafile
 WORKDIR /opt/seafile
-
-RUN mkdir -p /opt/seafile/ && cd /opt/seafile/ && \
-    wget https://seafile-downloads.oss-cn-shanghai.aliyuncs.com/seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz && \
-    tar -zxvf seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz && \
-    rm -f seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz
+COPY seafile-server-${SEAFILE_VERSION} /opt/seafile/seafile-server-${SEAFILE_VERSION}
 
 # For using TLS connection to LDAP/AD server with docker-ce.
 RUN find /opt/seafile/ \( -name "liblber-*" -o -name "libldap-*" -o -name "libldap_r*" -o -name "libsasl2.so*" -o -name "libcrypt.so.1" \) -delete
