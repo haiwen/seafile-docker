@@ -23,7 +23,7 @@ RUN apt-get install -y libmemcached11 libmemcached-dev
 RUN apt-get install -y fuse
 
 # Ldap
-RUN apt-get install -y ldap-utils
+RUN apt-get install -y ldap-utils ca-certificates
 RUN echo "TLS_REQCERT     allow" >> /etc/ldap/ldap.conf
 
 # Python3

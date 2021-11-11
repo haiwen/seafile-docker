@@ -33,7 +33,7 @@ RUN apt-get install -y zlib1g-dev pwgen openssl poppler-utils
 RUN apt-get install -y fuse
 
 # Ldap
-RUN apt-get install -y ldap-utils
+RUN apt-get install -y ldap-utils ca-certificates
 RUN echo "TLS_REQCERT     allow" >> /etc/ldap/ldap.conf
 
 # Python3
