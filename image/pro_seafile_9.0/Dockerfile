@@ -32,6 +32,10 @@ RUN apt-get install -y zlib1g-dev pwgen openssl poppler-utils
 # Fuse
 RUN apt-get install -y fuse
 
+# Ldap
+RUN apt-get install -y ldap-utils
+RUN echo "TLS_REQCERT     allow" >> /etc/ldap/ldap.conf
+
 # Python3
 RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap python3-rados
 RUN rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python
