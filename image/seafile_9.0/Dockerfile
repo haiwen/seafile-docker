@@ -22,6 +22,10 @@ RUN apt-get install -y libmemcached11 libmemcached-dev
 # Fuse
 RUN apt-get install -y fuse
 
+# Ldap
+RUN apt-get install -y ldap-utils
+RUN echo "TLS_REQCERT     allow" >> /etc/ldap/ldap.conf
+
 # Python3
 RUN apt-get install -y python3 python3-pip python3-setuptools
 RUN rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python
@@ -54,10 +58,6 @@ RUN mkdir -p /etc/service/nginx && \
 # Seafile
 WORKDIR /opt/seafile
 COPY seafile-server-${SEAFILE_VERSION} /opt/seafile/seafile-server-${SEAFILE_VERSION}
-
-# For using TLS connection to LDAP/AD server with docker-ce.
-RUN find /opt/seafile/ \( -name "liblber-*" -o -name "libldap-*" -o -name "libldap_r*" -o -name "libsasl2.so*" -o -name "libcrypt.so.1" \) -delete
-
 
 EXPOSE 80
 
