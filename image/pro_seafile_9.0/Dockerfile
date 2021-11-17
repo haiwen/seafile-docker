@@ -19,6 +19,9 @@ RUN apt-get install -y libmysqlclient-dev
 # Memcache
 RUN apt-get install -y libmemcached11 libmemcached-dev
 
+# SAML
+RUN apt-get install -y libxmlsec1 xmlsec1
+
 # Java
 RUN apt-get install -y openjdk-8-jre
 
