@@ -35,7 +35,7 @@ RUN pip3 install --timeout=3600 click termcolor colorlog pymysql \
     django==3.2.* -i https://mirrors.aliyun.com/pypi/simple && rm -r /root/.cache/pip
 
 RUN pip3 install --timeout=3600 future mysqlclient Pillow pylibmc captcha jinja2 \
-    sqlalchemy django-pylibmc django-simple-captcha pyjwt -i https://mirrors.aliyun.com/pypi/simple && \
+    sqlalchemy django-pylibmc django-simple-captcha pyjwt pycryptodome==3.12.0 -i https://mirrors.aliyun.com/pypi/simple && \
     rm -r /root/.cache/pip
 
 
