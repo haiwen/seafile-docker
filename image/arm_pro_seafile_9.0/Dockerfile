@@ -35,6 +35,9 @@ RUN apt-get install -y zlib1g-dev pwgen openssl poppler-utils
 # Fuse
 RUN apt-get install -y fuse
 
+# Cffi
+RUN apt-get install -y libffi-dev
+
 # Ldap
 RUN apt-get install -y ldap-utils ca-certificates
 RUN echo "TLS_REQCERT     allow" >> /etc/ldap/ldap.conf
