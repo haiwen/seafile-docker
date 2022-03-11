@@ -13,6 +13,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && apt-get install tzdata -y
 # Nginx
 RUN apt-get install -y nginx
 
+# ffmpeg
+RUN apt-get install -y ffmpeg
+
 # Python3
 RUN apt-get install -y python3 python3-pip python3-setuptools
 RUN python3.6 -m pip install --upgrade pip && rm -r /root/.cache/pip
@@ -24,6 +27,8 @@ RUN pip3 install --timeout=3600 Pillow pylibmc captcha jinja2 \
     sqlalchemy django-pylibmc django-simple-captcha && \
     rm -r /root/.cache/pip
 
+RUN pip3 install --timeout=3600 requests_oauthlib moviepy && \
+    rm -r /root/.cache/pip
 
 # Scripts
 COPY scripts_7.1 /scripts

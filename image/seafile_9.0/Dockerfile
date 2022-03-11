@@ -22,6 +22,9 @@ RUN apt-get install -y libmemcached11 libmemcached-dev
 # Fuse
 RUN apt-get install -y fuse
 
+# ffmpeg
+RUN apt-get install -y ffmpeg
+
 # Ldap
 RUN apt-get install -y ldap-utils ca-certificates
 RUN echo "TLS_REQCERT     allow" >> /etc/ldap/ldap.conf
@@ -38,6 +41,8 @@ RUN pip3 install --timeout=3600 future mysqlclient Pillow pylibmc captcha jinja2
     sqlalchemy django-pylibmc django-simple-captcha pyjwt pycryptodome==3.12.0 -i https://mirrors.aliyun.com/pypi/simple && \
     rm -r /root/.cache/pip
 
+RUN pip3 install --timeout=3600 requests_oauthlib moviepy && \
+    rm -r /root/.cache/pip
 
 # Scripts
 COPY scripts_9.0 /scripts
