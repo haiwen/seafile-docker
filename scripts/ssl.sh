@@ -17,7 +17,7 @@ mkdir -p /var/www/challenges && chmod -R 777 /var/www/challenges
 mkdir -p $ssldir
 
 if ! [[ -d $letsencryptdir ]]; then
-    git clone git://github.com/diafygi/acme-tiny.git $letsencryptdir
+    git clone https://github.com/diafygi/acme-tiny.git $letsencryptdir
 else
     cd $letsencryptdir
     git pull origin master:master
