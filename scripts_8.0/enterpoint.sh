@@ -32,7 +32,7 @@ else
 fi
 
 
-log "This is a idle script (infinite loop) to keep container running."
+log "This is an idle script (infinite loop) to keep container running."
 
 function cleanup() {
     kill -s SIGTERM $!
