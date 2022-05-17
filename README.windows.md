@@ -4,7 +4,7 @@
 
 Tested on Windows 10 & Server 2016
 
-Refer to the system requirements for Docker Desktop. If you look over the docker desktop release notes at https://docs.docker.com/desktop/windows/release-notes/ you will see a Deprecation section for some updates. As new versions release the Docker team has chosen to no longer support older builds of Windows. Make sure to download a docker desktop version compatible with your Host OS (ex. Docker Desktop 2.4.0.0 is the last to support Server 2016). You can determine your Windows OS build by using the "**winver**" command on the host.
+Refer to the system requirements for Docker Desktop. If you look over the docker desktop release notes at https://docs.docker.com/desktop/windows/release-notes/ you will see a Deprecation section for some updates. As new versions release the Docker team has chosen to no longer support older builds of Windows. Make sure to download a docker desktop version compatible with your Host OS (ex. Docker Desktop 2.0.0.3 is the last to support Server 2016). You can determine your Windows OS build by using the "**winver**" command on the host.
 
 ## Install the Requirements
 
@@ -58,8 +58,8 @@ A better solution to the above is to implement healthchecks into the yaml. These
 ```
 healthcheck:
       test: ["CMD", "mysqladmin", "ping", "--silent"]
-      interval: 20s
-      timeout: 10s
+      interval: 60s
+      timeout: 30s
       retries: 1
       start_period: 45s   
 ```
@@ -67,8 +67,8 @@ healthcheck:
 ```
 healthcheck:
       test: ["CMD", "echo", "stats", "|", "nc", "127.0.0.1", "11211"]
-      interval: 20s
-      timeout: 10s
+      interval: 60s
+      timeout: 30s
       retries: 1
       start_period: 45s  
 ```   
@@ -76,7 +76,7 @@ healthcheck:
 ```
 healthcheck:
       test: ["CMD", "curl", "-f", "127.0.0.1:80"]
-      interval: 30s
+      interval: 60s
       timeout: 30s
       retries: 1
       start_period: 60s        
