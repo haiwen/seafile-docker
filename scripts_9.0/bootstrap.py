@@ -59,9 +59,12 @@ def init_letsencrypt():
         loginfo('Found existing cert file {}'.format(ssl_crt))
         if cert_has_valid_days(ssl_crt, 30):
             loginfo('Skip letsencrypt verification since we have a valid certificate')
-            if exists(join(ssl_dir, 'letsencrypt')):
-                # Create a crontab to auto renew the cert for letsencrypt.
-                call('/scripts/auto_renew_crt.sh {0} {1}'.format(ssl_dir, domain))
+            # Create a crontab to auto renew the cert for letsencrypt.
+            with open('/var/spool/cron/crontabs/root', 'r') as f:
+                crons = f.read()
+            if '/scripts/ssl.sh' not in crons:
+                call('echo "0 1 * * * /scripts/ssl.sh {0} {1} >> /opt/ssl/letsencrypt.log 2>&1" >> /var/spool/cron/crontabs/root'.format(ssl_dir, domain))
+                call('/usr/bin/crontab /var/spool/cron/crontabs/root')
             return
 
     loginfo('Starting letsencrypt verification')
@@ -83,7 +86,8 @@ def init_letsencrypt():
     #     time.sleep(1000)
     #     sys.exit(1)
 
-    call('/scripts/auto_renew_crt.sh {0} {1}'.format(ssl_dir, domain))
+    call('echo "0 1 * * * /scripts/ssl.sh {0} {1} >> /opt/ssl/letsencrypt.log 2>&1" >> /var/spool/cron/crontabs/root'.format(ssl_dir, domain))
+    call('/usr/bin/crontab /var/spool/cron/crontabs/root')
     # Create a crontab to auto renew the cert for letsencrypt.
 
 

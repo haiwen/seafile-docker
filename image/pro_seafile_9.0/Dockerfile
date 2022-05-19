@@ -5,7 +5,7 @@ ENV SEAFILE_SERVER=seafile-pro-server SEAFILE_VERSION=
 RUN apt-get update --fix-missing
 
 # Utility tools
-RUN apt-get install -y vim htop net-tools psmisc wget curl git
+RUN apt-get install -y vim htop net-tools psmisc wget curl git unzip
 
 # For suport set local time zone.
 RUN export DEBIAN_FRONTEND=noninteractive && apt-get install tzdata -y
@@ -57,6 +57,13 @@ RUN pip3 install --timeout=3600 boto oss2 twilio python-ldap configparser -i htt
 
 # Scripts
 COPY scripts_9.0 /scripts
+
+# acme
+# RUN curl https://get.acme.sh | sh -s
+RUN unzip /scripts/acme.sh-master.zip -d /scripts/ && \
+    mv /scripts/acme.sh-master /scripts/acme.sh && \
+    cd /scripts/acme.sh && /scripts/acme.sh/acme.sh --install
+
 COPY templates /templates
 COPY services /services
 RUN chmod u+x /scripts/*
