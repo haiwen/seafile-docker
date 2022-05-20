@@ -20,8 +20,7 @@ server {
 
 server {
 {% if https -%}
-    listen 443;
-    ssl on;
+    listen 443 ssl;
     ssl_certificate      /shared/ssl/{{ domain }}.crt;
     ssl_certificate_key  /shared/ssl/{{ domain }}.key;
 
