@@ -39,6 +39,11 @@ RUN apt-get install -y fuse
 RUN apt-get install -y ldap-utils ca-certificates
 RUN echo "TLS_REQCERT     allow" >> /etc/ldap/ldap.conf
 
+# Clamav
+RUN apt-get install -y clamdscan iputils-ping
+RUN echo "TCPSocket 3310" >> /etc/clamav/clamd.conf && \
+    echo "TCPAddr av" >> /etc/clamav/clamd.conf
+
 # Python3
 RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap python3-rados
 RUN rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python
