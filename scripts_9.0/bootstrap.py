@@ -176,9 +176,6 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
         fp.write('\n')
         fp.write('FILE_SERVER_ROOT = "{proto}://{domain}/seafhttp"'.format(proto=proto, domain=domain))
         fp.write('\n')
-        # Connection to the Office-preview-container
-        fp.write("OFFICE_CONVERTOR_ROOT = 'http://office-preview:8089'")
-        fp.write('\n')
 
     # Disabled the Elasticsearch process on Seafile-container
     # Connection to the Elasticsearch-container
