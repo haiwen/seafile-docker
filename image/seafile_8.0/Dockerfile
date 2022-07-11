@@ -22,6 +22,9 @@ RUN apt-get install -y libmemcached11 libmemcached-dev
 # Fuse
 RUN apt-get install -y fuse
 
+# ffmpeg
+RUN apt-get install -y ffmpeg
+
 # Python3
 RUN apt-get install -y python3 python3-pip python3-setuptools
 RUN rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python
@@ -34,6 +37,8 @@ RUN pip3 install --timeout=3600 future mysqlclient Pillow pylibmc captcha markup
     sqlalchemy django-pylibmc django-simple-captcha pyjwt && \
     rm -r /root/.cache/pip
 
+RUN pip3 install --timeout=3600 requests_oauthlib moviepy && \
+    rm -r /root/.cache/pip
 
 # Scripts
 COPY scripts_8.0 /scripts
