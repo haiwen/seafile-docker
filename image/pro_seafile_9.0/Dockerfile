@@ -59,6 +59,8 @@ RUN pip3 install --timeout=3600 future mysqlclient Pillow pylibmc captcha markup
 RUN pip3 install --timeout=3600 boto oss2 twilio python-ldap configparser -i https://mirrors.aliyun.com/pypi/simple && \
     rm -r /root/.cache/pip
 
+RUN pip3 install --timeout=3600 psd-tools -i https://mirrors.aliyun.com/pypi/simple && \
+    rm -r /root/.cache/pip
 
 # Scripts
 COPY scripts_9.0 /scripts
