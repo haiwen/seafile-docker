@@ -21,7 +21,7 @@ RUN apt-get install -y python3 python3-pip python3-setuptools && \
     python3 -m pip install --upgrade pip -i https://mirrors.aliyun.com/pypi/simple && rm -r /root/.cache/pip
 
 RUN pip3 install --timeout=3600 click termcolor colorlog pymysql django==3.2.* \
-    future mysqlclient Pillow pylibmc captcha markupsafe==2.0.1 jinja2 \
+    future mysqlclient Pillow pylibmc captcha markupsafe==2.0.1 jinja2 cryptography \
     sqlalchemy django-pylibmc django-simple-captcha pyjwt pycryptodome==3.12.0 psd-tools \
     -i https://mirrors.aliyun.com/pypi/simple && rm -r /root/.cache/pip
 
