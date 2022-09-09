@@ -33,7 +33,7 @@ RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap pytho
 RUN pip3 install --timeout=3600 click termcolor colorlog pymysql django==3.2.* \
     future mysqlclient Pillow pylibmc captcha markupsafe==2.0.1 jinja2 \
     sqlalchemy django-pylibmc django-simple-captcha pyjwt pycryptodome==3.12.0 cffi==1.14.0 \
-    boto oss2 twilio python-ldap configparser psd-tools \
+    boto oss2 twilio python-ldap configparser psd-tools lxml \
     -i https://mirrors.aliyun.com/pypi/simple && rm -r /root/.cache/pip
 
 # Scripts
