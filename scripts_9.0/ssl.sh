@@ -6,6 +6,8 @@ ssldir=${1:?"error params"}
 domain=${2:?"error params"}
 
 mkdir -p /var/www/.well-known/acme-challenge/
+chown -R www-data:www-data /var/www/.well-known/acme-challenge/
+chmod 750 /var/www/.well-known/acme-challenge/
 ln -sf /var/www/.well-known/acme-challenge/ /var/www/challenges
 
 domain_num=$(/root/.acme.sh/acme.sh --home /shared/ssl/ --list | grep "$domain" | grep -v "grep" | wc -l)
