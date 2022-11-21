@@ -42,7 +42,7 @@ function check_python_executable() {
         echo
         echo "Can't find a python executable of version 2.7 or above in PATH"
         echo "Install python 2.7+ before continue."
-        echo "Or if you installed it in a non-standard PATH, set the PYTHON enviroment varirable to it"
+        echo "Or if you installed it in a non-standard PATH, set the PYTHON enviroment variable to it"
         echo
         exit 1
     fi
