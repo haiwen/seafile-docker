@@ -33,6 +33,15 @@ if [[ $NON_ROOT == "true" ]] ;then
 fi
 
 
+# logrotate
+if [[ $NON_ROOT == "true" ]] ;then
+    cat /scripts/logrotate-conf/non-root-logrotate-cron >> /var/spool/cron/crontabs/root
+else
+    cat /scripts/logrotate-conf/logrotate-cron >> /var/spool/cron/crontabs/root
+fi
+/usr/bin/crontab /var/spool/cron/crontabs/root
+
+
 # start cluster server
 if [[ $CLUSTER_SERVER == "true" && $SEAFILE_SERVER == "seafile-pro-server" ]] ;then
     /scripts/cluster_server.sh enterpoint &
