@@ -30,16 +30,11 @@ if [[ $NON_ROOT == "true" ]] ;then
 
     chown -R seafile:seafile /opt/seafile/ 
     chown -R seafile:seafile /shared/
-fi
-
-
-# logrotate
-if [[ $NON_ROOT == "true" ]] ;then
-    cat /scripts/logrotate-conf/non-root-logrotate-cron >> /var/spool/cron/crontabs/root
 else
+# logrotate
     cat /scripts/logrotate-conf/logrotate-cron >> /var/spool/cron/crontabs/root
+    /usr/bin/crontab /var/spool/cron/crontabs/root
 fi
-/usr/bin/crontab /var/spool/cron/crontabs/root
 
 
 # start cluster server

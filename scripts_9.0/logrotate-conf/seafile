@@ -26,7 +26,7 @@
                 fi
 
                 if [ -f /opt/seafile/pids/seahub.pid ]; then
-                        pkill -HUP gunicorn
+                        kill -HUP `cat /opt/seafile/pids/seahub.pid`
                 fi
 
                 find /opt/seafile/logs/ -mtime +7 -name "*.log*" -exec rm -f {} \;
