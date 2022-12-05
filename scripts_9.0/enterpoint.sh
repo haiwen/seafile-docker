@@ -30,6 +30,10 @@ if [[ $NON_ROOT == "true" ]] ;then
 
     chown -R seafile:seafile /opt/seafile/ 
     chown -R seafile:seafile /shared/
+else
+# logrotate
+    cat /scripts/logrotate-conf/logrotate-cron >> /var/spool/cron/crontabs/root
+    /usr/bin/crontab /var/spool/cron/crontabs/root
 fi
 
 
