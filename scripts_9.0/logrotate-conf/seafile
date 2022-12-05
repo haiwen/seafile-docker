@@ -4,11 +4,8 @@
 /opt/seafile/logs/repo_old_file_auto_del_scan.log
 /opt/seafile/logs/seahub_email_sender.log
 /opt/seafile/logs/work_weixin_notice_sender.log
-/opt/seafile/logs/ldap_syncer.log
-/opt/seafile/logs/virus_scan.log
-/opt/seafile/logs/content_scan.log
 /opt/seafile/logs/index.log
-/opt/seafile/logs/repo_old_file_auto_del_scan.log
+/opt/seafile/logs/content_scan.log
 {
         daily
         missingok
