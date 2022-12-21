@@ -107,7 +107,7 @@ def parse_args():
 
 def init_seafile_server():
     version_stamp_file = get_version_stamp_file()
-    if exists(join(shared_seafiledir, 'seafile-data')):
+    if exists(join(topdir, 'conf')):
         if not exists(version_stamp_file):
             update_version_stamp(os.environ['SEAFILE_VERSION'])
         # sysbol link unlink after docker finish.
@@ -115,7 +115,7 @@ def init_seafile_server():
         current_version_dir='/opt/seafile/' + get_conf('SEAFILE_SERVER', 'seafile-server') + '-' +  read_version_stamp()
         if not exists(latest_version_dir):
             call('ln -sf ' + current_version_dir + ' ' + latest_version_dir)
-        loginfo('Skip running setup-seafile-mysql.py because there is existing seafile-data folder.')
+        loginfo('Skip running setup-seafile-mysql.py because there is existing conf folder.')
         return
 
     loginfo('Now running setup-seafile-mysql.py in auto mode.')
