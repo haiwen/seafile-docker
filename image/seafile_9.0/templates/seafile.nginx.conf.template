@@ -85,9 +85,11 @@ server {
         root /opt/seafile/seafile-server-latest/seahub;
     }
 
+{% if https -%}
     # For letsencrypt
     location /.well-known/acme-challenge/ {
         alias /var/www/challenges/;
         try_files $uri =404;
     }
+{% endif -%}
 }
