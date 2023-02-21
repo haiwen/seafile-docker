@@ -975,7 +975,7 @@ class SeafileConfigurator(AbstractConfigurator):
         if not config.has_section(db_section):
             config.add_section(db_section)
         config.set(db_section, 'enabled', 'false')
-        config.set(db_section, 'host', '127.0.0.0')
+        config.set(db_section, 'host', '127.0.0.1')
         config.set(db_section, 'port', '8083')
         config.set(db_section, 'log_level', 'info')
         config.set(db_section, 'jwt_private_key', jwt_private_key)
