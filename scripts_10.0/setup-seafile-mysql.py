@@ -969,7 +969,7 @@ class SeafileConfigurator(AbstractConfigurator):
             Utils.get_python_executable(),
             script,
         ]
-        jwt_private_key = Utils.get_command_output(cmd).strip()
+        jwt_private_key = Utils.get_command_output(cmd).strip().decode('utf8').replace('%', '')
 
         db_section = 'notification'
         if not config.has_section(db_section):
