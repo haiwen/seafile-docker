@@ -50,7 +50,10 @@ def main():
     if is_https():
         init_letsencrypt()
     generate_local_nginx_conf()
-    call('nginx -s reload')
+    try:
+        call('nginx -s reload')
+    except Exception as e:
+        print(e)
 
     wait_for_mysql()
     init_seafile_server()
