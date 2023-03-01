@@ -112,6 +112,13 @@ def generate_local_nginx_conf():
 def is_https():
     return get_conf('SEAFILE_SERVER_LETSENCRYPT', 'false').lower() == 'true'
 
+def get_proto():
+    proto = 'https' if is_https() else 'http'
+    force_https_in_conf = get_conf('FORCE_HTTPS_IN_CONF', 'false').lower() == 'true'
+    if force_https_in_conf:
+        proto = 'https'
+    return proto
+
 def parse_args():
     ap = argparse.ArgumentParser()
     ap.add_argument('--parse-ports', action='store_true')
@@ -158,7 +165,7 @@ def init_seafile_server():
     call('{} auto -n seafile'.format(setup_script), env=env)
 
     domain = get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com')
-    proto = 'https' if is_https() else 'http'
+    proto = get_proto()
     with open(join(topdir, 'conf', 'seahub_settings.py'), 'a+') as fp:
         fp.write('\n')
         fp.write("""CACHES = {
