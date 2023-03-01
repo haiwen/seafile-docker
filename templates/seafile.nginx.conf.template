@@ -1,9 +1,5 @@
 # -*- mode: nginx -*-
 # Auto generated at {{ current_timestr }}
-map $http_upgrade $connection_upgrade {
-default upgrade;
-'' close;
-}
 {% if https -%}
 server {
     listen 80;
