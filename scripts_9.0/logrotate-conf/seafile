@@ -6,6 +6,9 @@
 /opt/seafile/logs/work_weixin_notice_sender.log
 /opt/seafile/logs/index.log
 /opt/seafile/logs/content_scan.log
+/opt/seafile/logs/fileserver-access.log
+/opt/seafile/logs/fileserver-error.log
+/opt/seafile/logs/fileserver.log
 {
         daily
         missingok
@@ -20,6 +23,10 @@
         postrotate
                 if [ -f /opt/seafile/pids/seaf-server.pid ]; then
                         kill -USR1 `cat /opt/seafile/pids/seaf-server.pid`
+                fi
+
+                if [ -f /opt/seafile/pids/fileserver.pid ]; then
+                        kill -USR1 `cat /opt/seafile/pids/fileserver.pid`
                 fi
 
                 if [ -f /opt/seafile/pids/seahub.pid ]; then
