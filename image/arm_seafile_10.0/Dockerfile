@@ -2,6 +2,10 @@
 FROM phusion/baseimage:focal-1.0.0-arm64
 ENV SEAFILE_SERVER=seafile-server SEAFILE_VERSION=
 
+RUN echo "deb http://nginx.org/packages/ubuntu `lsb_release -cs` nginx" \
+    | tee /etc/apt/sources.list.d/nginx.list \
+    && curl -fsSL https://nginx.org/keys/nginx_signing.key | apt-key add -
+
 RUN apt-get update --fix-missing
 
 # Utility tools
