@@ -26,7 +26,7 @@ RUN apt-get install -y python3 python3-pip python3-setuptools && \
 
 RUN pip3 install --timeout=3600 click termcolor colorlog pymysql django==3.2.* \
     future==0.18.* mysqlclient==2.1.* pillow==9.3.* pylibmc captcha==0.4 markupsafe==2.0.1 jinja2 \
-    sqlalchemy django-pylibmc django_simple_captcha==0.5.* pyjwt==2.6.* pycryptodome==3.16.* psd-tools lxml \
+    sqlalchemy django-pylibmc django_simple_captcha==0.5.* pyjwt==2.6.* djangosaml2==1.5.* pysaml2==7.2.* pycryptodome==3.16.* cffi==1.15.1 psd-tools lxml \
     -i https://pypi.tuna.tsinghua.edu.cn/simple/ && rm -r /root/.cache/pip
 
 # Scripts
