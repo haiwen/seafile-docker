@@ -2,6 +2,10 @@
 FROM phusion/baseimage:focal-1.0.0-arm64
 ENV SEAFILE_SERVER=seafile-server SEAFILE_VERSION=
 
+RUN echo "deb http://nginx.org/packages/ubuntu `lsb_release -cs` nginx" \
+    | tee /etc/apt/sources.list.d/nginx.list \
+    && curl -fsSL https://nginx.org/keys/nginx_signing.key | apt-key add -
+
 RUN apt-get update --fix-missing
 
 # Utility tools
@@ -42,6 +46,7 @@ RUN echo "TLS_REQCERT     allow" >> /etc/ldap/ldap.conf && \
     rm -f /etc/my_init.d/* && \
     cp /scripts/create_data_links.sh /etc/my_init.d/01_create_data_links.sh && \
     mkdir -p /etc/service/nginx && \
+    mkdir -p /etc/nginx/sites-enabled && mkdir -p /etc/nginx/sites-available && \
     rm -f /etc/nginx/sites-enabled/* /etc/nginx/conf.d/* && \
     mv /services/nginx.conf /etc/nginx/nginx.conf && \
     mv /services/nginx.sh /etc/service/nginx/run

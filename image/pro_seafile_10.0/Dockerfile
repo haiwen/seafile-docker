@@ -23,6 +23,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && apt-get install -y tzdata \
     clamdscan iputils-ping \
     ttf-wqy-microhei ttf-wqy-zenhei xfonts-wqy
 
+# Java
+RUN apt-get install -y openjdk-8-jre
+
 # Python3
 RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap python3-rados && \
     rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python && \
@@ -53,6 +56,7 @@ RUN echo "TLS_REQCERT     allow" >> /etc/ldap/ldap.conf && \
     rm -f /etc/my_init.d/* && \
     cp /scripts/create_data_links.sh /etc/my_init.d/01_create_data_links.sh && \
     mkdir -p /etc/service/nginx && \
+    mkdir -p /etc/nginx/sites-enabled && mkdir -p /etc/nginx/sites-available && \
     rm -f /etc/nginx/sites-enabled/* /etc/nginx/conf.d/* && \
     mv /services/nginx.conf /etc/nginx/nginx.conf && \
     mv /services/nginx.sh /etc/service/nginx/run
