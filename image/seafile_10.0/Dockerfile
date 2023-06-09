@@ -6,7 +6,8 @@ RUN echo "deb http://nginx.org/packages/ubuntu `lsb_release -cs` nginx" \
     | tee /etc/apt/sources.list.d/nginx.list \
     && curl -fsSL https://nginx.org/keys/nginx_signing.key | apt-key add -
 
-RUN apt-get update --fix-missing
+# Security
+RUN apt-get update --fix-missing && apt-get upgrade -y
 
 # Utility tools
 RUN apt-get install -y vim htop net-tools psmisc wget curl git unzip
