@@ -100,7 +100,7 @@ server {
         root /opt/seafile/seafile-server-latest/seahub;
     }
 
-{% if https -%}
+{% if is_tmp or https -%}
     # For letsencrypt
     location /.well-known/acme-challenge/ {
         alias /var/www/challenges/;

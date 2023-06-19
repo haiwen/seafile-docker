@@ -72,6 +72,7 @@ def init_letsencrypt():
     context = {
         'https': False,
         'domain': domain,
+        'is_tmp': True,
     }
     if not os.path.isfile('/shared/nginx/conf/seafile.nginx.conf'):
         render_template('/templates/seafile.nginx.conf.template',
@@ -97,6 +98,7 @@ def generate_local_nginx_conf():
     context = {
         'https': is_https(),
         'domain': domain,
+        'is_tmp': False,
     }
 
     if not os.path.isfile('/shared/nginx/conf/seafile.nginx.conf'):
