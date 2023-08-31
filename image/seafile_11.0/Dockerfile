@@ -59,7 +59,7 @@ RUN mkdir -p /opt/seafile/ && cd /opt/seafile/ && \
     wget https://seafile-downloads.oss-cn-shanghai.aliyuncs.com/seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz && \
     tar -zxvf seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz && \
     rm -f seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz && \
-    find /opt/seafile/ \( -name "liblber-*" -o -name "libldap-*" -o -name "libldap_r*" -o -name "libsasl2.so*" -o -name "libcrypt.so.1" \) -delete
+    find /opt/seafile/ \( -name "liblber-*" -o -name "libsasl2.so*" -o -name "libcrypt.so.1" \) -delete
 
 EXPOSE 80
 
