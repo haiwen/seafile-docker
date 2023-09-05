@@ -1,5 +1,5 @@
 # See https://hub.docker.com/r/phusion/baseimage/tags/
-FROM phusion/baseimage:focal-1.2.0
+FROM phusion/baseimage:jammy-1.0.1
 ENV SEAFILE_SERVER=seafile-server SEAFILE_VERSION=
 
 RUN echo "deb http://nginx.org/packages/ubuntu `lsb_release -cs` nginx" \
@@ -18,7 +18,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && apt-get install -y tzdata \
     libmysqlclient-dev \
     libmemcached11 libmemcached-dev \
     fuse \
-    ldap-utils ca-certificates
+    ldap-utils libldap2-dev ca-certificates
 
 # Python3
 RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap && \
@@ -27,7 +27,8 @@ RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap && \
 
 RUN pip3 install --timeout=3600 click termcolor colorlog pymysql django==3.2.* \
     future==0.18.* mysqlclient==2.1.* pillow==9.3.* pylibmc captcha==0.4 markupsafe==2.0.1 jinja2 \
-    sqlalchemy==2.0.18 django-pylibmc django_simple_captcha==0.5.* pyjwt==2.6.* djangosaml2==1.5.* pysaml2==7.2.* pycryptodome==3.16.* cffi==1.15.1 psd-tools python-ldap lxml \
+    sqlalchemy==2.0.18 django-pylibmc django_simple_captcha==0.5.* pyjwt==2.6.* djangosaml2==1.5.* pysaml2==7.2.* pycryptodome==3.16.* cffi==1.15.1 \
+    python-ldap==3.4.3 psd-tools lxml \
     -i https://pypi.tuna.tsinghua.edu.cn/simple/ && rm -r /root/.cache/pip
 
 # Scripts
@@ -41,7 +42,7 @@ RUN unzip /scripts/acme.sh-master.zip -d /scripts/ && \
     mv /scripts/acme.sh-master /scripts/acme.sh && \
     cd /scripts/acme.sh && /scripts/acme.sh/acme.sh --install
 
-RUN echo "TLS_REQCERT     allow" >> /etc/ldap/ldap.conf && \
+RUN mkdir -p /etc/ldap/ && echo "TLS_REQCERT     allow" >> /etc/ldap/ldap.conf && \
     chmod u+x /scripts/* && rm /scripts/cluster* && \
     mkdir -p /etc/my_init.d && \
     rm -f /etc/my_init.d/* && \
@@ -58,8 +59,7 @@ WORKDIR /opt/seafile
 RUN mkdir -p /opt/seafile/ && cd /opt/seafile/ && \
     wget https://seafile-downloads.oss-cn-shanghai.aliyuncs.com/seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz && \
     tar -zxvf seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz && \
-    rm -f seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz && \
-    find /opt/seafile/ \( -name "liblber-*" -o -name "libsasl2.so*" -o -name "libcrypt.so.1" \) -delete
+    rm -f seafile-server_${SEAFILE_VERSION}_x86-64.tar.gz
 
 EXPOSE 80
 

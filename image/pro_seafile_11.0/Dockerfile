@@ -1,5 +1,5 @@
 # See https://hub.docker.com/r/phusion/baseimage/tags/
-FROM phusion/baseimage:focal-1.2.0
+FROM phusion/baseimage:jammy-1.0.1
 ENV SEAFILE_SERVER=seafile-pro-server SEAFILE_VERSION=
 
 RUN echo "deb http://nginx.org/packages/ubuntu `lsb_release -cs` nginx" \
@@ -20,7 +20,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && apt-get install -y tzdata \
     libxmlsec1 xmlsec1 \
     zlib1g-dev pwgen openssl poppler-utils \
     fuse \
-    ldap-utils ca-certificates \
+    ldap-utils libldap2-dev ca-certificates \
     clamdscan iputils-ping \
     ttf-wqy-microhei ttf-wqy-zenhei xfonts-wqy
 
@@ -32,7 +32,7 @@ RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap pytho
 RUN pip3 install --timeout=3600 click termcolor colorlog pymysql django==3.2.* \
     future==0.18.* mysqlclient==2.1.* pillow==9.3.* pylibmc captcha==0.4 markupsafe==2.0.1 jinja2 \
     sqlalchemy==2.0.18 django-pylibmc django_simple_captcha==0.5.* pyjwt==2.6.* djangosaml2==1.5.* pysaml2==7.2.* pycryptodome==3.16.* cffi==1.15.1 \
-    boto oss2 twilio python-ldap configparser psd-tools lxml \
+    boto oss2 twilio python-ldap==3.4.3 configparser psd-tools lxml \
     -i https://pypi.tuna.tsinghua.edu.cn/simple/ && rm -r /root/.cache/pip
 
 # Scripts
@@ -46,8 +46,8 @@ RUN unzip /scripts/acme.sh-master.zip -d /scripts/ && \
     mv /scripts/acme.sh-master /scripts/acme.sh && \
     cd /scripts/acme.sh && /scripts/acme.sh/acme.sh --install
 
-RUN echo "TLS_REQCERT     allow" >> /etc/ldap/ldap.conf && \
-    echo "TCPSocket 3310" >> /etc/clamav/clamd.conf && \
+RUN mkdir -p /etc/ldap/ && echo "TLS_REQCERT     allow" >> /etc/ldap/ldap.conf && \
+    mkdir -p /etc/clamav/ && echo "TCPSocket 3310" >> /etc/clamav/clamd.conf && \
     echo "TCPAddr av" >> /etc/clamav/clamd.conf && \
     chmod u+x /scripts/* && \
     mkdir -p /etc/my_init.d && \
