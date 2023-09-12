@@ -2,6 +2,7 @@
 # Auto generated at {{ current_timestr }}
 {% if https -%}
 server {
+    listen [::]:80;
     listen 80;
     server_name _ default_server;
 
@@ -20,6 +21,7 @@ server {
 
 server {
 {% if https -%}
+    listen [::]:443;
     listen 443;
     ssl on;
     ssl_certificate      /shared/ssl/{{ domain }}.crt;
@@ -33,6 +35,7 @@ server {
     # ssl_session_cache shared:SSL:10m;
     # ssl_session_timeout 10m;
 {% else -%}
+    listen [::]:80;
     listen 80;
 {% endif -%}
 
