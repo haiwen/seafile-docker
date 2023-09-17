@@ -17,8 +17,10 @@ from utils import (
     call, get_conf, get_install_dir, loginfo,
     get_script, render_template, get_seafile_version, eprint,
     cert_has_valid_days, get_version_stamp_file, update_version_stamp,
-    wait_for_mysql, wait_for_nginx, read_version_stamp
+    wait_for_mysql, read_version_stamp, set_key, listen_on_https
 )
+import utils.settings
+import utils.nginx
 
 seafile_version = get_seafile_version()
 installdir = get_install_dir()
@@ -29,7 +31,7 @@ generated_dir = '/bootstrap/generated'
 
 def init_letsencrypt():
     loginfo('Preparing for letsencrypt ...')
-    wait_for_nginx()
+    utils.nginx.wait_for_nginx()
 
     if not exists(ssl_dir):
         os.mkdir(ssl_dir)
@@ -56,17 +58,8 @@ def init_letsencrypt():
             return
 
     loginfo('Starting letsencrypt verification')
-    # Create a temporary nginx conf to start a server, which would accessed by letsencrypt
-    context = {
-        'https': False,
-        'domain': domain,
-    }
-    if not os.path.isfile('/shared/nginx/conf/seafile.nginx.conf'):
-        render_template('/templates/seafile.nginx.conf.template',
-                        '/etc/nginx/sites-enabled/seafile.nginx.conf', context)
-
-    call('nginx -s reload')
-    time.sleep(2)
+    # Create a temporary nginx conf to start a server, which would be accessed by letsencrypt
+    utils.nginx.change_nginx_config(False, True)
 
     call('/scripts/ssl.sh {0} {1}'.format(ssl_dir, domain))
     # if call('/scripts/ssl.sh {0} {1}'.format(ssl_dir, domain), check_call=False) != 0:
@@ -77,27 +70,6 @@ def init_letsencrypt():
     call('/scripts/auto_renew_crt.sh {0} {1}'.format(ssl_dir, domain))
     # Create a crontab to auto renew the cert for letsencrypt.
 
-
-def generate_local_nginx_conf():
-    # Now create the final nginx configuratin
-    domain = get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com')
-    context = {
-        'https': is_https(),
-        'domain': domain,
-    }
-
-    if not os.path.isfile('/shared/nginx/conf/seafile.nginx.conf'):
-        render_template(
-            '/templates/seafile.nginx.conf.template',
-            '/etc/nginx/sites-enabled/seafile.nginx.conf',
-            context
-        )
-        nginx_etc_file = '/etc/nginx/sites-enabled/seafile.nginx.conf'
-        nginx_shared_file = '/shared/nginx/conf/seafile.nginx.conf'
-        call('mv {0} {1} && ln -sf {1} {0}'.format(nginx_etc_file, nginx_shared_file))
-
-def is_https():
-    return get_conf('SEAFILE_SERVER_LETSENCRYPT', 'false').lower() == 'true'
 
 def parse_args():
     ap = argparse.ArgumentParser()
@@ -119,16 +91,8 @@ def init_seafile_server():
         return
 
     loginfo('Now running setup-seafile-mysql.py in auto mode.')
-    env = {
-        'SERVER_NAME': 'seafile',
-        'SERVER_IP': get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com'),
-        'MYSQL_USER': 'seafile',
-        'MYSQL_USER_PASSWD': str(uuid.uuid4()),
-        'MYSQL_USER_HOST': '%.%.%.%',
-	'MYSQL_HOST': get_conf('DB_HOST','127.0.0.1'),
-        # Default MariaDB root user has empty password and can only connect from localhost.
-        'MYSQL_ROOT_PASSWD': get_conf('DB_ROOT_PASSWD', ''),
-    }
+    
+    env = utils.settings.from_environment()
 
     # Change the script to allow mysql root password to be empty
     # call('''sed -i -e 's/if not mysql_root_passwd/if not mysql_root_passwd and "MYSQL_ROOT_PASSWD" not in os.environ/g' {}'''
@@ -141,28 +105,22 @@ def init_seafile_server():
     call('''sed -i -e '/def validate_mysql_host(self, host)/a \ \ \ \ \ \ \ \ return host' {}'''
         .format(get_script('setup-seafile-mysql.py')))
 
+ 
+    # Change SQL for seahub db to not fail if tables or records are there. #https://github.com/haiwen/seafile-server/issues/188
+    call('''sed -i -Ee 's@(CREATE TABLE\s+)`@\\1 IF NOT EXISTS `@gi' {}'''
+        .format(get_script('seahub/sql/mysql.sql')))
+    call('''sed -i -Ee 's@INSERT INTO\s+`@INSERT IGNORE `@gi' {}'''
+        .format(get_script('seahub/sql/mysql.sql')))
+
     setup_script = get_script('setup-seafile-mysql.sh')
+    #logdbg("  env is: " + str(env))
     call('{} auto -n seafile'.format(setup_script), env=env)
 
-    domain = get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com')
-    proto = 'https' if is_https() else 'http'
-    with open(join(topdir, 'conf', 'seahub_settings.py'), 'a+') as fp:
-        fp.write('\n')
-        fp.write("""CACHES = {
-    'default': {
-        'BACKEND': 'django_pylibmc.memcached.PyLibMCCache',
-        'LOCATION': 'memcached:11211',
-    },
-    'locmem': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-    },
-}
-COMPRESS_CACHE_BACKEND = 'locmem'""")
-        fp.write('\n')
-        fp.write("TIME_ZONE = '{time_zone}'".format(time_zone=os.getenv('TIME_ZONE',default='Etc/UTC')))
-        fp.write('\n')
-        fp.write('FILE_SERVER_ROOT = "{proto}://{domain}/seafhttp"'.format(proto=proto, domain=domain))
-        fp.write('\n')
+    
+    settings = utils.settings.read_them() # previous call might have written something already
+    utils.settings.update_from_env(settings, env)
+    utils.settings.write_them(settings)
+   
 
     # By default ccnet-server binds to the unix socket file
     # "/opt/seafile/ccnet/ccnet.sock", but /opt/seafile/ccnet/ is a mounted

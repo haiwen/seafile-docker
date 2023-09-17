@@ -12,13 +12,18 @@ from os.path import abspath, basename, exists, dirname, join, isdir
 import shutil
 import sys
 import time
+import re
+import ConfigParser
 
 from utils import (
     call, get_conf, get_install_dir, get_script, get_command_output,
-    render_template, wait_for_mysql, setup_logging
+    render_template, wait_for_mysql, setup_logging, listen_on_https
 )
+import utils.settings
+import utils.nginx
+
 from upgrade import check_upgrade
-from bootstrap import init_seafile_server, is_https, init_letsencrypt, generate_local_nginx_conf
+from bootstrap import init_seafile_server, init_letsencrypt
 
 
 shared_seafiledir = '/shared/seafile'
@@ -41,21 +46,58 @@ def watch_controller():
     print 'seafile controller exited unexpectedly.'
     sys.exit(1)
 
+
+def apply_code_fixes():
+    # fix seafdav not starting
+    call('''cd {0}; patch --forward -p 1 < /scripts/seafdav.patch || true'''.format(get_install_dir()))
+
+
+# environment might have changed (db names, memcached hostname, etc
+def update_settings():
+    settings = utils.settings.read_them()
+    env = utils.settings.from_environment()
+    
+    utils.settings.update_from_env(settings, env)
+    utils.settings.write_them(settings)
+    
+    
+def update_seafdav_config():
+    f = os.path.join(topdir, 'conf', 'seafdav.conf')
+    if os.path.exists(f):
+        cp = ConfigParser.ConfigParser()
+        cp.read(f)
+        section_name = 'WEBDAV'
+        cp.set(section_name, 'share_name', '/seafdav')
+        cp.set(section_name, 'fastcgi', 'false')
+        cp.set(section_name, 'port', '8080')
+        cp.set(section_name, 'enabled', "true" if (get_conf('ENABLE_WEBDAV', '0') != '0') else "false")
+        with open(f, "w") as fp:
+            cp.write(fp)
+            
+               
+
+
+    
 def main():
     if not exists(shared_seafiledir):
         os.mkdir(shared_seafiledir)
     if not exists(generated_dir):
         os.makedirs(generated_dir)
 
-    if is_https():
+    if listen_on_https():
         init_letsencrypt()
-    generate_local_nginx_conf()
-    call('nginx -s reload')
+    utils.nginx.wait_for_nginx()
+    utils.nginx.change_nginx_config()
 
     wait_for_mysql()
     init_seafile_server()
 
     check_upgrade()
+    
+    apply_code_fixes()
+    update_settings()
+    update_seafdav_config()
+    
     os.chdir(installdir)
 
     admin_pw = {
