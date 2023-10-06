@@ -1,4 +1,5 @@
-FROM seafileltd/pro-base-mc:18.04
+ARG base=seafileltd/pro-base-mc:18.04
+FROM ${base}
 WORKDIR /opt/seafile
 
 ENV SEAFILE_VERSION=7.0.11 SEAFILE_SERVER=seafile-pro-server
@@ -17,6 +18,7 @@ ADD scripts/create_data_links.sh /etc/my_init.d/01_create_data_links.sh
 COPY scripts /scripts
 COPY templates /templates
 
-EXPOSE 80
+EXPOSE 8000
+EXPOSE 8082
 
 CMD ["/sbin/my_init", "--", "/scripts/start.py"]

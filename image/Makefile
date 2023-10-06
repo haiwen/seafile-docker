@@ -1,15 +1,17 @@
 server_version=7.0.11
+maintainer?=seafileltd
+image_prefix?=
 
-base_image=seafileltd/base-mc:18.04
-base_image_squashed=seafileltd/base-mc:18.04-squashed
-pro_base_image=seafileltd/pro-base-mc:18.04
-pro_base_image_squashed=seafileltd/pro-base-mc:18.04-squashed
-server_image=seafileltd/seafile-mc:$(server_version)
-server_image_squashed=seafileltd/seafile-mc:$(server_version)-squashed
-pro_server_image=seafileltd/seafile-pro-mc:$(server_version)
-pro_server_image_squashed=seafileltd/seafile-pro-mc:$(server_version)-squashed
-latest_pro_server_image=seafileltd/seafile-pro-mc:latest
-latest_server_image=seafileltd/seafile-mc:latest
+base_image=$(maintainer)/$(image_prefix)base-mc:18.04
+base_image_squashed=$(maintainer)/$(image_prefix)base-mc:18.04-squashed
+pro_base_image=$(maintainer)/$(image_prefix)pro-base-mc:18.04
+pro_base_image_squashed=$(maintainer)/$(image_prefix)pro-base-mc:18.04-squashed
+server_image=$(maintainer)/$(image_prefix)seafile-mc:$(server_version)
+server_image_squashed=$(maintainer)/$(image_prefix)seafile-mc:$(server_version)-squashed
+pro_server_image=$(maintainer)/$(image_prefix)seafile-pro-mc:$(server_version)
+pro_server_image_squashed=$(maintainer)/$(image_prefix)seafile-pro-mc:$(server_version)-squashed
+latest_pro_server_image=$(maintainer)/$(image_prefix)seafile-pro-mc:latest
+latest_server_image=$(maintainer)/$(image_prefix)seafile-mc:latest
 
 all:
 	@echo
@@ -26,20 +28,20 @@ base:
 	docker rmi `docker images --filter "dangling=true" -q --no-trunc`
 
 server:
-	cd seafile && cp -rf ../../scripts ./ && docker build -t $(server_image) .
+	cd seafile && cp -rf ../../scripts ./ && docker build -t $(server_image) --build-arg base=$(base_image) .
 	docker-squash --tag $(server_image_squashed) $(server_image) --from-layer=$(base_image)
 	docker tag $(server_image_squashed) $(server_image)
 	docker tag $(server_image) $(latest_server_image)
 	docker rmi `docker images --filter "dangling=true" -q --no-trunc`
 
 pro-base:
-	cd pro_base && docker build -t $(pro_base_image) .
+	cd pro_base && docker build -t $(pro_base_image) --build-arg base=$(base_image) .
 	docker-squash --tag $(pro_base_image_squashed) $(pro_base_image)
 	docker tag $(pro_base_image_squashed) $(pro_base_image)
 	docker rmi `docker images --filter "dangling=true" -q --no-trunc`
 
 pro-server:
-	cd pro_seafile && cp -rf ../../scripts ./ && docker build -t $(pro_server_image) .
+	cd pro_seafile && cp -rf ../../scripts ./ && docker build -t $(pro_server_image) --build-arg base=$(pro_base_image) .
 	docker-squash --tag $(pro_server_image_squashed) $(pro_server_image) --from-layer=$(pro_base_image)
 	docker tag $(pro_server_image_squashed) $(pro_server_image)
 	docker tag $(pro_server_image) $(latest_pro_server_image)

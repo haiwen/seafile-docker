@@ -7,7 +7,7 @@ ENV UPDATED_AT=20180412 \
 
 CMD ["/sbin/my_init", "--", "bash", "-l"]
 
-RUN apt-get update -qq && apt-get -qq -y install nginx
+RUN apt-get update -qq
 
 # Utility tools
 RUN apt-get install -qq -y vim htop net-tools psmisc git wget curl
@@ -25,11 +25,6 @@ ADD requirements.txt  /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt
 
 COPY services /services
-
-RUN mkdir -p /etc/service/nginx && \
-    rm -f /etc/nginx/sites-enabled/* /etc/nginx/conf.d/* && \
-    mv /services/nginx.conf /etc/nginx/nginx.conf && \
-    mv /services/nginx.sh /etc/service/nginx/run
 
 RUN mkdir -p /etc/my_init.d && rm -f /etc/my_init.d/00_regen_ssh_host_keys.sh
 

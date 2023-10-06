@@ -134,6 +134,10 @@ def init_seafile_server():
     # call('''sed -i -e 's/if not mysql_root_passwd/if not mysql_root_passwd and "MYSQL_ROOT_PASSWD" not in os.environ/g' {}'''
     #     .format(get_script('setup-seafile-mysql.py')))
 
+    # Change bind port of gunicorn
+    call('''sed -i 's/127.0.0.1:8000/0.0.0.0:8000/' {}'''
+        .format(get_script('setup-seafile-mysql.py')))
+
     # Change the script to disable check MYSQL_USER_HOST
     call('''sed -i -e '/def validate_mysql_user_host(self, host)/a \ \ \ \ \ \ \ \ return host' {}'''
         .format(get_script('setup-seafile-mysql.py')))
