@@ -20,7 +20,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && apt-get install -y tzdata \
     libxmlsec1 xmlsec1 \
     zlib1g-dev pwgen openssl poppler-utils \
     fuse \
-    ldap-utils libldap2-dev ca-certificates \
+    ldap-utils libldap2-dev ca-certificates dnsutils \
     clamdscan iputils-ping \
     ttf-wqy-microhei ttf-wqy-zenhei xfonts-wqy
 
