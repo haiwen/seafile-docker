@@ -100,6 +100,15 @@ After modification, you need to restart the container:
 docker restart seafile
 ```
 
+#### Modify Nginx Server Configurations
+
+When building the docker container, use:
+
+```
+-e SEAFILE_SERVER_NGINX_CONF_CUSTOM=true
+-v <local folder path>:/etc/nginx/sites-enabled
+```
+
 #### Find logs
 
 The seafile logs are under `/shared/logs/seafile` in the docker, or `/opt/seafile-data/logs/seafile` in the server that run the docker.
