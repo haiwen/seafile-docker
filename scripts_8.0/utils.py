@@ -17,6 +17,7 @@ import click
 import termcolor
 import colorlog
 import pymysql
+import telnetlib
 
 logger = logging.getLogger('.utils')
 
@@ -291,6 +292,18 @@ def wait_for_mysql():
             time.sleep(2)
             continue
         logdbg('mysql server is ready')
+        return
+
+def wait_for_memcached():
+    while True:
+        try:
+            with telnetlib.Telnet(host='memcached', port=11211, timeout=3) as tn:
+                pass
+        except Exception as e:
+            print ('waiting for memcached to be ready: %s', e)
+            time.sleep(2)
+            continue
+        logdbg('memcached is ready')
         return
 
 def wait_for_nginx():

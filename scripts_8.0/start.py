@@ -15,7 +15,7 @@ import time
 
 from utils import (
     call, get_conf, get_install_dir, get_script, get_command_output,
-    render_template, wait_for_mysql, setup_logging
+    render_template, wait_for_mysql, wait_for_memcached, setup_logging
 )
 from upgrade import check_upgrade
 from bootstrap import init_seafile_server, is_https, init_letsencrypt, generate_local_nginx_conf
@@ -53,6 +53,7 @@ def main():
     call('nginx -s reload')
 
     wait_for_mysql()
+    wait_for_memcached()
     init_seafile_server()
 
     check_upgrade()
