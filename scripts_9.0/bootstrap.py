@@ -118,6 +118,14 @@ def parse_args():
 
     return ap.parse_args()
 
+def get_file_server_root():
+    file_server_root = get_conf('FILE_SERVER_ROOT')
+    if not file_server_root:
+        domain = get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com')
+        proto = 'https' if is_https() else 'http'
+        file_server_root = '{proto}://{domain}/seafhttp'.format(proto=proto, domain=domain)
+    return file_server_root
+
 def init_seafile_server():
     version_stamp_file = get_version_stamp_file()
     if exists(join(shared_seafiledir, 'seafile-data')):
@@ -157,8 +165,6 @@ def init_seafile_server():
     setup_script = get_script('setup-seafile-mysql.sh')
     call('{} auto -n seafile'.format(setup_script), env=env)
 
-    domain = get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com')
-    proto = 'https' if is_https() else 'http'
     with open(join(topdir, 'conf', 'seahub_settings.py'), 'a+') as fp:
         fp.write('\n')
         fp.write("""CACHES = {
@@ -174,7 +180,7 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
         fp.write('\n')
         fp.write("TIME_ZONE = '{time_zone}'".format(time_zone=os.getenv('TIME_ZONE',default='Etc/UTC')))
         fp.write('\n')
-        fp.write('FILE_SERVER_ROOT = "{proto}://{domain}/seafhttp"'.format(proto=proto, domain=domain))
+        fp.write('FILE_SERVER_ROOT = "{file_server_root}"'.format(file_server_root=get_file_server_root()))
         fp.write('\n')
 
     # Disabled the Elasticsearch process on Seafile-container
