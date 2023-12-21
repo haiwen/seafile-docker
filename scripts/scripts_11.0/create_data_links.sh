@@ -45,6 +45,7 @@ if [[ ! -e /shared/logs/var-log ]]; then
     mkdir -p /shared/logs/ && mv /var/log /shared/logs/var-log
 fi
 rm -rf /var/log && ln -sf /shared/logs/var-log /var/log
+mkdir -p /shared/logs/var-log/nginx
 
 mkdir -p /shared/nginx/conf/
 
