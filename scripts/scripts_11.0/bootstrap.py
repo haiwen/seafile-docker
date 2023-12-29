@@ -82,10 +82,9 @@ def init_letsencrypt():
     time.sleep(2)
 
     call('/scripts/ssl.sh {0} {1}'.format(ssl_dir, domain))
-    # if call('/scripts/ssl.sh {0} {1}'.format(ssl_dir, domain), check_call=False) != 0:
-    #     eprint('Now waiting 1000s for postmortem')
-    #     time.sleep(1000)
-    #     sys.exit(1)
+    return_code = call('/scripts/ssl.sh {0} {1}'.format(ssl_dir, domain), check_call=False)
+    if return_code not in [0, 2]:
+        raise RuntimeError('Failed to generate ssl certificate for domain {0}'.format(domain))
 
     call('echo "0 1 * * * /scripts/ssl.sh {0} {1} >> /opt/ssl/letsencrypt.log 2>&1" >> /var/spool/cron/crontabs/root'.format(ssl_dir, domain))
     call('/usr/bin/crontab /var/spool/cron/crontabs/root')
