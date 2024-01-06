@@ -1,5 +1,5 @@
 # See https://hub.docker.com/r/phusion/baseimage/tags/
-FROM phusion/baseimage:jammy-1.0.1
+FROM ubuntu:22.04
 ENV SEAFILE_SERVER=seafile-server SEAFILE_VERSION=
 
 RUN echo "deb http://nginx.org/packages/ubuntu `lsb_release -cs` nginx" \
