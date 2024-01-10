@@ -2,7 +2,7 @@ FROM ubuntu:22.04
 ENV SEAFILE_SERVER=seafile-server SEAFILE_VERSION=
 
 # https://github.com/phusion/baseimage-docker
-COPY scripts_baseimage /bd_build
+COPY base_scripts /bd_build
 RUN /bd_build/prepare.sh && \
     /bd_build/system_services.sh && \
     /bd_build/utilities.sh && \
