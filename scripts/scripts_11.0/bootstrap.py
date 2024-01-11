@@ -81,7 +81,6 @@ def init_letsencrypt():
     call('nginx -s reload')
     time.sleep(2)
 
-    call('/scripts/ssl.sh {0} {1}'.format(ssl_dir, domain))
     return_code = call('/scripts/ssl.sh {0} {1}'.format(ssl_dir, domain), check_call=False)
     if return_code not in [0, 2]:
         raise RuntimeError('Failed to generate ssl certificate for domain {0}'.format(domain))
