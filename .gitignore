@@ -7,7 +7,12 @@
 image/*/scripts_*
 image/*/templates
 image/*/services
+image/*/base_scripts
 
 custom/*/scripts_*
 custom/*/templates
 custom/*/services
+custom/*/base_scripts
+
+build/src
+build/seafile-server-*
