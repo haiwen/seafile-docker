@@ -270,7 +270,7 @@ def wait_for_mysql():
     db_host = get_conf('DB_HOST', '127.0.0.1')
     db_user = 'root'
     db_passwd = get_conf('DB_ROOT_PASSWD', '')
-    db_port = get_conf('DB_PORT', 3306)
+    db_port = int(get_conf('DB_PORT', 3306))
 
     installdir = get_install_dir()
     topdir = dirname(installdir)
