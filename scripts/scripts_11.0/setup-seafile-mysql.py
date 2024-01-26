@@ -346,8 +346,8 @@ class EnvManager(object):
             os.path.join(install_path, 'seahub-extra'),
             os.path.join(install_path, 'seahub-extra', 'thirdparts'),
 
-            os.path.join(install_path, 'seafile/lib/python3.6/site-packages'),
-            os.path.join(install_path, 'seafile/lib64/python3.6/site-packages'),
+            os.path.join(install_path, 'seafile/lib/python3/site-packages'),
+            os.path.join(install_path, 'seafile/lib64/python3/site-packages'),
         ]
 
         for path in extra_python_path:
