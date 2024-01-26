@@ -146,6 +146,7 @@ def init_seafile_server():
         'MYSQL_USER_PASSWD': str(uuid.uuid4()),
         'MYSQL_USER_HOST': '%.%.%.%',
         'MYSQL_HOST': get_conf('DB_HOST','127.0.0.1'),
+        'MYSQL_PORT': get_conf('DB_PORT','3306'),
         # Default MariaDB root user has empty password and can only connect from localhost.
         'MYSQL_ROOT_PASSWD': get_conf('DB_ROOT_PASSWD', ''),
     }
