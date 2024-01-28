@@ -13,3 +13,5 @@ You can build in a Ubuntu virtual machine:
 Or build Seafile in a Ubuntu docker container:
 
 * Run `docker run --rm -it --volume=/$(pwd):/seafile ubuntu:22.04 /seafile/seafile-build.sh 11.0.x`
+
+Building in a docker container is the recommended one that will make sure the script always running in a clean environtment.
