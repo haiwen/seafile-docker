@@ -78,7 +78,7 @@ def main():
             call('su seafile -c "{} start"'.format(get_script('seahub.sh')))
         else:
             call('{} start'.format(get_script('seafile.sh')))
-            call('{} start'.format(get_script('seahub.sh')))       
+            call('{} start'.format(get_script('seahub.sh')))
     finally:
         if exists(password_file):
             os.unlink(password_file)
