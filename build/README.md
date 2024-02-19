@@ -15,3 +15,5 @@ Or build Seafile in a Ubuntu docker container:
 * Run `docker run --rm -it --volume=/$(pwd):/seafile ubuntu:22.04 /seafile/seafile-build.sh 11.0.x`
 
 Building in a docker container is the recommended one that will make sure the script always running in a clean environtment.
+
+If you need to build for arm64 based architecture, simply run the script on an arm64 machine.
