@@ -285,12 +285,13 @@ def wait_for_mysql():
 
     while True:
         try:
-            pymysql.connect(host=db_host, port=db_port, user=db_user, passwd=db_passwd)
+            connection = pymysql.connect(host=db_host, port=db_port, user=db_user, passwd=db_passwd)
         except Exception as e:
             print ('waiting for mysql server to be ready: %s', e)
             time.sleep(2)
             continue
         logdbg('mysql server is ready')
+        connection.close()
         return
 
 def wait_for_nginx():
