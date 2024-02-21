@@ -39,7 +39,8 @@ COPY services /services
 # RUN curl https://get.acme.sh | sh -s
 RUN unzip /scripts/acme.sh-master.zip -d /scripts/ && \
     mv /scripts/acme.sh-master /scripts/acme.sh && \
-    cd /scripts/acme.sh && /scripts/acme.sh/acme.sh --install
+    cd /scripts/acme.sh && /scripts/acme.sh/acme.sh --install && \
+    /root/.acme.sh/acme.sh --upgrade
 
 RUN echo "TLS_REQCERT     allow" >> /etc/ldap/ldap.conf && \
     chmod u+x /scripts/* && rm /scripts/cluster* && \
