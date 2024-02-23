@@ -63,7 +63,7 @@ def init_letsencrypt():
             with open('/var/spool/cron/crontabs/root', 'r') as f:
                 crons = f.read()
             if '/scripts/ssl.sh' not in crons:
-                call('echo "0 1 * * * /scripts/ssl.sh {0} {1} >> /opt/ssl/letsencrypt.log 2>&1" >> /var/spool/cron/crontabs/root'.format(ssl_dir, domain))
+                call('echo "0 1 * * * /scripts/ssl.sh {0} {1} >> /shared/ssl/letsencrypt.log 2>&1" >> /var/spool/cron/crontabs/root'.format(ssl_dir, domain))
                 call('/usr/bin/crontab /var/spool/cron/crontabs/root')
             return
 
@@ -87,7 +87,7 @@ def init_letsencrypt():
     #     time.sleep(1000)
     #     sys.exit(1)
 
-    call('echo "0 1 * * * /scripts/ssl.sh {0} {1} >> /opt/ssl/letsencrypt.log 2>&1" >> /var/spool/cron/crontabs/root'.format(ssl_dir, domain))
+    call('echo "0 1 * * * /scripts/ssl.sh {0} {1} >> /shared/ssl/letsencrypt.log 2>&1" >> /var/spool/cron/crontabs/root'.format(ssl_dir, domain))
     call('/usr/bin/crontab /var/spool/cron/crontabs/root')
     # Create a crontab to auto renew the cert for letsencrypt.
 
