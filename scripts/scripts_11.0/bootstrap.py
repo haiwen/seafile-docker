@@ -219,8 +219,8 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
         src = join(topdir, fn)
         dst = join(shared_seafiledir, fn)
         if not exists(dst) and exists(src):
-            shutil.move(src, shared_seafiledir)
-            call('ln -sf ' + join(shared_seafiledir, fn) + ' ' + src)
+            call(['mv', '-f', src, dst])
+            call(['ln', '-sf', dst, src])
 
     gen_custom_dir()
 
