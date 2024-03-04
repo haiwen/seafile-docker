@@ -41,9 +41,34 @@ def collect_upgrade_scripts(from_version, to_version):
     from_major_ver = '.'.join(from_version.split('.')[:2])
     to_major_ver = '.'.join(to_version.split('.')[:2])
 
+    def version_str_to_float(filename):
+        v = filename.split('_')[1]
+        try:
+            return float(v)
+        except:
+            return str(v)
+
+    """ String '8.0' < '9.0' is True, but '9.0' < '10.0' is False in Python3.
+        So we need to convert the version string to float to compare.
+
+        fn: script filepath, eg: /opt/seafile/seafile-server-latest/upgrade/upgrade_10.0_11.0.sh
+        va: from_major_version in script filename, eg: 10.0
+        vb: to_major_version in script filename, eg: 11.0
+    """
     scripts = []
-    for fn in sorted(glob.glob(join(installdir, 'upgrade', 'upgrade_*_*.sh'))):
+    for fn in sorted(glob.glob(join(installdir, 'upgrade', 'upgrade_*_*.sh')), key=version_str_to_float):
         va, vb = parse_upgrade_script_version(fn)
+        try:
+            va = float(va)
+            vb = float(vb)
+            from_major_ver = float(from_major_ver)
+            to_major_ver = float(to_major_ver)
+        except:
+            va = str(va)
+            vb = str(vb)
+            from_major_ver = str(from_major_ver)
+            to_major_ver = str(to_major_ver)
+
         if va >= from_major_ver and vb <= to_major_ver:
             scripts.append(fn)
     return scripts
