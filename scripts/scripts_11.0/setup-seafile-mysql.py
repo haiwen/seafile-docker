@@ -1045,7 +1045,7 @@ class SeahubConfigurator(AbstractConfigurator):
             fp.write('\n')
             self.write_secret_key(fp)
             fp.write('\n')
-            fp.write('SERVICE_URL = "http://%s/"' % ccnet_config.ip_or_domain)
+            fp.write('SERVICE_URL = "http://%s"' % ccnet_config.ip_or_domain)
             fp.write('\n')
             self.write_database_config(fp)
 
