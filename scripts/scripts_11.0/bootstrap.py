@@ -219,8 +219,8 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
         src = join(topdir, fn)
         dst = join(shared_seafiledir, fn)
         if not exists(dst) and exists(src):
-            call(['mv', '-f', src, dst])
-            call(['ln', '-sf', dst, src])
+            call('mv -f ' + str(src) + ' ' + str(dst))
+            call('ln -sf ' + str(dst) + ' ' + str(src))
 
     gen_custom_dir()
 
