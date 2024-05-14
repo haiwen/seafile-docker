@@ -29,7 +29,7 @@ if [[ $NON_ROOT == "true" ]] ;then
     useradd --home-dir /home/seafile --create-home --uid 8000 --gid 8000 --shell /bin/sh --skel /dev/null seafile
 
     chown -R seafile:seafile /opt/seafile/ 
-    chown -R seafile:seafile /shared/seafile/
+    #chown -R seafile:seafile /shared/seafile/
 
     # logrotate
     sed -i 's/^        create 644 root root/        create 644 seafile seafile/' /scripts/logrotate-conf/seafile
