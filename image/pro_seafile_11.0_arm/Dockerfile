@@ -1,6 +1,16 @@
-# See https://hub.docker.com/r/phusion/baseimage/tags/
-FROM phusion/baseimage:jammy-1.0.1
+FROM ubuntu:22.04
 ENV SEAFILE_SERVER=seafile-pro-server SEAFILE_VERSION=
+
+# https://github.com/phusion/baseimage-docker
+COPY base_scripts /bd_build
+RUN /bd_build/prepare.sh && \
+    /bd_build/system_services.sh && \
+    /bd_build/utilities.sh && \
+    /bd_build/cleanup.sh
+ENV DEBIAN_FRONTEND="teletype" \
+    LANG="en_US.UTF-8" \
+    LANGUAGE="en_US:en" \
+    LC_ALL="en_US.UTF-8"
 
 RUN echo "deb http://nginx.org/packages/ubuntu `lsb_release -cs` nginx" \
     | tee /etc/apt/sources.list.d/nginx.list \
