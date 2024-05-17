@@ -24,12 +24,20 @@ done
 
 # non-noot
 if [[ $NON_ROOT == "true" ]] ;then
+    if [[ -e /shared/seafile/ ]]; then
+        owner=$(stat -c %U "/shared/seafile/")
+        if [[ $owner != "seafile" ]]; then
+            log "The owner of path seafile/ is not seafile."
+            log "To use non root, run [ chown -R seafile:seafile /opt/seafile-data/seafile/ ] and try again later, now quit."
+            exit 1
+        fi
+    fi
+
     log "Create linux user seafile, please wait."
     groupadd --gid 8000 seafile 
     useradd --home-dir /home/seafile --create-home --uid 8000 --gid 8000 --shell /bin/sh --skel /dev/null seafile
 
     chown -R seafile:seafile /opt/seafile/ 
-    #chown -R seafile:seafile /shared/seafile/
 
     # logrotate
     sed -i 's/^        create 644 root root/        create 644 seafile seafile/' /scripts/logrotate-conf/seafile

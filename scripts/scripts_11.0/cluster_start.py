@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #coding: UTF-8
 
-import os, pwd
+import os
 import sys
 import time
 import json
@@ -45,10 +45,6 @@ def main(args):
     try:
         non_root = os.getenv('NON_ROOT', default='') == 'true'
         if non_root:
-            uid = os.stat('/shared/seafile/').st_uid
-            onwer_name = pwd.getpwuid(uid).pw_name
-            if onwer_name != 'seafile':
-                call('chown -R seafile:seafile /shared/seafile/')
             call('su seafile -c "{} start"'.format(get_script('seafile.sh')))
             if args.mode == 'backend':
                 call('su seafile -c "{} start"'.format(get_script('seafile-background-tasks.sh')))

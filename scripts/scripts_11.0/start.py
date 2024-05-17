@@ -7,7 +7,7 @@ the entrypoint command of the docker container.
 """
 
 import json
-import os, pwd
+import os
 from os.path import abspath, basename, exists, dirname, join, isdir
 import shutil
 import sys
@@ -73,10 +73,6 @@ def main():
     try:
         non_root = os.getenv('NON_ROOT', default='') == 'true'
         if non_root:
-            uid = os.stat('/shared/seafile/').st_uid
-            onwer_name = pwd.getpwuid(uid).pw_name
-            if onwer_name != 'seafile':
-                call('chown -R seafile:seafile /shared/seafile/')
             call('su seafile -c "{} start"'.format(get_script('seafile.sh')))
             call('su seafile -c "{} start"'.format(get_script('seahub.sh')))
         else:
