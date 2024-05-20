@@ -45,7 +45,6 @@ def main(args):
     try:
         non_root = os.getenv('NON_ROOT', default='') == 'true'
         if non_root:
-            call('chown -R seafile:seafile /shared/seafile/')
             call('su seafile -c "{} start"'.format(get_script('seafile.sh')))
             if args.mode == 'backend':
                 call('su seafile -c "{} start"'.format(get_script('seafile-background-tasks.sh')))
