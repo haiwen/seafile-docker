@@ -38,8 +38,9 @@ if [[ $NON_ROOT == "true" ]] ;then
         fi
     fi
 
+    # chown
+    chown seafile:seafile /opt/seafile/
     chown -R seafile:seafile /opt/seafile/$SEAFILE_SERVER-$SEAFILE_VERSION/
-    chown -R seafile:seafile /opt/seafile/pids/
 
     # logrotate
     sed -i 's/^        create 644 root root/        create 644 seafile seafile/' /scripts/logrotate-conf/seafile
