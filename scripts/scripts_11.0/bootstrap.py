@@ -230,4 +230,4 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
     # non root 
     non_root = os.getenv('NON_ROOT', default='') == 'true'
     if non_root:
-        call('chown -R seafile:seafile /shared/seafile/')
+        call('chmod -R a+rwx /shared/seafile/')
