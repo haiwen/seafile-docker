@@ -20,6 +20,7 @@ server {
 
 server {
 {% if https -%}
+    listen [::]:443 ssl;
     listen 443 ssl;
     ssl_certificate      /shared/ssl/{{ domain }}.crt;
     ssl_certificate_key  /shared/ssl/{{ domain }}.key;
@@ -32,6 +33,7 @@ server {
     # ssl_session_cache shared:SSL:10m;
     # ssl_session_timeout 10m;
 {% else -%}
+    listen [::]:80;
     listen 80;
 {% endif -%}
 
