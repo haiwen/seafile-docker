@@ -185,6 +185,18 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
         fp.write('FILE_SERVER_ROOT = "{proto}://{domain}/seafhttp"'.format(proto=proto, domain=domain))
         fp.write('\n')
 
+    # Modify SERVICE_URL
+    if proto == 'https':
+        with open(join(topdir, 'conf', 'seahub_settings.py'), 'r') as fp:
+            fp_lines = fp.readlines()
+            source_line = 'SERVICE_URL = "http://{domain}"\n'.format(domain=domain)
+            if source_line in fp_lines:
+                replace_index = fp_lines.index(source_line)
+                replace_line = 'SERVICE_URL = "{proto}://{domain}"\n'.format(proto=proto, domain=domain)
+                fp_lines[replace_index] = replace_line
+        with open(join(topdir, 'conf', 'seahub_settings.py'), 'w') as fp:
+            fp.writelines(fp_lines)
+
     # Disabled the Elasticsearch process on Seafile-container
     # Connection to the Elasticsearch-container
     if os.path.exists(join(topdir, 'conf', 'seafevents.conf')):
