@@ -32,12 +32,12 @@ RUN export DEBIAN_FRONTEND=noninteractive && apt-get install -y tzdata \
     fuse \
     ldap-utils libldap2-dev ca-certificates dnsutils \
     clamdscan iputils-ping \
-    ttf-wqy-microhei ttf-wqy-zenhei xfonts-wqy
+    ttf-wqy-microhei ttf-wqy-zenhei xfonts-wqy pkg-config
 
 # Python3
 RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap python3-rados && \
-    rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python && \
-    python3 -m pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple/ && rm -r /root/.cache/pip
+    rm /usr/lib/python3.12/EXTERNALLY-MANAGED && \
+    rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python
 
 RUN pip3 install --timeout=3600 \
     boto3 oss2 twilio configparser \
