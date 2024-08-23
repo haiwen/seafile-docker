@@ -1,0 +1,50 @@
+/opt/seafile/logs/seafile.log
+/opt/seafile/logs/seahub.log
+/opt/seafile/logs/seafdav.log
+/opt/seafile/logs/file_updates_sender.log
+/opt/seafile/logs/repo_old_file_auto_del_scan.log
+/opt/seafile/logs/seahub_email_sender.log
+/opt/seafile/logs/work_weixin_notice_sender.log
+/opt/seafile/logs/index.log
+/opt/seafile/logs/content_scan.log
+/opt/seafile/logs/fileserver.log
+/opt/seafile/logs/fileserver-access.log
+/opt/seafile/logs/fileserver-error.log
+/opt/seafile/logs/notification-server.log
+/opt/seafile/logs/notification-server-error.log
+
+{
+        daily
+        missingok
+        rotate 7
+        # compress
+        # delaycompress
+        dateext
+        dateformat .%Y-%m-%d
+        notifempty
+        create 644 root root
+        sharedscripts
+        postrotate
+                if [ -f /opt/seafile/pids/seaf-server.pid ]; then
+                        kill -USR1 `cat /opt/seafile/pids/seaf-server.pid`
+                fi
+
+                if [ -f /opt/seafile/pids/fileserver.pid ]; then
+                        kill -USR1 `cat /opt/seafile/pids/fileserver.pid`
+                fi
+
+                if [ -f /opt/seafile/pids/notification-server.pid ]; then
+                        kill -USR1 `cat /opt/seafile/pids/notification-server.pid`
+                fi
+
+                if [ -f /opt/seafile/pids/seahub.pid ]; then
+                        kill -HUP `cat /opt/seafile/pids/seahub.pid`
+                fi
+
+                if [ -f /opt/seafile/pids/seafdav.pid ]; then
+                        kill -HUP `cat /opt/seafile/pids/seafdav.pid`
+                fi
+
+                find /opt/seafile/logs/ -mtime +7 -name "*.log*" -exec rm -f {} \;
+        endscript
+}
