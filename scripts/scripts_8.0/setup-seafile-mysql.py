@@ -1030,7 +1030,7 @@ class SeahubConfigurator(AbstractConfigurator):
             script,
         ]
         key = Utils.get_command_output(cmd).strip()
-        fp.write('SECRET_KEY = "%s"' % key)
+        fp.write('SECRET_KEY = "%s"' % key.decode())
 
     def write_database_config(self, fp):
         template = '''\
