@@ -114,8 +114,8 @@ def is_https():
 
 def get_proto():
     proto = 'https' if is_https() else 'http'
-    force_https_in_conf = get_conf('FORCE_HTTPS_IN_CONF', 'false').lower() == 'true'
-    if force_https_in_conf:
+    seafile_server_proto = get_conf('SEAFILE_SERVER_PROTOCOL', 'http')
+    if seafile_server_proto == 'https':
         proto = 'https'
     return proto
 

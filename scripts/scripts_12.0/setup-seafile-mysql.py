@@ -1040,8 +1040,8 @@ class SeahubConfigurator(AbstractConfigurator):
     def get_proto(self):
         is_https = os.environ.get('SEAFILE_SERVER_LETSENCRYPT', 'false').lower() == 'true'
         proto = 'https' if is_https else 'http'
-        force_https_in_conf = os.environ.get('FORCE_HTTPS_IN_CONF', 'false').lower() == 'true'
-        if force_https_in_conf:
+        seafile_server_proto = os.environ.get('SEAFILE_SERVER_PROTOCOL', 'http')
+        if seafile_server_proto == 'https':
             proto = 'https'
         return proto
 
