@@ -963,13 +963,6 @@ class SeafileConfigurator(AbstractConfigurator):
         # host=
         # port=
         # log_level=
-        # jwt_private_key=
-        script = os.path.join(env_mgr.install_path, 'seahub/tools/secret_key_generator.py')
-        cmd = [
-            Utils.get_python_executable(),
-            script,
-        ]
-        jwt_private_key = Utils.get_command_output(cmd).strip().decode('utf8').replace('%', '')
 
         db_section = 'notification'
         if not config.has_section(db_section):
@@ -978,7 +971,6 @@ class SeafileConfigurator(AbstractConfigurator):
         config.set(db_section, 'host', '127.0.0.1')
         config.set(db_section, 'port', '8083')
         config.set(db_section, 'log_level', 'info')
-        config.set(db_section, 'jwt_private_key', jwt_private_key)
 
         Utils.write_config(config, self.seafile_conf)
 
