@@ -62,8 +62,8 @@ def main():
     os.chdir(installdir)
 
     admin_pw = {
-        'email': get_conf('SEAFILE_ADMIN_INIT_EMAIL', 'me@example.com'),
-        'password': get_conf('SEAFILE_ADMIN_INIT_PASSWORD', 'asecret'),
+        'email': get_conf('INIT_SEAFILE_ADMIN_EMAIL', 'me@example.com'),
+        'password': get_conf('INIT_SEAFILE_ADMIN_PASSWORD', 'asecret'),
     }
     password_file = join(topdir, 'conf', 'admin.txt')
     with open(password_file, 'w') as fp:
