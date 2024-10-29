@@ -309,3 +309,8 @@ def replace_file_pattern(fn, pattern, replacement):
         content = fp.read()
     with open(fn, 'w') as fp:
         fp.write(content.replace(pattern, replacement))
+
+def is_pro_version():
+    if os.getenv('SEAFILE_SERVER') == "seafile-pro-server":
+        return True
+    return False
