@@ -17,7 +17,7 @@ from utils import (
     call, get_conf, get_install_dir, loginfo,
     get_script, render_template, get_seafile_version, eprint,
     cert_has_valid_days, get_version_stamp_file, update_version_stamp,
-    wait_for_mysql, wait_for_nginx, read_version_stamp
+    wait_for_mysql, wait_for_nginx, read_version_stamp, is_pro_version
 )
 
 seafile_version = get_seafile_version()
@@ -206,9 +206,17 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
                replace_index = fp_lines.index('share_name = /\n')
                replace_line = 'share_name = /seafdav\n'
                fp_lines[replace_index] = replace_line
-
         with open(join(topdir, 'conf', 'seafdav.conf'), 'w') as fp:
             fp.writelines(fp_lines)
+
+    # Modify seafile config
+    if is_pro_version():
+        # for seafile-pro-server
+        with open(join(topdir, 'conf', 'seafile.conf'), 'a+') as fp:
+            fp.write('\n')
+            fp.write('[memcached]')
+            fp.write('memcached_options = --SERVER=memcached --POOL-MIN=10 --POOL-MAX=100')
+            fp.write('\n')
 
     # After the setup script creates all the files inside the
     # container, we need to move them to the shared volume
