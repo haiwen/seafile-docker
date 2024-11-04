@@ -95,7 +95,7 @@ server {
         proxy_set_header   X-Forwarded-Proto $scheme;
         proxy_read_timeout  1200s;
         client_max_body_size 0;
-        
+
         access_log      /var/log/nginx/seafdav.access.log seafileformat;
         error_log       /var/log/nginx/seafdav.error.log;
     }
