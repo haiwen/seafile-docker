@@ -101,6 +101,7 @@ server {
     }
 
     location /:dir_browser {
+        # Logo of WebDAV
         proxy_pass         http://127.0.0.1:8080/:dir_browser;
     }
 
