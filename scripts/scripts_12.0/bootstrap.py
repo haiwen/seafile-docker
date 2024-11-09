@@ -167,12 +167,15 @@ def init_seafile_server():
 
     domain = get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com')
     proto = get_proto()
+    memcached_host = 'memcached'
+    if get_conf('CLUSTER_SERVER', 'false') == 'true' and get_conf('CLUSTER_INIT_MODE', 'false') == 'true':
+        memcached_host = get_conf('CLUSTER_INIT_MEMCACHED_HOST', '<your memcached host>')
     with open(join(topdir, 'conf', 'seahub_settings.py'), 'a+') as fp:
         fp.write('\n')
         fp.write("""CACHES = {
     'default': {
         'BACKEND': 'django_pylibmc.memcached.PyLibMCCache',
-        'LOCATION': 'memcached:11211',
+        'LOCATION': '""" + memcached_host + """:11211',
     },
     'locmem': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
@@ -182,7 +185,10 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
         fp.write('\n')
         fp.write("TIME_ZONE = '{time_zone}'".format(time_zone=os.getenv('TIME_ZONE',default='Etc/UTC')))
         fp.write('\n')
-        fp.write('FILE_SERVER_ROOT = "{proto}://{domain}/seafhttp"'.format(proto=proto, domain=domain))
+        fp.write('FILE_SERVER_ROOT = \'{proto}://{domain}/seafhttp\''.format(proto=proto, domain=domain))
+        if get_conf('CLUSTER_SERVER', 'false') == 'true' and get_conf('CLUSTER_INIT_MODE', 'false') == 'true':
+            fp.write(f'SERVICE_URL = \'{proto}://{domain}/\'')
+            fp.write(f'AVATAR_FILE_STORAGE = \'seahub.base.database_storage.DatabaseStorage\'')
         fp.write('\n')
 
     # Disabled the Elasticsearch process on Seafile-container
@@ -191,9 +197,23 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
         with open(join(topdir, 'conf', 'seafevents.conf'), 'r') as fp:
             fp_lines = fp.readlines()
             if '[INDEX FILES]\n' in fp_lines:
-               insert_index = fp_lines.index('[INDEX FILES]\n') + 1
-               insert_lines = ['es_port = 9200\n', 'es_host = elasticsearch\n', 'external_es_server = true\n']
-               for line in insert_lines:
+                insert_index = fp_lines.index('[INDEX FILES]\n') + 1
+                if get_conf('CLUSTER_SERVER', 'false') == 'true' and get_conf('CLUSTER_INIT_MODE', 'false') == 'true':
+                    insert_lines = [
+                        f'es_port = {get_conf("CLUSTER_INIT_ES_PORT", "<your elasticsearch server port>")}\n',
+                        f'es_host = {get_conf("CLUSTER_INIT_ES_HOST", "<your elasticsearch server HOST>")}\n',
+                        'enabled = true\n',
+                        'highlight = fvh\n',
+                        'interval = 10m\n',
+                        'external_es_server = true\n'
+                    ]
+                else:
+                    insert_lines = [
+                        'es_port = 9200\n', 
+                        'es_host = elasticsearch\n',
+                        'external_es_server = true\n'
+                    ]
+                for line in insert_lines:
                    fp_lines.insert(insert_index, line)
         with open(join(topdir, 'conf', 'seafevents.conf'), 'w') as fp:
             fp.writelines(fp_lines)
@@ -213,10 +233,54 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
     if is_pro_version():
         # for seafile-pro-server
         with open(join(topdir, 'conf', 'seafile.conf'), 'a+') as fp:
-            fp.write('\n')
-            fp.write('[memcached]')
-            fp.write('memcached_options = --SERVER=memcached --POOL-MIN=10 --POOL-MAX=100')
-            fp.write('\n')
+            if get_conf('CLUSTER_SERVER', 'false') == 'true' and get_conf('CLUSTER_INIT_MODE', 'false') == 'true':
+                fp.write('\n')
+                fp.write('[cluster]')
+                fp.write('enable = true')
+                fp.write('\n')
+
+                fp.write('[memcached]')
+                fp.write(f'memcached_options = --SERVER={get_conf("CLUSTER_INIT_MEMCACHED_HOST", "<you memcached server host>")} --POOL-MIN=10 --POOL-MAX=100')
+                fp.write('\n')
+            else:
+                fp.write('\n')
+                fp.write('[memcached]')
+                fp.write('memcached_options = --SERVER=memcached --POOL-MIN=10 --POOL-MAX=100')
+                fp.write('\n')
+
+            if get_conf('INIT_S3_STORAGE_BACKEND_CONFIG', 'false') == 'true':
+                commit_bucket = get_conf('INIT_S3_COMMIT_BUCKET', '<your-commit-objects>')
+                fs_bucket = get_conf('INIT_S3_FS_BUCKET',  '<your-fs-objects>')
+                block_bucket = get_conf('INIT_S3_BLOCK_BUCKET',  '<your-block-objects>')
+                key_id = get_conf('INIT_S3_KEY_ID',  '<your-key-id>')
+                key = get_conf('INIT_S3_SECRET_KEY',  '<your-secret-key>')
+
+                fp.write('[commit_object_backend]')
+                fp.write('name = s3')
+                fp.write(f'bucket = {commit_bucket}  # The bucket name can only use lowercase letters, numbers, and dashes')
+                fp.write(f'key_id = {key_id}')
+                fp.write(f'key = {key}')
+                fp.write(f'use_v4_signature = true')
+                fp.write(f'aws_region = eu-central-1  # eu-central-1 for Frankfurt region')
+                fp.write('\n')
+
+                fp.write('[fs_object_backend]')
+                fp.write('name = s3')
+                fp.write(f'bucket = {fs_bucket}')
+                fp.write(f'key_id = {key_id}')
+                fp.write(f'key = {key}')
+                fp.write(f'use_v4_signature = true')
+                fp.write(f'aws_region = eu-central-1  # eu-central-1 for Frankfurt region')
+                fp.write('\n')
+
+                fp.write('[block_backend]')
+                fp.write('name = s3')
+                fp.write(f'bucket = {block_bucket}')
+                fp.write(f'key_id = {key_id}')
+                fp.write(f'key = {key}')
+                fp.write(f'use_v4_signature = true')
+                fp.write(f'aws_region = eu-central-1  # eu-central-1 for Frankfurt region')
+                fp.write('\n')
 
     # After the setup script creates all the files inside the
     # container, we need to move them to the shared volume
