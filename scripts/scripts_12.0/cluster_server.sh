@@ -32,16 +32,21 @@ function create_data_links() {
 
 
 function check_conf() {
-    if [ ! -e "/opt/seafile/conf" ] || [ "`ls -A /opt/seafile/conf`" = "" ]; then
+    if [[ $CLUSTER_INIT_MODE == "true" ]]; then
+        /scripts/cluster_conf_init.py
+        exit 0
+    elif [ ! -e "/opt/seafile/conf" ] || [ "`ls -A /opt/seafile/conf`" = "" ]; then
         echo
         echo "Seafile cluster conf not exists!"
         echo
-        echo "Please run ( /scripts/cluster_conf_init.py ) and modify config in container."
+        echo "You should set CLUSTER_INIT_MODE to true in .env at first time running the image."
+        echo 
+        echo "Then check the necessary configuration files"
         echo
-        echo "Then run ( /scripts/cluster_server.sh start ) to start server."
+        echo "Finally remove it or set to false, and restart the server."
         echo
 
-        exit 0
+        exit 1
     fi
 }
 
