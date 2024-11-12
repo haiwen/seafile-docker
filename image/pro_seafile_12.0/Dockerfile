@@ -44,7 +44,7 @@ RUN pip3 install --timeout=3600 \
     click termcolor colorlog \
     sqlalchemy==2.0.* gevent==24.2.* pymysql==1.1.* jinja2 markupsafe==2.0.1 django-pylibmc pylibmc psd-tools lxml \
     django==4.2.* cffi==1.17.0 future==1.0.* mysqlclient==2.2.* captcha==0.6.* django_simple_captcha==0.6.* \
-    pyjwt==2.9.* djangosaml2==1.9.* pysaml2==7.3.* pycryptodome==3.20.* python-ldap==3.4.* pillow==10.4.* PyMuPDF==1.24.* numpy==1.26.* \
+    pyjwt==2.9.* djangosaml2==1.9.* pysaml2==7.3.* pycryptodome==3.20.* python-ldap==3.4.* pillow==10.4.* PyMuPDF==1.24.* \
     --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/
 
 # Scripts
