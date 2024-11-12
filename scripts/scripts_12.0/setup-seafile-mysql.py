@@ -1448,6 +1448,7 @@ def main():
     # Part 2: generate configuration
     db_config.generate()
     # ccnet_config.generate()  # do not create ccnet.conf
+    Utils.must_mkdir(ccnet_config.ccnet_dir)
     seafile_config.generate()
     seafdav_config.generate()
     gunicorn_config.generate()
