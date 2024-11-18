@@ -561,8 +561,8 @@ class NewDBConfigurator(AbstractDBConfigurator):
         self.ask_db_names()
 
     def generate(self):
-        #if not self.mysql_user_exists(self.seafile_mysql_user):
-        #    self.create_user()
+        if not self.mysql_user_exists(self.seafile_mysql_user):
+            self.create_user()
         self.create_databases()
         #pass
 
