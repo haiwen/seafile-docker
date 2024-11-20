@@ -287,7 +287,8 @@ def wait_for_mysql():
         try:
             connection = pymysql.connect(host=db_host, port=db_port, user=db_user, passwd=db_passwd)
         except Exception as e:
-            print ('waiting for mysql server to be ready: %s', e)
+            print('waiting for mysql server to be ready: mysql is not ready')
+            logdbg('waiting for mysql server to be ready: mysql is not ready')
             time.sleep(2)
             continue
         logdbg('mysql server is ready')
