@@ -200,11 +200,8 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
                 insert_index = fp_lines.index('[INDEX FILES]\n') + 1
                 if get_conf('CLUSTER_SERVER', 'false') == 'true' and get_conf('CLUSTER_INIT_MODE', 'false') == 'true':
                     insert_lines = [
-                        f'es_port = {get_conf("CLUSTER_INIT_ES_PORT", "<your elasticsearch server port>")}\n',
+                        f'es_port = {get_conf("CLUSTER_INIT_ES_PORT", "9200")}\n',
                         f'es_host = {get_conf("CLUSTER_INIT_ES_HOST", "<your elasticsearch server HOST>")}\n',
-                        'enabled = true\n',
-                        'highlight = fvh\n',
-                        'interval = 10m\n',
                         'external_es_server = true\n'
                     ]
                 else:
