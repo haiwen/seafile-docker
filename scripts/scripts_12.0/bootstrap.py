@@ -256,7 +256,7 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
 
                 fp.write('\n[commit_object_backend]')
                 fp.write('\nname = s3')
-                fp.write(f'\nbucket = {commit_bucket}  # The bucket name can only use lowercase letters, numbers, and dashes')
+                fp.write(f'\nbucket = {commit_bucket}')
                 fp.write(f'\nkey_id = {key_id}')
                 fp.write(f'\nkey = {key}')
                 fp.write(f'\nuse_v4_signature = {use_v4_signature}')
