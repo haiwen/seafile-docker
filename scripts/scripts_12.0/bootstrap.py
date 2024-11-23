@@ -200,11 +200,8 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
                 insert_index = fp_lines.index('[INDEX FILES]\n') + 1
                 if get_conf('CLUSTER_SERVER', 'false') == 'true' and get_conf('CLUSTER_INIT_MODE', 'false') == 'true':
                     insert_lines = [
-                        f'es_port = {get_conf("CLUSTER_INIT_ES_PORT", "<your elasticsearch server port>")}\n',
+                        f'es_port = {get_conf("CLUSTER_INIT_ES_PORT", "9200")}\n',
                         f'es_host = {get_conf("CLUSTER_INIT_ES_HOST", "<your elasticsearch server HOST>")}\n',
-                        'enabled = true\n',
-                        'highlight = fvh\n',
-                        'interval = 10m\n',
                         'external_es_server = true\n'
                     ]
                 else:
@@ -259,7 +256,7 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
 
                 fp.write('\n[commit_object_backend]')
                 fp.write('\nname = s3')
-                fp.write(f'\nbucket = {commit_bucket}  # The bucket name can only use lowercase letters, numbers, and dashes')
+                fp.write(f'\nbucket = {commit_bucket}')
                 fp.write(f'\nkey_id = {key_id}')
                 fp.write(f'\nkey = {key}')
                 fp.write(f'\nuse_v4_signature = {use_v4_signature}')
