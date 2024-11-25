@@ -156,11 +156,9 @@ def init_seafile_server():
     #     .format(get_script('setup-seafile-mysql.py')))
 
     # Change the script to disable check MYSQL_USER_HOST
-    call('''sed -i -e '/def validate_mysql_user_host(self, host)/a \ \ \ \ \ \ \ \ return host' {}'''
-        .format(get_script('setup-seafile-mysql.py')))
+    call(r"sed -i -e '/def validate_mysql_user_host(self, host)/a\        return host' " + get_script('setup-seafile-mysql.py'))
 
-    call('''sed -i -e '/def validate_mysql_host(self, host)/a \ \ \ \ \ \ \ \ return host' {}'''
-        .format(get_script('setup-seafile-mysql.py')))
+    call(r"sed -i -e '/def validate_mysql_host(self, host)/a\        return host' " + get_script('setup-seafile-mysql.py'))
 
     setup_script = get_script('setup-seafile-mysql.sh')
     call('{} auto -n seafile'.format(setup_script), env=env)
