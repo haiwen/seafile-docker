@@ -1,5 +1,10 @@
 #coding: UTF-8
 
+'''
+This script is only used for init Seafile cluster.
+Based on seahub/script/setup-seafile-mysql.py
+'''
+
 '''This script would guide the seafile admin to setup seafile with MySQL'''
 import argparse
 import sys
@@ -1645,3 +1650,8 @@ if __name__ == '__main__':
         print()
         print(Utils.highlight('The setup process is aborted'))
         print()
+
+'''
+This script is only used for init Seafile cluster.
+Based on seahub/script/setup-seafile-mysql.py
+'''
