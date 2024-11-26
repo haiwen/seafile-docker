@@ -45,7 +45,7 @@ server {
         proxy_set_header Host $http_host;
         proxy_set_header Forwarded "for=$remote_addr;proto=$scheme";
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Proto $x_forwarded_proto;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header Connection "";
         proxy_http_version 1.1;
@@ -92,7 +92,7 @@ server {
         proxy_set_header   X-Real-IP $remote_addr;
         proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header   X-Forwarded-Host $server_name;
-        proxy_set_header   X-Forwarded-Proto $scheme;
+        proxy_set_header   X-Forwarded-Proto $x_forwarded_proto;
         proxy_read_timeout  1200s;
         client_max_body_size 0;
 
@@ -116,4 +116,9 @@ server {
         try_files $uri =404;
     }
 {% endif -%}
+}
+
+map $http_x_forwarded_proto $x_forwarded_proto {
+    ""      $scheme;
+    default $http_x_forwarded_proto;
 }
