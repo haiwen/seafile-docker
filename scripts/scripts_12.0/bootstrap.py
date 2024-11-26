@@ -151,15 +151,6 @@ def init_seafile_server():
         'MYSQL_ROOT_PASSWD': get_conf('DB_ROOT_PASSWD', ''),
     }
 
-    # Change the script to allow mysql root password to be empty
-    # call('''sed -i -e 's/if not mysql_root_passwd/if not mysql_root_passwd and "MYSQL_ROOT_PASSWD" not in os.environ/g' {}'''
-    #     .format(get_script('setup-seafile-mysql.py')))
-
-    # Change the script to disable check MYSQL_USER_HOST
-    call(r"sed -i -e '/def validate_mysql_user_host(self, host)/a\        return host' " + get_script('setup-seafile-mysql.py'))
-
-    call(r"sed -i -e '/def validate_mysql_host(self, host)/a\        return host' " + get_script('setup-seafile-mysql.py'))
-
     setup_script = get_script('setup-seafile-mysql.sh')
     call('{} auto -n seafile'.format(setup_script), env=env)
 
