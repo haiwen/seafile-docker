@@ -1621,22 +1621,6 @@ def report_success():
 Your seafile server configuration has been finished successfully.
 -----------------------------------------------------------------
 
-run seafile server:     ./seafile.sh { start | stop | restart }
-run seahub  server:     ./seahub.sh  { start <port> | stop | restart <port> }
-
------------------------------------------------------------------
-If you are behind a firewall, remember to allow input/output of these tcp ports:
------------------------------------------------------------------
-
-port of seafile fileserver:   %(fileserver_port)s
-port of seahub:               8000
-
-When problems occur, Refer to
-
-        %(server_manual_http)s
-
-for information.
-
 '''
 
     print(message % dict(fileserver_port=seafile_config.fileserver_port,
