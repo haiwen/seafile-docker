@@ -27,13 +27,12 @@ RUN export DEBIAN_FRONTEND=noninteractive && apt-get install -y tzdata \
 # Python3
 RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap python3-rados && \
     rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python && \
-    python3 -m pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple/ && rm -r /root/.cache/pip
+    python3 -m pip install --no-cache-dir --upgrade pip
 
-RUN pip3 install --timeout=3600 click termcolor colorlog pymysql django==3.2.* \
+RUN pip3 install --no-cache-dir --timeout=3600 click termcolor colorlog pymysql django==3.2.* \
     future==0.18.* mysqlclient==2.1.* pillow==10.2.* pylibmc captcha==0.5.* markupsafe==2.0.1 jinja2 \
     sqlalchemy==1.4.3 django-pylibmc django_simple_captcha==0.5.20 pyjwt==2.6.* djangosaml2==1.5.* pysaml2==7.2.* pycryptodome==3.16.* cffi==1.15.1 \
-    boto oss2 twilio python-ldap configparser psd-tools lxml \
-    -i https://pypi.tuna.tsinghua.edu.cn/simple/ && rm -r /root/.cache/pip
+    boto oss2 twilio python-ldap configparser psd-tools lxml
 
 # Scripts
 COPY scripts_10.0 /scripts

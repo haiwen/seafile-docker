@@ -30,13 +30,12 @@ RUN apt-get install -y openjdk-8-jre
 # Python3
 RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap python3-rados && \
     rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python && \
-    python3 -m pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple/ && rm -r /root/.cache/pip
+    python3 -m pip install --no-cache-dir --upgrade pip
 
-RUN pip3 install --timeout=3600 click termcolor colorlog pymysql django==3.2.* \
+RUN pip3 install --no-cache-dir --timeout=3600 click termcolor colorlog pymysql django==3.2.* \
     future==0.18.* mysqlclient==2.1.* pillow==9.3.* pylibmc captcha==0.4 markupsafe==2.0.1 jinja2 \
     sqlalchemy==1.4.3 django-pylibmc django_simple_captcha==0.5.* pyjwt==2.1.* djangosaml2==0.20.0 pysaml2==6.5.1 pycryptodome==3.12.0 cffi==1.14.0 \
-    boto oss2 twilio python-ldap configparser psd-tools lxml \
-    -i https://pypi.tuna.tsinghua.edu.cn/simple/ && rm -r /root/.cache/pip
+    boto oss2 twilio python-ldap configparser psd-tools lxml
 
 # Scripts
 COPY scripts_9.0 /scripts
