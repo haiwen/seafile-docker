@@ -142,7 +142,7 @@ def init_seafile_server():
     env = {
         'SERVER_NAME': 'seafile',
         'SERVER_IP': get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com'),
-        'MYSQL_USER': 'seafile',
+        'MYSQL_USER': get_conf('DB_USER', 'seafile'),
         'MYSQL_USER_PASSWD': get_conf('DB_PASSWORD', str(uuid.uuid4())),
         'MYSQL_USER_HOST': '%.%.%.%',
         'MYSQL_HOST': get_conf('DB_HOST', '127.0.0.1'),
