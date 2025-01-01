@@ -477,7 +477,7 @@ Please choose a way to initialize seafile databases:
             print()
             raise InvalidAnswer('Failed to connect to mysql server at "%s:%s"' \
                                 % (host, port))
-
+        dummy.close()
         print('done')
 
     def check_mysql_user(self, user, password, host=None, unix_socket=None):
@@ -911,6 +911,7 @@ class CcnetConfigurator(AbstractConfigurator):
                     Utils.error('Failed to init ccnet database: %s' % e)
 
         conn.commit()
+        conn.close()
 
 
 
@@ -1037,6 +1038,7 @@ class SeafileConfigurator(AbstractConfigurator):
                     Utils.error('Failed to init seafile database: %s' % e)
 
         conn.commit()
+        conn.close()
 
 
 
@@ -1211,6 +1213,7 @@ class SeahubConfigurator(AbstractConfigurator):
                     Utils.error('Failed to init seahub database: %s' % e)
 
         conn.commit()
+        conn.close()
 
 
 class SeafDavConfigurator(AbstractConfigurator):
@@ -1293,6 +1296,7 @@ class ProfessionalConfigurator(AbstractConfigurator):
                     Utils.error('Failed to init seahub database: %s' % e)
 
         conn.commit()
+        conn.close()
 
 
 class GunicornConfigurator(AbstractConfigurator):
@@ -1612,6 +1616,8 @@ def main():
     set_file_perm()
 
     report_success()
+
+    db_config.root_conn.close()
 
 def report_success():
     message = '''\
