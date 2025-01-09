@@ -37,7 +37,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && apt-get install -y tzdata \
 # Python3
 RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap python3-rados && \
     rm /usr/lib/python3.12/EXTERNALLY-MANAGED && \
-    rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python
+    rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python && \
+    pip3 install --no-cache-dir --ignore-installed -U setuptools cryptography && \
+    rm -rf /usr/lib/python3/dist-packages/setuptools* && rm -rf /usr/lib/python3/dist-packages/cryptography*
 
 RUN pip3 install --no-cache-dir --timeout=3600 \
     boto3 oss2 twilio configparser \
