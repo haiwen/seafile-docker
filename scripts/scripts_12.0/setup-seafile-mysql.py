@@ -1210,6 +1210,24 @@ class SeahubConfigurator(AbstractConfigurator):
                 else:
                     Utils.error('Failed to init seahub database: %s' % e)
 
+        # init cluster table `avatar_uploaded`
+        sql = f'''CREATE TABLE `{db_config.seahub_db_name}`.`avatar_uploaded` (
+  `filename` text NOT NULL,
+  `filename_md5` char(32) NOT NULL,
+  `data` mediumtext NOT NULL,
+  `size` int(11) NOT NULL,
+  `mtime` datetime NOT NULL,
+  PRIMARY KEY (`filename_md5`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;'''
+
+        try:
+            cursor.execute(sql)
+        except Exception as e:
+            if isinstance(e, pymysql.err.OperationalError):
+                Utils.error('Failed to init seahub database: %s' % e.args[1])
+            else:
+                Utils.error('Failed to init seahub database: %s' % e)
+
         conn.commit()
 
 
@@ -1602,7 +1620,8 @@ def main():
     ccnet_config.do_syncdb()
     seafile_config.do_syncdb()
     seahub_config.do_syncdb()
-    seahub_config.prepare_avatar_dir()
+
+    #seahub_config.prepare_avatar_dir() # is not need in cluster
     # db_config.create_seahub_admin()
     user_manuals_handler.copy_user_manuals()
     #create_seafile_server_symlink()
