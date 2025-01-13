@@ -1212,6 +1212,24 @@ class SeahubConfigurator(AbstractConfigurator):
                 else:
                     Utils.error('Failed to init seahub database: %s' % e)
 
+        # init cluster table `avatar_uploaded`
+        sql = f'''CREATE TABLE `{db_config.seahub_db_name}`.`avatar_uploaded` (
+  `filename` text NOT NULL,
+  `filename_md5` char(32) NOT NULL,
+  `data` mediumtext NOT NULL,
+  `size` int(11) NOT NULL,
+  `mtime` datetime NOT NULL,
+  PRIMARY KEY (`filename_md5`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;'''
+
+        try:
+            cursor.execute(sql)
+        except Exception as e:
+            if isinstance(e, pymysql.err.OperationalError):
+                Utils.error('Failed to init seahub database: %s' % e.args[1])
+            else:
+                Utils.error('Failed to init seahub database: %s' % e)
+
         conn.commit()
         conn.close()
 
@@ -1520,7 +1538,7 @@ def check_params(args):
 
         if not mysql_root_passwd and "MYSQL_ROOT_PASSWD" not in os.environ:
             raise InvalidParams('mysql root password parameter is missing in creating new db mode')
-        db_config.root_password = mysql_root_passwd
+        db_config.root_password = db_config.validate_root_passwd(mysql_root_passwd)
 
         if mysql_user == 'root':
             db_config.seafile_mysql_user = 'root'
@@ -1580,11 +1598,6 @@ def main():
     seafile_config.ask_questions()
     seahub_config.ask_questions()
     pro_config.ask_questions()
-    pro_config.do_syncdb()
-
-    ccnet_config.do_syncdb()
-    seafile_config.do_syncdb()
-    seahub_config.do_syncdb()
 
     # pylint: disable=redefined-variable-type
     if not db_config:
@@ -1607,8 +1620,12 @@ def main():
     seahub_config.generate()
     pro_config.generate()
     
+    pro_config.do_syncdb()
+    ccnet_config.do_syncdb()
+    seafile_config.do_syncdb()
+    seahub_config.do_syncdb()
 
-    seahub_config.prepare_avatar_dir()
+    #seahub_config.prepare_avatar_dir() # is not need in cluster
     # db_config.create_seahub_admin()
     user_manuals_handler.copy_user_manuals()
     #create_seafile_server_symlink()
