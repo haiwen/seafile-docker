@@ -175,6 +175,8 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
         fp.write("\nTIME_ZONE = '{time_zone}'".format(time_zone=os.getenv('TIME_ZONE',default='Etc/UTC')))
         fp.write('\nFILE_SERVER_ROOT = \'{proto}://{domain}/seafhttp\''.format(proto=proto, domain=domain))
         fp.write('\n')
+        fp.write('\nENABLE_WIKI = False')
+        fp.write('\n')
         if get_conf('CLUSTER_SERVER', 'false') == 'true' and get_conf('CLUSTER_INIT_MODE', 'false') == 'true':
             fp.write(f'\nSERVICE_URL = \'{proto}://{domain}/\'')
             fp.write(f'\nAVATAR_FILE_STORAGE = \'seahub.base.database_storage.DatabaseStorage\'')
