@@ -46,6 +46,7 @@ function install_dependencies() {
         libtool \
         libxml2-dev \
         libxslt-dev \
+        poppler-utils \
         python3 \
         python3-distro \
         python3-lxml \
