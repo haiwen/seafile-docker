@@ -27,7 +27,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && apt-get install -y tzdata \
     nginx \
     libmysqlclient-dev \
     libmemcached11 libmemcached-dev \
-    fuse \
+    fuse poppler-utils \
     ldap-utils libldap2-dev ca-certificates dnsutils pkg-config
 
 # Python3
