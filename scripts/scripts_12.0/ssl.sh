@@ -5,9 +5,9 @@ set -e
 ssldir=${1:?"error params"}
 domain=${2:?"error params"}
 
-mkdir -p /var/www/.well-known/acme-challenge/
-chmod 755 /var/www/.well-known/acme-challenge/
-ln -sf /var/www/.well-known/acme-challenge/ /var/www/challenges
+/usr/bin/mkdir -p /var/www/.well-known/acme-challenge/
+/usr/bin/chmod 755 /var/www/.well-known/acme-challenge/
+/usr/bin/ln -sf /var/www/.well-known/acme-challenge/ /var/www/challenges
 
 domain_num=$(/root/.acme.sh/acme.sh --home /shared/ssl/ --list | grep "$domain" | grep -v "grep" | wc -l)
 
@@ -18,6 +18,6 @@ else
     /root/.acme.sh/acme.sh --debug --home /shared/ssl/ --renew -d ${domain} --days 60
 fi
 
-nginx -s reload
+/usr/sbin/nginx -s reload
 
 echo "Nginx reloaded."
