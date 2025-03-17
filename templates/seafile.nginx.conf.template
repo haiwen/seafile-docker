@@ -49,6 +49,7 @@ server {
         proxy_set_header Connection "";
         proxy_http_version 1.1;
 
+        add_header Access-Control-Allow-Origin *;
         client_max_body_size 0;
         access_log      /var/log/nginx/seahub.access.log seafileformat;
         error_log       /var/log/nginx/seahub.error.log;
