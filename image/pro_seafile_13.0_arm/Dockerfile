@@ -32,7 +32,8 @@ RUN export DEBIAN_FRONTEND=noninteractive && apt-get install -y tzdata \
     fuse \
     ldap-utils libldap2-dev ca-certificates dnsutils \
     clamdscan iputils-ping \
-    ttf-wqy-microhei ttf-wqy-zenhei xfonts-wqy pkg-config
+    ttf-wqy-microhei ttf-wqy-zenhei xfonts-wqy pkg-config \
+    exiftool
 
 # Python3
 RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap python3-rados && \
