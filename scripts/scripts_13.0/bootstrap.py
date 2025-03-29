@@ -279,8 +279,8 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
             init_with_s3_config = is_valid_bucket_name(commit_bucket) \
                 and is_valid_bucket_name(fs_bucket) \
                 and is_valid_bucket_name(block_bucket) \
-                and key_id != '<your-key-id>' \
-                and key != '<your-secret-key>'
+                and key_id and key_id != '<your-key-id>' \
+                and key and key != '<your-secret-key>'
 
             if init_with_s3_config:
                 use_v4_signature = get_conf('INIT_S3_USE_V4_SIGNATURE', 'true')
