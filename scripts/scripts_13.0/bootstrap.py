@@ -17,7 +17,7 @@ from utils import (
     call, get_conf, get_install_dir, loginfo,
     get_script, render_template, get_seafile_version, eprint,
     cert_has_valid_days, get_version_stamp_file, update_version_stamp,
-    wait_for_mysql, wait_for_nginx, read_version_stamp, is_pro_version
+    wait_for_mysql, wait_for_nginx, read_version_stamp, is_pro_version, is_valid_bucket_name
 )
 
 seafile_version = get_seafile_version()
@@ -142,13 +142,13 @@ def init_seafile_server():
     env = {
         'SERVER_NAME': 'seafile',
         'SERVER_IP': get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com'),
-        'MYSQL_USER': get_conf('DB_USER', 'seafile'),
-        'MYSQL_USER_PASSWD': get_conf('DB_PASSWORD', str(uuid.uuid4())),
+        'MYSQL_USER': get_conf('SEAFILE_MYSQL_DB_USER', 'seafile'),
+        'MYSQL_USER_PASSWD': get_conf('SEAFILE_MYSQL_DB_PASSWORD', str(uuid.uuid4())),
         'MYSQL_USER_HOST': '%',
-        'MYSQL_HOST': get_conf('DB_HOST', '127.0.0.1'),
-        'MYSQL_PORT': get_conf('DB_PORT', '3306'),
+        'MYSQL_HOST': get_conf('SEAFILE_MYSQL_DB_HOST', 'db'),
+        'MYSQL_PORT': get_conf('SEAFILE_MYSQL_DB_PORT', '3306'),
         # Default MariaDB root user has empty password and can only connect from localhost.
-        'MYSQL_ROOT_PASSWD': get_conf('DB_ROOT_PASSWD', ''),
+        'MYSQL_ROOT_PASSWD': get_conf('INIT_SEAFILE_MYSQL_ROOT_PASSWORD', ''),
     }
 
     setup_script = get_script('setup-seafile-mysql.sh')
@@ -156,16 +156,40 @@ def init_seafile_server():
 
     domain = get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com')
     proto = get_proto()
-    memcached_host = 'memcached'
-    if get_conf('CLUSTER_SERVER', 'false') == 'true' and get_conf('CLUSTER_INIT_MODE', 'false') == 'true':
-        memcached_host = get_conf('CLUSTER_INIT_MEMCACHED_HOST', '<your memcached host>')
+
+    cache_provider = get_conf('CACHE_PROVIDER', 'redis')
+    clsuter_mode = get_conf('CLUSTER_SERVER', 'false') == 'true'
+    init_cluster = get_conf('CLUSTER_INIT_MODE', 'false') == 'true'
+    # pre check value
+    if cache_provider not in ('redis', 'memcached') and not clsuter_mode:
+        raise ValueError(f'Invalid CACHE_PROVIDER: {cache_provider}')
+    
+    redis_host = get_conf('REDIS_HOST', 'redis')
+    redis_port = get_conf('REDIS_PORT', '6379')
+    redis_pasword = get_conf('REDIS_PASSWORD')
+    memcached_host = get_conf('MEMCACHED_HOST', 'memcached')
+    memcached_port = get_conf('MEMCACHED_PORT', '11211')
+
+    int(redis_port if cache_provider == 'redis' and not clsuter_mode else memcached_port)
+
     with open(join(topdir, 'conf', 'seahub_settings.py'), 'a+') as fp:
         fp.write('\n')
-        fp.write("""CACHES = {
+        if not clsuter_mode and cache_provider == 'redis':
+            redis_cfg = f'redis://{(redis_pasword + "@") if redis_pasword else ""}{redis_host}:{redis_port}'
+            fp.write("""CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://""" + redis_cfg + """',
+    },""")
+        else:
+            memcached_cfg = f'{memcached_host}:{memcached_port}'
+            fp.write("""CACHES = {
     'default': {
         'BACKEND': 'django_pylibmc.memcached.PyLibMCCache',
-        'LOCATION': '""" + memcached_host + """:11211',
-    },
+        'LOCATION': '""" + memcached_cfg + """',
+    },""")
+
+        fp.write("""
     'locmem': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     },
@@ -175,7 +199,7 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
         fp.write("\nTIME_ZONE = '{time_zone}'".format(time_zone=os.getenv('TIME_ZONE',default='Etc/UTC')))
         fp.write('\nFILE_SERVER_ROOT = \'{proto}://{domain}/seafhttp\''.format(proto=proto, domain=domain))
         fp.write('\n')
-        if get_conf('CLUSTER_SERVER', 'false') == 'true' and get_conf('CLUSTER_INIT_MODE', 'false') == 'true':
+        if clsuter_mode and init_cluster:
             fp.write(f'\nSERVICE_URL = \'{proto}://{domain}/\'')
             fp.write(f'\nAVATAR_FILE_STORAGE = \'seahub.base.database_storage.DatabaseStorage\'')
             fp.write('\n')
@@ -187,7 +211,7 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
             fp_lines = fp.readlines()
             if '[INDEX FILES]\n' in fp_lines:
                 insert_index = fp_lines.index('[INDEX FILES]\n') + 1
-                if get_conf('CLUSTER_SERVER', 'false') == 'true' and get_conf('CLUSTER_INIT_MODE', 'false') == 'true':
+                if clsuter_mode and init_cluster:
                     insert_lines = [
                         f'es_port = {get_conf("CLUSTER_INIT_ES_PORT", "9200")}\n',
                         f'es_host = {get_conf("CLUSTER_INIT_ES_HOST", "<your elasticsearch server HOST>")}\n',
@@ -201,6 +225,14 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
                     ]
                 for line in insert_lines:
                    fp_lines.insert(insert_index, line)
+            if not clsuter_mode and cache_provider == 'redis':
+                fp_lines += ['\n[REDIS]\n',
+                             f'server = {redis_host}\n',
+                             f'port = {redis_port}\n'
+                             ]
+                if redis_pasword:
+                    fp_lines += [f'password = {redis_pasword}\n']
+
         with open(join(topdir, 'conf', 'seafevents.conf'), 'w') as fp:
             fp.writelines(fp_lines)
 
@@ -219,29 +251,44 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
     if is_pro_version():
         # for seafile-pro-server
         with open(join(topdir, 'conf', 'seafile.conf'), 'a+') as fp:
-            if get_conf('CLUSTER_SERVER', 'false') == 'true' and get_conf('CLUSTER_INIT_MODE', 'false') == 'true':
-                fp.write('\n[cluster]')
-                fp.write('\nenable = true')
-                fp.write('\n')
-
-                fp.write('\n[memcached]')
-                fp.write(f'\nmemcached_options = --SERVER={get_conf("CLUSTER_INIT_MEMCACHED_HOST", "<you memcached server host>")} --POOL-MIN=10 --POOL-MAX=100')
+            if cache_provider == 'redis':
+                fp.write('\n[redis]')
+                fp.write(f'\nredis_host = {redis_host}')
+                fp.write(f'\nredis_port = {redis_port}')
+                if redis_pasword:
+                    fp.write(f'\nredis_password = {redis_pasword}')
+                fp.write(f'\nmax_connections = 100')
                 fp.write('\n')
             else:
+                if clsuter_mode and init_cluster:
+                    fp.write('\n[cluster]')
+                    fp.write('\nenable = true')
+                    fp.write('\n')
+
                 fp.write('\n[memcached]')
-                fp.write('\nmemcached_options = --SERVER=memcached --POOL-MIN=10 --POOL-MAX=100')
+                fp.write(f'\nmemcached_options = --SERVER={memcached_host}:{memcached_port} --POOL-MIN=10 --POOL-MAX=100')
                 fp.write('\n')
 
-            if get_conf('INIT_S3_STORAGE_BACKEND_CONFIG', 'false') == 'true':
-                commit_bucket = get_conf('INIT_S3_COMMIT_BUCKET', '<your-commit-objects>')
-                fs_bucket = get_conf('INIT_S3_FS_BUCKET',  '<your-fs-objects>')
-                block_bucket = get_conf('INIT_S3_BLOCK_BUCKET',  '<your-block-objects>')
-                key_id = get_conf('INIT_S3_KEY_ID',  '<your-key-id>')
-                key = get_conf('INIT_S3_SECRET_KEY',  '<your-secret-key>')
+            
+            commit_bucket = get_conf('INIT_S3_COMMIT_BUCKET', '<your-commit-objects>')
+            fs_bucket = get_conf('INIT_S3_FS_BUCKET',  '<your-fs-objects>')
+            block_bucket = get_conf('INIT_S3_BLOCK_BUCKET',  '<your-block-objects>')
+            key_id = get_conf('INIT_S3_KEY_ID',  '<your-key-id>')
+            key = get_conf('INIT_S3_SECRET_KEY',  '<your-secret-key>')
+
+            init_with_s3_config = is_valid_bucket_name(commit_bucket) \
+                and is_valid_bucket_name(fs_bucket) \
+                and is_valid_bucket_name(block_bucket) \
+                and key_id != '<your-key-id>' \
+                and key != '<your-secret-key>'
+
+            if init_with_s3_config:
                 use_v4_signature = get_conf('INIT_S3_USE_V4_SIGNATURE', 'true')
                 aws_region = get_conf('INIT_S3_AWS_REGION', 'us-east-1')
                 host = get_conf('INIT_S3_HOST', 's3.us-east-1.amazonaws.com')
                 use_https = get_conf('INIT_S3_USE_HTTPS', 'true')
+                path_style_request = get_conf('INIT_S3_PATH_STYLE_REQUEST', 'false')
+                sse_c_key = get_conf('INIT_S3_SSE_C_KEY')
 
                 fp.write('\n[commit_object_backend]')
                 fp.write('\nname = s3')
@@ -252,6 +299,9 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
                 fp.write(f'\naws_region = {aws_region}')
                 fp.write(f'\nhost = {host}')
                 fp.write(f'\nuse_https = {use_https}')
+                fp.write(f'\npath_style_request = {path_style_request}')
+                if sse_c_key:
+                    fp.write(f'\nsse_c_key = {sse_c_key}')
                 fp.write('\n')
 
                 fp.write('\n[fs_object_backend]')
@@ -263,6 +313,9 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
                 fp.write(f'\naws_region = {aws_region}')
                 fp.write(f'\nhost = {host}')
                 fp.write(f'\nuse_https = {use_https}')
+                fp.write(f'\npath_style_request = {path_style_request}')
+                if sse_c_key:
+                    fp.write(f'\nsse_c_key = {sse_c_key}')
                 fp.write('\n')
 
                 fp.write('\n[block_backend]')
@@ -274,6 +327,9 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
                 fp.write(f'\naws_region = {aws_region}')
                 fp.write(f'\nhost = {host}')
                 fp.write(f'\nuse_https = {use_https}')
+                fp.write(f'\npath_style_request = {path_style_request}')
+                if sse_c_key:
+                    fp.write(f'\nsse_c_key = {sse_c_key}')
                 fp.write('\n')
 
     # After the setup script creates all the files inside the
