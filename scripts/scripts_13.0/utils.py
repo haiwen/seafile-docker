@@ -17,6 +17,7 @@ import click
 import termcolor
 import colorlog
 import pymysql
+import re
 
 logger = logging.getLogger('.utils')
 
@@ -243,6 +244,10 @@ def logdbg(msg):
         msg = '[debug] ' + msg
         loginfo(msg)
 
+def logwarning(msg):
+    msg = '[warning] ' + msg
+    loginfo(msg)
+
 def loginfo(msg):
     msg = '[{}] {}'.format(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), green(msg))
     eprint(msg)
@@ -315,3 +320,35 @@ def is_pro_version():
     if os.getenv('SEAFILE_SERVER') == "seafile-pro-server":
         return True
     return False
+
+def is_valid_bucket_name(bucket):
+    """
+    check the bucket is valid or not, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
+    """
+
+    if not bucket:
+        return False
+
+    if not (3 <= len(bucket) <= 63):
+        return False
+    
+    if not re.match(r'^[a-z0-9.-]+$', bucket):
+        return False
+    
+    if not (re.match(r'^[a-z0-9]', bucket) and re.match(r'[a-z0-9]$', bucket)):
+        return False
+    
+    if '..' in bucket:
+        return False
+    
+    ip_pattern = re.compile(r'^(\d{1,3}\.){3}\d{1,3}$')
+    if ip_pattern.match(bucket.replace('.', '').replace('-', '')):
+        return False
+    
+    if bucket.startswith(('xn--', 'sthree-', 'amzn-s3-demo-')):
+        return False
+    
+    if bucket.endswith(('-s3alias', '--ol-s3', '.mrap', '--x-s3')):
+        return False
+    
+    return True
