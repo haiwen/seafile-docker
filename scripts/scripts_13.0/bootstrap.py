@@ -14,7 +14,7 @@ import uuid
 import time
 
 from utils import (
-    call, get_conf, get_install_dir, loginfo,
+    call, get_conf, get_install_dir, loginfo, logwarning,
     get_script, render_template, get_seafile_version, eprint,
     cert_has_valid_days, get_version_stamp_file, update_version_stamp,
     wait_for_mysql, wait_for_nginx, read_version_stamp, is_pro_version, is_valid_bucket_name
@@ -251,38 +251,31 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
     if is_pro_version():
         # for seafile-pro-server
         with open(join(topdir, 'conf', 'seafile.conf'), 'a+') as fp:
-            if cache_provider == 'redis':
-                fp.write('\n[redis]')
-                fp.write(f'\nredis_host = {redis_host}')
-                fp.write(f'\nredis_port = {redis_port}')
-                if redis_pasword:
-                    fp.write(f'\nredis_password = {redis_pasword}')
-                fp.write(f'\nmax_connections = 100')
-                fp.write('\n')
-            else:
-                if clsuter_mode and init_cluster:
-                    fp.write('\n[cluster]')
-                    fp.write('\nenable = true')
-                    fp.write('\n')
-
-                fp.write('\n[memcached]')
-                fp.write(f'\nmemcached_options = --SERVER={memcached_host}:{memcached_port} --POOL-MIN=10 --POOL-MAX=100')
+            if clsuter_mode and init_cluster:
+                fp.write('\n[cluster]')
+                fp.write('\nenable = true')
                 fp.write('\n')
 
-            
-            commit_bucket = get_conf('INIT_S3_COMMIT_BUCKET', '<your-commit-objects>')
-            fs_bucket = get_conf('INIT_S3_FS_BUCKET',  '<your-fs-objects>')
-            block_bucket = get_conf('INIT_S3_BLOCK_BUCKET',  '<your-block-objects>')
-            key_id = get_conf('INIT_S3_KEY_ID',  '<your-key-id>')
-            key = get_conf('INIT_S3_SECRET_KEY',  '<your-secret-key>')
+            if os.getenv('USE_S3_STORAGE', 'false') == 'true':
+                commit_bucket = get_conf('INIT_S3_COMMIT_BUCKET', '<your-commit-objects>')
+                fs_bucket = get_conf('INIT_S3_FS_BUCKET',  '<your-fs-objects>')
+                block_bucket = get_conf('INIT_S3_BLOCK_BUCKET',  '<your-block-objects>')
+                key_id = get_conf('INIT_S3_KEY_ID',  '<your-key-id>')
+                key = get_conf('INIT_S3_SECRET_KEY',  '<your-secret-key>')
 
-            init_with_s3_config = is_valid_bucket_name(commit_bucket) \
-                and is_valid_bucket_name(fs_bucket) \
-                and is_valid_bucket_name(block_bucket) \
-                and key_id and key_id != '<your-key-id>' \
-                and key and key != '<your-secret-key>'
+                if not is_valid_bucket_name(commit_bucket):
+                    logwarning(f'The S3 feature has enabled, but the bucket name "{commit_bucket}" seems invalid. Please check again and make correct in `seafile.conf`, and restart the container after initialization!')
+                if not is_valid_bucket_name(fs_bucket):
+                    logwarning(f'The S3 feature has enabled, but the bucket name "{fs_bucket}" seems invalid. Please Please check again and make correct in `seafile.conf`, and restart the container after initialization!')
+                if not is_valid_bucket_name(block_bucket):
+                    logwarning(f'You have enabled S3, but the bucket name "{block_bucket}" seems invalid. Please check again and make correct in `seafile.conf`, and restart the container after initialization!')
 
-            if init_with_s3_config:
+                if not key_id or key_id == '<your-key-id>':
+                    logwarning(f'The S3 feature has enabled, but the "S3_KEY_ID" seems not specified. Please check again and make correct in `seafile.conf`, and restart the container after initialization!')
+
+                if not key or key == '<your-secret-key>':
+                    logwarning(f'The S3 feature has enabled, but the "S3_SECRET_KEY" seems not specified. Please check again and make correct in `seafile.conf`, and restart the container after initialization!')
+
                 use_v4_signature = get_conf('INIT_S3_USE_V4_SIGNATURE', 'true')
                 aws_region = get_conf('INIT_S3_AWS_REGION', 'us-east-1')
                 host = get_conf('INIT_S3_HOST', 's3.us-east-1.amazonaws.com')

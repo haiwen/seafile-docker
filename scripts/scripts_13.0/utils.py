@@ -244,6 +244,10 @@ def logdbg(msg):
         msg = '[debug] ' + msg
         loginfo(msg)
 
+def logwarning(msg):
+    msg = '[warning] ' + msg
+    loginfo(msg)
+
 def loginfo(msg):
     msg = '[{}] {}'.format(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), green(msg))
     eprint(msg)
