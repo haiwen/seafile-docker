@@ -88,7 +88,7 @@ def fix_custom_dir():
     if not exists(real_custom_dir):
         os.mkdir(real_custom_dir)
 
-def fix_ccent_conf():
+def fix_ccnet_conf():
     ccnet_conf_path = '/shared/seafile/conf/ccnet.conf'
     if exists(ccnet_conf_path):
         cp = configparser.ConfigParser({})
@@ -159,7 +159,7 @@ def fix_seafevents_conf():
 
 def check_upgrade():
     fix_custom_dir()
-    fix_ccent_conf()
+    fix_ccnet_conf()
     fix_seafevents_conf()
 
     last_version = read_version_stamp()
