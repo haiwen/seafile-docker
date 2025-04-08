@@ -1331,6 +1331,9 @@ pidfile = os.path.join(pids_dir, 'seahub.pid')
 timeout = 1200
 
 limit_request_line = 8190
+
+# for forwarder headers
+forwarder_headers = 'SCRIPT_NAME,PATH_INFO,REMOTE_USER'
 '''
 
         text = template % dict(pids_dir=env_mgr.central_pids_dir,
