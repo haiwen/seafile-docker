@@ -56,7 +56,8 @@ RUN unzip /scripts/acme.sh-master.zip -d /scripts/ && \
     cd /scripts/acme.sh && /scripts/acme.sh/acme.sh --install
 
 RUN mkdir -p /etc/ldap/ && echo "TLS_REQCERT     allow" >> /etc/ldap/ldap.conf && \
-    echo "TCPSocket 3310" >> /etc/clamav/clamd.conf && \
+    echo "TLS_CACERT     /etc/ssl/certs/ca-certificates.crt" >> /etc/ldap/ldap.conf && \
+    mkdir -p /etc/clamav/ && echo "TCPSocket 3310" >> /etc/clamav/clamd.conf && \
     echo "TCPAddr av" >> /etc/clamav/clamd.conf && \
     chmod u+x /scripts/* && \
     mkdir -p /etc/my_init.d && \
