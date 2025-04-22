@@ -50,6 +50,7 @@ RUN pip3 install --no-cache-dir --timeout=3600 \
     pyjwt==2.9.* djangosaml2==1.9.* pysaml2==7.3.* pycryptodome==3.20.* python-ldap==3.4.* pillow==10.4.* pillow-heif==0.18.*
 
 # Scripts
+ENV IS_PRO_VERSION="true"
 COPY scripts_13.0 /scripts
 COPY templates /templates
 COPY services /services
