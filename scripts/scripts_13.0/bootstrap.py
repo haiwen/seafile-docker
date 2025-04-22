@@ -157,39 +157,12 @@ def init_seafile_server():
     domain = get_conf('SEAFILE_SERVER_HOSTNAME', 'seafile.example.com')
     proto = get_proto()
 
-    cache_provider = get_conf('CACHE_PROVIDER', 'redis')
     clsuter_mode = get_conf('CLUSTER_SERVER', 'false') == 'true'
     init_cluster = get_conf('CLUSTER_INIT_MODE', 'false') == 'true'
-    # pre check value
-    if cache_provider not in ('redis', 'memcached') and not clsuter_mode:
-        raise ValueError(f'Invalid CACHE_PROVIDER: {cache_provider}')
-    
-    redis_host = get_conf('REDIS_HOST', 'redis')
-    redis_port = get_conf('REDIS_PORT', '6379')
-    redis_pasword = get_conf('REDIS_PASSWORD')
-    memcached_host = get_conf('MEMCACHED_HOST', 'memcached')
-    memcached_port = get_conf('MEMCACHED_PORT', '11211')
-
-    int(redis_port if cache_provider == 'redis' and not clsuter_mode else memcached_port)
 
     with open(join(topdir, 'conf', 'seahub_settings.py'), 'a+') as fp:
-        fp.write('\n')
-        if not clsuter_mode and cache_provider == 'redis':
-            redis_cfg = f'redis://{(redis_pasword + "@") if redis_pasword else ""}{redis_host}:{redis_port}'
-            fp.write("""CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': 'redis://""" + redis_cfg + """',
-    },""")
-        else:
-            memcached_cfg = f'{memcached_host}:{memcached_port}'
-            fp.write("""CACHES = {
-    'default': {
-        'BACKEND': 'django_pylibmc.memcached.PyLibMCCache',
-        'LOCATION': '""" + memcached_cfg + """',
-    },""")
-
         fp.write("""
+CACHES = {
     'locmem': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     },
@@ -225,13 +198,6 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
                     ]
                 for line in insert_lines:
                    fp_lines.insert(insert_index, line)
-            if not clsuter_mode and cache_provider == 'redis':
-                fp_lines += ['\n[REDIS]\n',
-                             f'server = {redis_host}\n',
-                             f'port = {redis_port}\n'
-                             ]
-                if redis_pasword:
-                    fp_lines += [f'password = {redis_pasword}\n']
 
         with open(join(topdir, 'conf', 'seafevents.conf'), 'w') as fp:
             fp.writelines(fp_lines)
