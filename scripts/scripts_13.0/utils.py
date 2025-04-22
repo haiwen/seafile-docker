@@ -272,10 +272,10 @@ def update_version_stamp(version, fn=get_version_stamp_file()):
         fp.write(version + '\n')
 
 def wait_for_mysql():
-    db_host = get_conf('DB_HOST', '127.0.0.1')
+    db_host = get_conf('SEAFILE_MYSQL_DB_HOST', 'db')
     db_user = 'root'
-    db_passwd = get_conf('DB_ROOT_PASSWD', '')
-    db_port = int(get_conf('DB_PORT', 3306))
+    db_passwd = get_conf('INIT_SEAFILE_MYSQL_ROOT_PASSWORD', '')
+    db_port = int(get_conf('SEAFILE_MYSQL_DB_PORT', 3306))
 
     installdir = get_install_dir()
     topdir = dirname(installdir)
