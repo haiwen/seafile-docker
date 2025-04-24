@@ -272,12 +272,11 @@ def update_version_stamp(version, fn=get_version_stamp_file()):
         fp.write(version + '\n')
 
 def wait_for_mysql():
-    db_host = get_conf('SEAFILE_MYSQL_DB_HOST', 'db')
-    db_user = get_conf('SEAFILE_MYSQL_DB_USER', 'seafile')
-    db_passwd = get_conf('SEAFILE_MYSQL_DB_PASSWORD', '')
-    db_port = int(get_conf('SEAFILE_MYSQL_DB_PORT', 3306))
-
     while True:
+        db_host = get_conf('SEAFILE_MYSQL_DB_HOST', 'db')
+        db_user = get_conf('SEAFILE_MYSQL_DB_USER', 'seafile')
+        db_passwd = get_conf('SEAFILE_MYSQL_DB_PASSWORD', '')
+        db_port = int(get_conf('SEAFILE_MYSQL_DB_PORT', 3306))
         try:
             connection = pymysql.connect(host=db_host, port=db_port, user=db_user, passwd=db_passwd)
         except:
