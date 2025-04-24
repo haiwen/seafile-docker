@@ -273,29 +273,23 @@ def update_version_stamp(version, fn=get_version_stamp_file()):
 
 def wait_for_mysql():
     db_host = get_conf('SEAFILE_MYSQL_DB_HOST', 'db')
-    db_user = 'root'
-    db_passwd = get_conf('INIT_SEAFILE_MYSQL_ROOT_PASSWORD', '')
+    db_user = get_conf('SEAFILE_MYSQL_DB_USER', 'seafile')
+    db_passwd = get_conf('SEAFILE_MYSQL_DB_PASSWORD', '')
     db_port = int(get_conf('SEAFILE_MYSQL_DB_PORT', 3306))
-
-    installdir = get_install_dir()
-    topdir = dirname(installdir)
-    seafile_conf_path = join(topdir, 'conf', 'seafile.conf')
-    if exists(seafile_conf_path):
-        cp = ConfigParser()
-        cp.read(seafile_conf_path)
-        db_host = cp.get('database', 'host')
-        db_user = cp.get('database', 'user')
-        db_passwd = cp.get('database', 'password')
-        db_port = int(cp.get('database', 'port'))
 
     while True:
         try:
             connection = pymysql.connect(host=db_host, port=db_port, user=db_user, passwd=db_passwd)
-        except Exception as e:
-            print('waiting for mysql server to be ready: mysql is not ready')
-            logdbg('waiting for mysql server to be ready: mysql is not ready')
-            time.sleep(2)
-            continue
+        except:
+            try:
+                db_user = 'root'
+                db_passwd = get_conf('INIT_SEAFILE_MYSQL_ROOT_PASSWORD', '')
+                connection = pymysql.connect(host=db_host, port=db_port, user=db_user, passwd=db_passwd)
+            except Exception as e:
+                print('waiting for mysql server to be ready: mysql is not ready')
+                logdbg('waiting for mysql server to be ready: mysql is not ready')
+                time.sleep(2)
+                continue
         logdbg('mysql server is ready')
         connection.close()
         return
