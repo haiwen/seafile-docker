@@ -161,14 +161,6 @@ def init_seafile_server():
     init_cluster = get_conf('CLUSTER_INIT_MODE', 'false') == 'true'
 
     with open(join(topdir, 'conf', 'seahub_settings.py'), 'a+') as fp:
-        fp.write("""
-CACHES = {
-    'locmem': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-    },
-}
-COMPRESS_CACHE_BACKEND = 'locmem'""")
-        fp.write('\n')
         fp.write("\nTIME_ZONE = '{time_zone}'".format(time_zone=os.getenv('TIME_ZONE',default='Etc/UTC')))
         fp.write('\nFILE_SERVER_ROOT = \'{proto}://{domain}/seafhttp\''.format(proto=proto, domain=domain))
         fp.write('\n')
