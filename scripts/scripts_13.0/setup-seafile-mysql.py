@@ -1621,7 +1621,8 @@ def main():
 
     report_success()
 
-    db_config.root_conn.close()
+    if db_config.root_conn:
+        db_config.root_conn.close()
 
 def report_success():
     message = '''\
