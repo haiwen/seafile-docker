@@ -150,6 +150,7 @@ def init_seafile_server():
         # Default MariaDB root user has empty password and can only connect from localhost.
         'MYSQL_ROOT_PASSWD': get_conf('INIT_SEAFILE_MYSQL_ROOT_PASSWORD', ''),
     }
+    env.update(os.environ) # Allows additional configuration settings in setup-seafile-mysql.py via environment variables.
 
     setup_script = get_script('setup-seafile-mysql.sh')
     call('{} auto -n seafile'.format(setup_script), env=env)
