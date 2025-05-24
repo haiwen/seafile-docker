@@ -162,10 +162,8 @@ def init_seafile_server():
 
     with open(join(topdir, 'conf', 'seahub_settings.py'), 'a+') as fp:
         fp.write("\nTIME_ZONE = '{time_zone}'".format(time_zone=os.getenv('TIME_ZONE',default='Etc/UTC')))
-        fp.write('\nFILE_SERVER_ROOT = \'{proto}://{domain}/seafhttp\''.format(proto=proto, domain=domain))
         fp.write('\n')
         if clsuter_mode and init_cluster:
-            fp.write(f'\nSERVICE_URL = \'{proto}://{domain}/\'')
             fp.write(f'\nAVATAR_FILE_STORAGE = \'seahub.base.database_storage.DatabaseStorage\'')
             fp.write('\n')
 

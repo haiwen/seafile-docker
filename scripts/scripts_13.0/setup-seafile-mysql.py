@@ -922,7 +922,7 @@ class SeafileConfigurator(AbstractConfigurator):
         with open(self.seafile_conf, 'w') as fp:
             fp.write('[fileserver]\nport=%d\n' % self.fileserver_port)
 
-        self.generate_db_conf()
+        # self.generate_db_conf()
 
         ## use default seafile-data path: seafile_data_dir=${TOPDIR}/seafile-data
 
@@ -1057,8 +1057,6 @@ class SeahubConfigurator(AbstractConfigurator):
             self.write_utf8_comment(fp)
             fp.write('\n')
             self.write_secret_key(fp)
-            fp.write('\n')
-            fp.write('SERVICE_URL = "%s://%s"' % (self.get_proto(), ccnet_config.ip_or_domain))
             fp.write('\n')
             self.write_database_config(fp)
 
