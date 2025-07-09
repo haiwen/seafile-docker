@@ -10,4 +10,4 @@ If you are not familiar with docker commands, please refer to [docker documentat
 
 ## Getting Started
 
-Please refer to the [Deploy Documentation](https://manual.seafile.com/docker/deploy_seafile_with_docker/).
+Please refer to the [Deploy Documentation](https://manual.seafile.com/latest/setup/overview/).
