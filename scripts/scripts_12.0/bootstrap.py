@@ -243,6 +243,8 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
                 aws_region = get_conf('INIT_S3_AWS_REGION', 'us-east-1')
                 host = get_conf('INIT_S3_HOST', '')
                 use_https = get_conf('INIT_S3_USE_HTTPS', 'true')
+                path_style_request = get_conf('INIT_S3_PATH_STYLE_REQUEST', 'false')
+                sse_c_key = get_conf('INIT_S3_SSE_C_KEY', '')
 
                 fp.write('\n[commit_object_backend]')
                 fp.write('\nname = s3')
@@ -254,6 +256,9 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
                 if host:
                     fp.write(f'\nhost = {host}')
                 fp.write(f'\nuse_https = {use_https}')
+                fp.write(f'\npath_style_request = {path_style_request}')
+                if sse_c_key:
+                    fp.write(f'\nsse_c_key = {sse_c_key}')
                 fp.write('\n')
 
                 fp.write('\n[fs_object_backend]')
@@ -266,6 +271,9 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
                 if host:
                     fp.write(f'\nhost = {host}')
                 fp.write(f'\nuse_https = {use_https}')
+                fp.write(f'\npath_style_request = {path_style_request}')
+                if sse_c_key:
+                    fp.write(f'\nsse_c_key = {sse_c_key}')
                 fp.write('\n')
 
                 fp.write('\n[block_backend]')
@@ -278,6 +286,9 @@ COMPRESS_CACHE_BACKEND = 'locmem'""")
                 if host:
                     fp.write(f'\nhost = {host}')
                 fp.write(f'\nuse_https = {use_https}')
+                fp.write(f'\npath_style_request = {path_style_request}')
+                if sse_c_key:
+                    fp.write(f'\nsse_c_key = {sse_c_key}')
                 fp.write('\n')
 
     # After the setup script creates all the files inside the
