@@ -12,3 +12,8 @@ docker tag docker.seafile.top/seafileltd/seafile-pro-mc:${version}-arm-testing s
 docker push seafileltd/seafile-pro-mc:${version}-arm-testing
 
 docker push docker.seafile.top/seafileltd/seafile-pro-mc:${version}-arm-testing
+
+
+
+echo docker.seafile.top/seafileltd/seafile-pro-mc:${version}-arm-testing
+echo seafileltd/seafile-pro-mc:${version}-arm-testing

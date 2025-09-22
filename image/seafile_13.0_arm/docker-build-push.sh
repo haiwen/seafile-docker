@@ -3,12 +3,12 @@
 
 version=$1
 
-docker build -t docker.seafile.top/seafileltd/seafile-mc:${version}-arm-testing ./
-
-docker tag docker.seafile.top/seafileltd/seafile-mc:${version}-arm-testing seafileltd/seafile-mc:${version}-arm-testing
+docker build -t seafileltd/seafile-mc:${version}-arm-testing ./
 
 
 
 docker push seafileltd/seafile-mc:${version}-arm-testing
 
-docker push docker.seafile.top/seafileltd/seafile-mc:${version}-arm-testing
+
+
+echo seafileltd/seafile-mc:${version}-arm-testing
