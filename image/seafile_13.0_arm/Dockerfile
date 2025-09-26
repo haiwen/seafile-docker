@@ -46,7 +46,6 @@ RUN pip3 install --no-cache-dir --timeout=3600 \
 
 # Scripts
 COPY scripts_13.0 /scripts
-COPY templates /templates
 COPY services /services
 
 # acme
@@ -65,7 +64,8 @@ RUN mkdir -p /etc/ldap/ && echo "TLS_REQCERT     allow" >> /etc/ldap/ldap.conf &
     mkdir -p /etc/nginx/sites-enabled && mkdir -p /etc/nginx/sites-available && \
     rm -f /etc/nginx/sites-enabled/* /etc/nginx/conf.d/* && \
     mv /services/nginx.conf /etc/nginx/nginx.conf && \
-    mv /services/nginx.sh /etc/service/nginx/run
+    mv /services/nginx.sh /etc/service/nginx/run && \
+    mv /services/seafile.nginx.conf /etc/nginx/sites-enabled/seafile.nginx.conf
 ENV MARIADB_TLS_DISABLE_PEER_VERIFICATION=1
 
 # Seafile
