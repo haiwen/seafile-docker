@@ -102,11 +102,18 @@ def fix_media_symlinks():
     if not islink(avatars_dir):
         logger.info('The container was recreated, start fix the media symlinks')
         call('mv -n %s/* %s' % (avatars_dir, dst_avatars_dir), check_call=False)
-        call('rm -rf %s' % avatars_dir)
-        call('ln -sf %s %s' % (dst_avatars_dir, avatars_dir))
-        call('rm -rf %s' % custom_dir)
-        call('ln -sf %s %s' % (dst_custom_dir, custom_dir))
-        logger.info('Done')
+        fix_media_symlinks_commands = [
+            'rm -rf %s' % avatars_dir,
+            'ln -sf %s %s' % (dst_avatars_dir, avatars_dir),
+            'rm -rf %s' % custom_dir,
+            'ln -sf %s %s' % (dst_custom_dir, custom_dir)
+        ]
+        try:
+            for fix_media_symlinks_command in fix_media_symlinks_commands:
+                call(fix_media_symlinks_command)
+            logger.info('Done')
+        except:
+            logger.warning(f'Fix symlinks for avatars and media directories failure, please remove the old symlinks and recreate the symlinks manually:\n{"\n".join(fix_media_symlinks_commands)}')
 
 def run_minor_upgrade(current_version):
     minor_upgrade_script = join(installdir, 'upgrade', 'minor-upgrade.sh')
