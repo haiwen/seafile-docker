@@ -1,3 +1,2 @@
 
-54 23 * * * /usr/sbin/logrotate -vf /scripts/logrotate-conf/seafile-nginx 2>> /opt/seafile/logs/logrotate.log
 55 23 * * * /usr/sbin/logrotate -vf /scripts/logrotate-conf/seafile 2>> /opt/seafile/logs/logrotate.log
