@@ -33,7 +33,7 @@ if [[ $NON_ROOT == "true" ]] ;then
         owner=$(stat -c %U "/shared/seafile/")
         if [[ $permissions != "777" && $owner != "seafile" ]]; then
             log "The permission of path seafile/ is incorrect."
-            log "To use non root, run [ chmod -R a+rwx /opt/seafile-data/seafile/ ] and try again later, now quit."
+            log "To use non root, change the folder permission of seafile folder in your host machine by 'chmod -R a+rwx /opt/seafile-data/seafile/' and try again later. (If you use another path, change the path in the command correspondingly). Now quit."
             exit 1
         fi
     fi
