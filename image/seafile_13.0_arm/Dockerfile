@@ -39,7 +39,7 @@ RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap && \
     rm -rf /usr/lib/python3/dist-packages/setuptools* && rm -rf /usr/lib/python3/dist-packages/cryptography*
 
 RUN pip3 install --no-cache-dir --timeout=3600 \
-    click termcolor colorlog \
+    click termcolor colorlog pytz \
     sqlalchemy==2.0.* pymysql==1.1.* jinja2 django-pylibmc pylibmc psd-tools lxml \
     django==5.2.* cffi==1.17.1 future==1.0.* mysqlclient==2.2.* captcha==0.7.* django_simple_captcha==0.6.* \
     pyjwt==2.10.* djangosaml2==1.11.* pysaml2==7.5.* pycryptodome==3.23.* python-ldap==3.4.* pillow==11.3.* pillow-heif==1.0.*
