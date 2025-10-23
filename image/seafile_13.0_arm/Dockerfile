@@ -48,12 +48,6 @@ RUN pip3 install --no-cache-dir --timeout=3600 \
 COPY scripts_13.0 /scripts
 COPY services /services
 
-# acme
-# RUN curl https://get.acme.sh | sh -s
-RUN unzip /scripts/acme.sh-master.zip -d /scripts/ && \
-    mv /scripts/acme.sh-master /scripts/acme.sh && \
-    cd /scripts/acme.sh && /scripts/acme.sh/acme.sh --install
-
 RUN mkdir -p /etc/ldap/ && echo "TLS_REQCERT     allow" >> /etc/ldap/ldap.conf && \
     echo "TLS_CACERT     /etc/ssl/certs/ca-certificates.crt" >> /etc/ldap/ldap.conf && \
     chmod u+x /scripts/* && rm /scripts/cluster* && \
