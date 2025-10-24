@@ -1,0 +1,24 @@
+/shared/seafile/logs/seahub.access.log
+/shared/seafile/logs/seahub.error.log
+/shared/seafile/logs/seafhttp.access.log
+/shared/seafile/logs/seafhttp.error.log
+/shared/seafile/logs/seafdav.access.log
+/shared/seafile/logs/seafdav.error.log
+
+{
+        daily
+        missingok
+        rotate 7
+        # compress
+        # delaycompress
+        dateext
+        dateformat .%Y-%m-%d
+        notifempty
+        create 640 root root
+        sharedscripts
+        postrotate
+                if [ -f /var/run/nginx.pid ]; then
+                        kill -USR1 `cat /var/run/nginx.pid`
+                fi
+        endscript
+}
