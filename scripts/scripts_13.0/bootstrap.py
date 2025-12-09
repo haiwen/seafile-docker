@@ -76,6 +76,9 @@ def init_seafile_server():
         'MYSQL_PORT': get_conf('SEAFILE_MYSQL_DB_PORT', '3306'),
         # Default MariaDB root user has empty password and can only connect from localhost.
         'MYSQL_ROOT_PASSWD': get_conf('INIT_SEAFILE_MYSQL_ROOT_PASSWORD', ''),
+        'CCNET_DB': get_conf('SEAFILE_MYSQL_DB_CCNET_DB_NAME', ''),
+        'SEAFILE_DB': get_conf('SEAFILE_MYSQL_DB_SEAFILE_DB_NAME', ''),
+        'SEAHUB_DB': get_conf('SEAFILE_MYSQL_DB_SEAHUB_DB_NAME', ''),
     }
     env.update(os.environ) # Allows additional configuration settings in setup-seafile-mysql.py via environment variables.
 
