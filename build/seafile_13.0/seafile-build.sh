@@ -91,6 +91,7 @@ function install_python_dependencies() {
     sed -i 's/cffi/# cffi/' requirements-thirdpart.txt
     sed -i 's/python-ldap/# python-ldap/' requirements-thirdpart.txt
     sed -i 's/PyMuPDF/# PyMuPDF/' requirements-thirdpart.txt
+    sed -i 's/cairosvg/# cairosvg/' requirements-thirdpart.txt
 
     # pymysql for scripts
     sed -i '$a\pymysql' requirements-thirdpart.txt
