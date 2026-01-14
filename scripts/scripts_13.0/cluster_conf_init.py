@@ -29,7 +29,7 @@ topdir = dirname(installdir)
 
 
 def main():
-    call('cp -rf /scripts/setup-seafile-mysql.py  ' + join(installdir, 'setup-seafile-mysql.py'))
+    call('cp -rf /scripts/cluster-setup-seafile-mysql.py  ' + join(installdir, 'setup-seafile-mysql.py'))
     if not exists(shared_seafiledir):
         os.mkdir(shared_seafiledir)
     if not exists(generated_dir):
