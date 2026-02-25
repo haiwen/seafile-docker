@@ -25,24 +25,28 @@
         create 644 root root
         sharedscripts
         postrotate
-                if [ -f /opt/seafile/pids/seaf-server.pid ]; then
-                        kill -USR1 `cat /opt/seafile/pids/seaf-server.pid`
+                SEAF_SERVER_PID=$(pgrep -o -f "seaf-server")
+                if [ -n "$SEAF_SERVER_PID" ]; then
+                        kill -USR1 "$SEAF_SERVER_PID"
+                        sleep 0.2
                 fi
 
-                if [ -f /opt/seafile/pids/fileserver.pid ]; then
-                        kill -USR1 `cat /opt/seafile/pids/fileserver.pid`
+                FILESERVER_PID=$(pgrep -o -f "fileserver")
+                if [ -n "$FILESERVER_PID" ]; then
+                        kill -USR1 "$FILESERVER_PID"
+                        sleep 0.2
                 fi
 
-                if [ -f /opt/seafile/pids/notification-server.pid ]; then
-                        kill -USR1 `cat /opt/seafile/pids/notification-server.pid`
+                SEAFDAV_PID=$(pgrep -o -f "wsgidav")
+                if [ -n "$SEAFDAV_PID" ]; then
+                        kill -USR1 "$SEAFDAV_PID"
+                        sleep 0.2
                 fi
 
-                if [ -f /opt/seafile/pids/seahub.pid ]; then
-                        kill -HUP `cat /opt/seafile/pids/seahub.pid`
-                fi
-
-                if [ -f /opt/seafile/pids/seafdav.pid ]; then
-                        kill -HUP `cat /opt/seafile/pids/seafdav.pid`
+                GUNICORN_PID=$(pgrep -o -f "gunicorn")
+                if [ -n "$GUNICORN_PID" ]; then
+                        pkill -HUP gunicorn
+                        sleep 0.2
                 fi
 
                 find /opt/seafile/logs/ -mtime +7 -name "*.log*" -exec rm -f {} \;

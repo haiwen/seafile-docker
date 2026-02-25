@@ -17,8 +17,10 @@
         create 640 root root
         sharedscripts
         postrotate
-                if [ -f /var/run/nginx.pid ]; then
-                        kill -USR1 `cat /var/run/nginx.pid`
+                NGINX_PID=$(pgrep -o -f "nginx: master process")
+                if [ -n "$NGINX_PID" ]; then
+                        kill -USR1 "$NGINX_PID"
+                        sleep 0.2
                 fi
         endscript
 }
