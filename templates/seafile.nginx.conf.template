@@ -3,6 +3,7 @@
 {% if https -%}
 server {
     listen 80;
+    listen [::]:80;
     server_name _ default_server;
 
     # allow certbot to connect to challenge location via HTTP Port 80
@@ -21,6 +22,7 @@ server {
 server {
 {% if https -%}
     listen 443 ssl;
+    listen [::]:443 ssl;
     ssl_certificate      /shared/ssl/{{ domain }}.crt;
     ssl_certificate_key  /shared/ssl/{{ domain }}.key;
 
@@ -33,6 +35,7 @@ server {
     # ssl_session_timeout 10m;
 {% else -%}
     listen 80;
+    listen [::]:80;
 {% endif -%}
 
     server_name {{ domain }};
