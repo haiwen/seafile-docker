@@ -23,9 +23,9 @@ done
 
 
 # non-noot
-if [[ $NON_ROOT == "true" ]] ;then
+if [[ $NON_ROOT == "true" ]]; then
     log "Create linux user seafile in container, please wait."
-    groupadd --gid 8000 seafile 
+    groupadd --gid 8000 seafile
     useradd --home-dir /home/seafile --create-home --uid 8000 --gid 8000 --shell /bin/sh --skel /dev/null seafile
 
     if [[ -e /shared/seafile/ ]]; then
@@ -55,7 +55,7 @@ cat /scripts/logrotate-conf/logrotate-cron >> /var/spool/cron/crontabs/root
 
 
 # start cluster server
-if [[ $CLUSTER_SERVER == "true" && $SEAFILE_SERVER == "seafile-pro-server" ]] ;then
+if [[ $CLUSTER_SERVER == "true" && $SEAFILE_SERVER == "seafile-pro-server" ]]; then
     /scripts/cluster_server.sh enterpoint &
 
 # start server
