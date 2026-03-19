@@ -159,8 +159,3 @@ def init_seafile_server():
 
     loginfo('Updating version stamp')
     update_version_stamp(os.environ['SEAFILE_VERSION'])
-
-    # non root 
-    non_root = os.getenv('NON_ROOT', default='') == 'true'
-    if non_root:
-        call('chmod -R a+rwx /shared/')
