@@ -1606,7 +1606,6 @@ def main():
     seahub_config.generate()
     pro_config.generate()
     
-    pro_config.do_syncdb()
     ccnet_config.do_syncdb()
     seafile_config.do_syncdb()
     seahub_config.do_syncdb()
