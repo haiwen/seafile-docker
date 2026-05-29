@@ -20,7 +20,7 @@ RUN echo "deb http://nginx.org/packages/ubuntu `lsb_release -cs` nginx" \
 RUN apt-get update --fix-missing && apt-get upgrade -y
 
 # Utility tools
-RUN apt-get install -y vim htop net-tools psmisc wget curl git unzip
+RUN apt-get install -y vim htop net-tools psmisc wget curl git unzip iproute2
 
 # For suport set local time zone.
 RUN export DEBIAN_FRONTEND=noninteractive && apt-get install -y tzdata \
