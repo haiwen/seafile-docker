@@ -46,6 +46,9 @@ RUN pip3 install --no-cache-dir --timeout=3600 --ignore-installed \
     pyjwt==2.10.* djangosaml2==1.11.* pysaml2==7.5.* pycryptodome==3.23.* python-ldap==3.4.* \
     pillow==11.3.* pillow-heif==1.0.* cairosvg==2.8.* scikit-learn==1.7.*
 
+# Remove standard user with UID 1000 to avoid conflicts with custom non-root UIDs
+RUN deluser --remove-home ubuntu
+
 # Scripts
 COPY scripts_13.0 /scripts
 COPY services /services
