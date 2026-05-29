@@ -34,7 +34,7 @@ docker manifest create docker.seafile.top/seafileltd/seafile-pro-mc:${version} d
 
 docker manifest push docker.seafile.top/seafileltd/seafile-pro-mc:${version}
 
-
+python3 /root/sync_tag_image.py ${version} --component-name seafile
 
 echo seafileltd/seafile-pro-mc:${first_num}.${second_num}-latest
 echo seafileltd/seafile-pro-mc:${version}
