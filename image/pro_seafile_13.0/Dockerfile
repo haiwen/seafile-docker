@@ -40,16 +40,15 @@ RUN export DEBIAN_FRONTEND=noninteractive && apt-get install -y tzdata \
 RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap python3-rados && \
     rm /usr/lib/python3.12/EXTERNALLY-MANAGED && \
     rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python && \
-    pip3 install --no-cache-dir --ignore-installed -U setuptools cryptography && \
-    rm -rf /usr/lib/python3/dist-packages/setuptools* && rm -rf /usr/lib/python3/dist-packages/cryptography*
+    pip3 install --no-cache-dir --ignore-installed -U pip wheel setuptools pyasn1 pyjwt cryptography
 
 RUN pip3 install --no-cache-dir --timeout=3600 --ignore-installed \
     boto3 oss2 twilio configparser \
     click termcolor colorlog pytz \
     sqlalchemy==2.0.* pymysql==1.1.* jinja2 django-pylibmc pylibmc psd-tools lxml \
     django==5.2.* cffi==1.17.1 future==1.0.* mysqlclient==2.2.* captcha==0.7.* django_simple_captcha==0.6.* \
-    pyjwt==2.10.* djangosaml2==1.11.* pysaml2==7.5.* pycryptodome==3.23.* python-ldap==3.4.* \
-    pillow==11.3.* pillow-heif==1.0.* cairosvg==2.8.* scikit-learn==1.7.*
+    pyjwt==2.13.* djangosaml2==1.11.* pysaml2==7.5.* pycryptodome==3.23.* python-ldap==3.4.* \
+    pillow==12.2.* pillow-heif==1.0.* cairosvg==2.9.* scikit-learn==1.7.*
 
 # Scripts
 ENV IS_PRO_VERSION="true"
