@@ -98,27 +98,49 @@ def init_seafile_server():
             fp.write(f'\nAVATAR_FILE_STORAGE = \'seahub.base.database_storage.DatabaseStorage\'')
             fp.write('\n')
 
-    # Disabled the Elasticsearch process on Seafile-container
-    # Connection to the Elasticsearch-container
+    # Keep Elasticsearch available as a fallback, but use SeaSearch by default.
     if os.path.exists(join(topdir, 'conf', 'seafevents.conf')):
         with open(join(topdir, 'conf', 'seafevents.conf'), 'r') as fp:
             fp_lines = fp.readlines()
             if '[INDEX FILES]\n' in fp_lines:
-                insert_index = fp_lines.index('[INDEX FILES]\n') + 1
+                section_index = fp_lines.index('[INDEX FILES]\n') + 1
                 if clsuter_mode and init_cluster:
                     insert_lines = [
-                        f'es_port = {get_conf("CLUSTER_INIT_ES_PORT", "9200")}\n',
+                        'external_es_server = true\n',
                         f'es_host = {get_conf("CLUSTER_INIT_ES_HOST", "<your elasticsearch server HOST>")}\n',
-                        'external_es_server = true\n'
+                        f'es_port = {get_conf("CLUSTER_INIT_ES_PORT", "9200")}\n'
                     ]
                 else:
                     insert_lines = [
-                        'es_port = 9200\n', 
+                        'external_es_server = true\n',
                         'es_host = elasticsearch\n',
-                        'external_es_server = true\n'
+                        'es_port = 9200\n'
                     ]
-                for line in insert_lines:
-                   fp_lines.insert(insert_index, line)
+                fp_lines[section_index:section_index] = insert_lines
+
+                enabled_found = False
+                for index in range(section_index, len(fp_lines)):
+                    line = fp_lines[index]
+                    if line.startswith('['):
+                        break
+                    if line.split('=', 1)[0].strip() == 'enabled':
+                        fp_lines[index] = 'enabled = false\n'
+                        enabled_found = True
+                        break
+                if not enabled_found:
+                    fp_lines.insert(section_index + len(insert_lines), 'enabled = false\n')
+
+            if '[SEASEARCH]\n' not in fp_lines:
+                fp_lines.extend([
+                    '\n[SEASEARCH]\n',
+                    'enabled = true\n',
+                    'seasearch_url = http://seasearch:4080\n',
+                    'seasearch_token = <your auth token>\n',
+                    'interval = 10m\n',
+                    '\n',
+                    '# if you would like to enable full-text indexing (i.e., search for document content), also set the option below to true (support from 13.0 Pro)\n',
+                    'index_office_pdf = true\n'
+                ])
 
         with open(join(topdir, 'conf', 'seafevents.conf'), 'w') as fp:
             fp.writelines(fp_lines)
