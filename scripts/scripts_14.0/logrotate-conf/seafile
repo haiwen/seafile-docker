@@ -44,9 +44,9 @@
                         sleep 0.2
                 fi
 
-                GUNICORN_PID=$(pgrep -o -f "gunicorn" | grep -v -w "$SCRIPT_PID" | head -n 1)
+                GUNICORN_PID=$(pgrep -o -f "seahub.wsgi" | grep -v -w "$SCRIPT_PID" | head -n 1)
                 if [ -n "$GUNICORN_PID" ]; then
-                        pkill -HUP gunicorn
+                        kill -HUP "$GUNICORN_PID"
                         sleep 0.2
                 fi
 
