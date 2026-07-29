@@ -59,15 +59,6 @@ if [[ $NON_ROOT == "true" ]] ;then
         fi
     fi
 
-    # for docker exec
-    if [[ -f /run/secrets/seafile-secrets ]]; then
-        if ! grep -q "/run/secrets/seafile-secrets" /home/seafile/.bashrc 2>/dev/null; then
-            echo -e "\n# load secrets\nset -a\nsource /run/secrets/seafile-secrets\nset +a\n" >> /home/seafile/.bashrc
-            chown seafile:seafile /home/seafile/.bashrc
-            chown seafile:seafile /run/secrets/seafile-secrets
-        fi
-    fi
-
     # chown
     chown seafile:seafile /opt/seafile/
     chown -R seafile:seafile /opt/seafile/$SEAFILE_SERVER-$SEAFILE_VERSION/
