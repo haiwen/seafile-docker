@@ -1,5 +1,17 @@
 #!/bin/bash
 
+# load secrets to env
+if [[ -f /run/secrets/seafile-secrets ]]; then
+    set -a
+    source /run/secrets/seafile-secrets
+    set +a
+
+    # for docker exec
+    if ! grep -q "/run/secrets/seafile-secrets" /root/.bashrc; then
+        echo -e "\n# load secrets\nset -a\nsource /run/secrets/seafile-secrets\nset +a\n" >> /root/.bashrc
+    fi
+fi
+
 
 # log function
 function log() {
@@ -44,6 +56,15 @@ if [[ $NON_ROOT == "true" ]] ;then
             log "The permission of path seafile/ is incorrect."
             log "To use non root, change the folder permission of seafile folder in your host machine by 'chmod -R a+rwx /opt/seafile-data/' and try again later. (If you use another path, change the path in the command correspondingly). Now quit."
             exit 1
+        fi
+    fi
+
+    # for docker exec
+    if [[ -f /run/secrets/seafile-secrets ]]; then
+        if ! grep -q "/run/secrets/seafile-secrets" /home/seafile/.bashrc 2>/dev/null; then
+            echo -e "\n# load secrets\nset -a\nsource /run/secrets/seafile-secrets\nset +a\n" >> /home/seafile/.bashrc
+            chown seafile:seafile /home/seafile/.bashrc
+            chown seafile:seafile /run/secrets/seafile-secrets
         fi
     fi
 
