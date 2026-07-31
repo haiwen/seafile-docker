@@ -1,28 +1,28 @@
 #!/bin/bash
 
 # load secrets to env
-if [[ -f /run/secrets/seafile_secrets ]]; then
+if [[ -f "${SEAFILE_SECRETS_FILE:-/run/secrets/seafile_secrets}" ]]; then
     set -a
-    source /run/secrets/seafile_secrets
+    source "${SEAFILE_SECRETS_FILE:-/run/secrets/seafile_secrets}"
     set +a
 
     # for docker exec
-    if ! grep -q "/run/secrets/seafile_secrets" /root/.bashrc; then
-        echo -e "\n# load secrets\nset -a\nsource /run/secrets/seafile_secrets\nset +a\n" >> /root/.bashrc
+    if ! grep -q "${SEAFILE_SECRETS_FILE:-/run/secrets/seafile_secrets}" /root/.bashrc; then
+        echo -e "\n# load secrets\nset -a\nsource \"${SEAFILE_SECRETS_FILE:-/run/secrets/seafile_secrets}\"\nset +a\n" >> /root/.bashrc
     fi
 fi
 
-if [[ -f /run/secrets/mysql_password ]]; then
-    export SEAFILE_MYSQL_DB_PASSWORD="$(cat /run/secrets/mysql_password)"
+if [[ -f "${MYSQL_PASSWORD_FILE:-/run/secrets/mysql_password}" ]]; then
+    export SEAFILE_MYSQL_DB_PASSWORD="$(cat "${MYSQL_PASSWORD_FILE:-/run/secrets/mysql_password}")"
     if ! grep -q "SEAFILE_MYSQL_DB_PASSWORD" /root/.bashrc; then
-        echo -e "\n# load mysql password\nexport SEAFILE_MYSQL_DB_PASSWORD=\"\$(cat /run/secrets/mysql_password)\"\n" >> /root/.bashrc
+        echo -e "\n# load mysql password\nexport SEAFILE_MYSQL_DB_PASSWORD=\"\$(cat \"${MYSQL_PASSWORD_FILE:-/run/secrets/mysql_password}\")\"\n" >> /root/.bashrc
     fi
 fi
 
-if [[ -f /run/secrets/redis_password ]]; then
-    export REDIS_PASSWORD="$(cat /run/secrets/redis_password)"
+if [[ -f "${REDIS_PASSWORD_FILE:-/run/secrets/redis_password}" ]]; then
+    export REDIS_PASSWORD="$(cat "${REDIS_PASSWORD_FILE:-/run/secrets/redis_password}")"
     if ! grep -q "REDIS_PASSWORD" /root/.bashrc; then
-        echo -e "\n# load redis password\nexport REDIS_PASSWORD=\"\$(cat /run/secrets/redis_password)\"\n" >> /root/.bashrc
+        echo -e "\n# load redis password\nexport REDIS_PASSWORD=\"\$(cat \"${REDIS_PASSWORD_FILE:-/run/secrets/redis_password}\")\"\n" >> /root/.bashrc
     fi
 fi
 
