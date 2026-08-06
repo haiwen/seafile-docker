@@ -70,8 +70,8 @@ def main():
     try:
         non_root = os.getenv('NON_ROOT', default='') == 'true'
         if non_root:
-            call('su seafile -c "{} start"'.format(get_script('seafile.sh')))
-            call('su seafile -c "{} start"'.format(get_script('seahub.sh')))
+            call('su -p seafile -c "{} start"'.format(get_script('seafile.sh')))
+            call('su -p seafile -c "{} start"'.format(get_script('seahub.sh')))
         else:
             call('{} start'.format(get_script('seafile.sh')))
             call('{} start'.format(get_script('seahub.sh')))
