@@ -665,7 +665,7 @@ class NewDBConfigurator(AbstractDBConfigurator):
 
     def create_db(self, db_name):
         cursor = self.root_conn.cursor()
-        sql = '''CREATE DATABASE IF NOT EXISTS `%s` CHARACTER SET utf8mb4''' \
+        sql = '''CREATE DATABASE IF NOT EXISTS `%s` CHARACTER SET UTF8''' \
               % db_name
 
         try:
