@@ -1072,28 +1072,6 @@ class SeahubConfigurator(AbstractConfigurator):
         key = Utils.get_command_output(cmd).strip()
         fp.write('SECRET_KEY = "%s"' % key.decode())
 
-    def write_database_config(self, fp):
-        template = '''\
-\nDATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': '%(name)s',
-        'USER': '%(username)s',
-        'PASSWORD': '%(password)s',
-        'HOST': '%(host)s',
-        'PORT': '%(port)s'
-    }
-}
-
-'''
-        text = template % dict(name=db_config.seahub_db_name,
-                               username=db_config.seafile_mysql_user,
-                               password=db_config.seafile_mysql_password,
-                               host=db_config.mysql_host,
-                               port=db_config.mysql_port)
-
-        fp.write(text)
-
     def ask_admin_email(self):
         print()
         print('----------------------------------------')
