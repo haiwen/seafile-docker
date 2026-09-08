@@ -113,10 +113,7 @@ def init_seafile_server():
             if '[SEASEARCH]\n' not in fp_lines:
                 fp_lines.extend([
                     '\n[SEASEARCH]\n',
-                    'interval = 10m\n',
-                    '\n',
-                    '# if you would like to enable full-text indexing (i.e., search for document content), also set the option below to true (support from 13.0 Pro)\n',
-                    'index_office_pdf = true\n'
+                    'interval = 10m\n'
                 ])
 
         with open(join(topdir, 'conf', 'seafevents.conf'), 'w') as fp:
