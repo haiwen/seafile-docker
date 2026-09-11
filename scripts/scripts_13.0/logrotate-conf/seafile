@@ -13,7 +13,8 @@
 /opt/seafile/logs/notification-server.log
 /opt/seafile/logs/notification-server-error.log
 
-{
+{       
+        su root root
         daily
         missingok
         rotate 7
@@ -22,7 +23,7 @@
         dateext
         dateformat .%Y-%m-%d
         notifempty
-        create 644 root root
+        create 644
         sharedscripts
         postrotate
                 SCRIPT_PID=$$
