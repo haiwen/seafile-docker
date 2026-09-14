@@ -51,9 +51,6 @@ if [[ $NON_ROOT == "true" ]] ;then
     chown seafile:seafile /opt/seafile/
     chown -R seafile:seafile /opt/seafile/$SEAFILE_SERVER-$SEAFILE_VERSION/
 
-    # logrotate
-    sed -i 's/^        create 644 root root/        create 644 seafile seafile/' /scripts/logrotate-conf/seafile
-
     # seafile.sh
     sed -i 's/^    validate_running_user;/#    validate_running_user;/' /opt/seafile/$SEAFILE_SERVER-$SEAFILE_VERSION/seafile.sh
 fi

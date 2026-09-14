@@ -6,6 +6,7 @@
 /shared/seafile/logs/seafdav.error.log
 
 {
+        su root root
         daily
         missingok
         rotate 7
@@ -14,9 +15,10 @@
         dateext
         dateformat .%Y-%m-%d
         notifempty
-        create 640 root root
+        create 640
         sharedscripts
         postrotate
+                SCRIPT_PID=$$
                 NGINX_PID=$(pgrep -o -f "nginx: master process" | grep -v -w "$SCRIPT_PID" | head -n 1)
                 if [ -n "$NGINX_PID" ]; then
                         kill -USR1 "$NGINX_PID"
