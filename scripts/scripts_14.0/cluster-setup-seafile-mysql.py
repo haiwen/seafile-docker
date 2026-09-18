@@ -922,7 +922,7 @@ class SeafileConfigurator(AbstractConfigurator):
         with open(self.seafile_conf, 'w') as fp:
             fp.write('[fileserver]\nport=%d\n' % self.fileserver_port)
 
-        # self.generate_db_conf()
+        self.generate_db_conf()
 
         ## use default seafile-data path: seafile_data_dir=${TOPDIR}/seafile-data
 
@@ -940,13 +940,13 @@ class SeafileConfigurator(AbstractConfigurator):
         db_section = 'database'
         if not config.has_section(db_section):
             config.add_section(db_section)
-        config.set(db_section, 'type', 'mysql')
-        config.set(db_section, 'host', db_config.mysql_host)
-        config.set(db_section, 'port', str(db_config.mysql_port))
-        config.set(db_section, 'user', db_config.seafile_mysql_user)
-        config.set(db_section, 'password', db_config.seafile_mysql_password)
-        config.set(db_section, 'db_name', db_config.seafile_db_name)
-        config.set(db_section, 'connection_charset', 'utf8')
+        # config.set(db_section, 'type', 'mysql')
+        # config.set(db_section, 'host', db_config.mysql_host)
+        # config.set(db_section, 'port', str(db_config.mysql_port))
+        # config.set(db_section, 'user', db_config.seafile_mysql_user)
+        # config.set(db_section, 'password', db_config.seafile_mysql_password)
+        # config.set(db_section, 'db_name', db_config.seafile_db_name)
+        config.set(db_section, 'connection_charset', 'utf8mb4')
 
         Utils.write_config(config, self.seafile_conf)
 
