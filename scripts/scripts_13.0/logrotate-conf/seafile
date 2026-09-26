@@ -54,3 +54,18 @@
                 find /opt/seafile/logs/ -mtime +7 -name "*.log*" -exec rm -f {} \;
         endscript
 }
+
+/opt/seafile/logs/seafile-monitor.log
+/opt/seafile/logs/seafile-background-tasks.out.log
+{
+        su root root
+        daily
+        missingok
+        rotate 7
+        # compress
+        # delaycompress
+        dateext
+        dateformat .%Y-%m-%d
+        notifempty
+        copytruncate
+}
