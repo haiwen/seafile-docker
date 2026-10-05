@@ -78,19 +78,50 @@ if [[ $CLUSTER_SERVER == "true" && $SEAFILE_SERVER == "seafile-pro-server" ]] ;t
 # start server
 else
     /scripts/start.py &
+    start_pid=$!
 fi
 
 
-log "This is an idle script (infinite loop) to keep container running."
+log "Watching the server processes, the container stops if they die."
 
 function cleanup() {
-    kill -s SIGTERM $!
+    if [[ -n $start_pid ]]; then
+        kill -s SIGTERM $start_pid
+    fi
     exit 0
 }
 
 trap cleanup SIGINT SIGTERM
 
+# seahub is not restarted by seafile-monitor.sh, so watch it here. Only check it
+# after it was seen running once, and allow a few misses for seahub.sh restart.
+seahub_pidfile=/opt/seafile/pids/seahub.pid
+seahub_seen=0
+seahub_misses=0
+
 while [ 1 ]; do
-    sleep 60 &
+    sleep 10 &
     wait $!
+
+    # start.py exits when seafile-monitor.sh dies
+    if [[ -n $start_pid ]] && ! kill -0 $start_pid 2>/dev/null; then
+        wait $start_pid
+        exit_code=$?
+        log "start.py exited with code $exit_code, stopping the container."
+        [[ $exit_code -eq 0 ]] && exit_code=1
+        exit $exit_code
+    fi
+
+    seahub_pid=$(cat $seahub_pidfile 2>/dev/null)
+    if [[ -n $seahub_pid ]] && kill -0 $seahub_pid 2>/dev/null; then
+        seahub_seen=1
+        seahub_misses=0
+    elif [[ $seahub_seen == 1 ]]; then
+        seahub_misses=$((seahub_misses + 1))
+        log "seahub is not running ($seahub_misses/3)"
+        if [[ $seahub_misses -ge 3 ]]; then
+            log "seahub is gone, stopping the container."
+            exit 1
+        fi
+    fi
 done
