@@ -12,6 +12,7 @@
 /opt/seafile/logs/fileserver-error.log
 /opt/seafile/logs/notification-server.log
 /opt/seafile/logs/notification-server-error.log
+/opt/seafile/logs/seafile-monitor.log
 
 {
         su root root
@@ -48,6 +49,12 @@
                 GUNICORN_PID=$(pgrep -o -f "seahub.wsgi" | grep -v -w "$SCRIPT_PID" | head -n 1)
                 if [ -n "$GUNICORN_PID" ]; then
                         kill -HUP "$GUNICORN_PID"
+                        sleep 0.2
+                fi
+
+                MONITOR_PID=$(pgrep -o -f 'seafile-monitor.sh' | grep -v -w "$SCRIPT_PID" | head -n 1)
+                if [ -n "$MONITOR_PID" ]; then
+                        kill -USR1 "$MONITOR_PID"
                         sleep 0.2
                 fi
 
