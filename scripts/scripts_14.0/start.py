@@ -14,7 +14,7 @@ import sys
 import time
 
 from utils import (
-    call, get_conf, get_install_dir, get_script, get_command_output,
+    call, get_conf, get_install_dir, get_script, get_match_pids,
     wait_for_mysql, setup_logging
 )
 from upgrade import check_upgrade
@@ -31,8 +31,8 @@ def watch_controller():
     maxretry = 4
     retry = 0
     while retry < maxretry:
-        controller_pid = get_command_output('ps aux | grep seafile-monitor.sh | grep -v grep || true').strip()
-        garbage_collector_pid = get_command_output('ps aux | grep /scripts/gc.sh | grep -v grep || true').strip()
+        controller_pid = get_match_pids('seafile-monitor.sh')
+        garbage_collector_pid = get_match_pids('/scripts/gc.sh')
         if not controller_pid and not garbage_collector_pid:
             retry += 1
         else:

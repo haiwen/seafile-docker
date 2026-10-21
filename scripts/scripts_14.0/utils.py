@@ -152,10 +152,11 @@ def get_process_cmd(pid, env=False):
         return None
 
 def get_match_pids(pattern):
-    pgrep_output = subprocess.check_output(
-        'pgrep -f "{}" || true'.format(pattern),
-        shell=True).decode('utf8').strip()
-    return [int(pid) for pid in pgrep_output.splitlines()]
+    try:
+        pgrep_output = subprocess.check_output(['pgrep', '-f', pattern])
+    except subprocess.CalledProcessError:
+        return []
+    return [int(pid) for pid in pgrep_output.decode('utf8').splitlines()]
 
 def ask_for_confirm(msg):
     confirm = click.prompt(msg, default='Y')
