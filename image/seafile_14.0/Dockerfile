@@ -42,8 +42,8 @@ RUN pip3 install --no-cache-dir --timeout=3600 --ignore-installed \
     click termcolor colorlog pytz \
     sqlalchemy==2.0.* pymysql==1.1.* jinja2 django-pylibmc pylibmc psd-tools lxml \
     django==5.2.* cffi==2.0.* future==1.0.* mysqlclient==2.2.* captcha==0.7.* django_simple_captcha==0.6.* \
-    pyjwt==2.13.* djangosaml2==1.11.* pysaml2==7.5.* pycryptodome==3.23.* python-ldap==3.4.* \
-    pillow==12.2.* pillow-heif==1.2.* cairosvg==2.9.*
+    pyjwt==2.15.* djangosaml2==1.11.* pysaml2==7.5.* pycryptodome==3.23.* python-ldap==3.4.* \
+    pillow==13.0.* pillow-heif==1.2.* cairosvg==2.9.*
 
 # Scripts
 COPY scripts_14.0 /scripts
