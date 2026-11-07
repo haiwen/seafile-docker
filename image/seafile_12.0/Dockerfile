@@ -30,6 +30,14 @@ RUN export DEBIAN_FRONTEND=noninteractive && apt-get install -y tzdata \
     fuse poppler-utils \
     ldap-utils libldap2-dev ca-certificates dnsutils pkg-config
 
+# fix pyjwt
+RUN apt-get install -y --no-install-recommends curl ca-certificates && \
+    curl -fsSL \
+      https://deb.debian.org/debian/pool/main/p/pyjwt/python3-jwt_2.15.1-1_all.deb \
+      -o /tmp/python3-jwt.deb && \
+    apt-get install -y --no-install-recommends /tmp/python3-jwt.deb && \
+    rm -f /tmp/python3-jwt.deb
+
 # Python3
 RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap && \
     rm /usr/lib/python3.12/EXTERNALLY-MANAGED && \
