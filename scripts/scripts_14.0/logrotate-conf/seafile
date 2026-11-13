@@ -34,22 +34,10 @@
                         sleep 0.2
                 fi
 
-                ROTATE_STATUS=0
-                FILESERVER_PID=$(pgrep -x fileserver)
-                LOOKUP_STATUS=$?
-                [ "$LOOKUP_STATUS" -le 1 ] || ROTATE_STATUS=1
-                if [ -n "$FILESERVER_PID" ] && ! grep -zqx 'SEAFILE_LOG_TO_STDOUT=true' "/proc/$FILESERVER_PID/environ"; then
-                        ROTATE_STATUS=1
-                        for ATTEMPT in 1 2 3; do
-                                grep -qx fileserver "/proc/$FILESERVER_PID/comm" || break
-                                kill -USR1 "$FILESERVER_PID" || continue
-                                sleep 1
-                                # Go redirects stderr after switching the main logger.
-                                [ "/proc/$FILESERVER_PID/fd/2" -ef /opt/seafile/logs/fileserver.log ] || continue
-                                ROTATE_STATUS=0
-                                break
-                        done
-                        [ "$ROTATE_STATUS" -eq 0 ] || printf 'logrotate: fileserver PID %s failed to reopen logs\n' "$FILESERVER_PID" >&2
+                FILESERVER_PID=$(pgrep -o -f "fileserver" | grep -v -w "$SCRIPT_PID" | head -n 1)
+                if [ -n "$FILESERVER_PID" ]; then
+                        kill -USR1 "$FILESERVER_PID"
+                        sleep 0.2
                 fi
 
                 SEAFDAV_PID=$(pgrep -o -f "wsgidav" | grep -v -w "$SCRIPT_PID" | head -n 1)
@@ -71,7 +59,6 @@
                 fi
 
                 # Keep all archives on reopen failure; never remove current logs.
-                [ "$ROTATE_STATUS" -eq 0 ] || exit 1
                 command -v fuser >/dev/null 2>&1 || exit 1
                 find /opt/seafile/logs/ -maxdepth 1 -type f -mtime +7 \
                         -name '*.log.[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]' -exec sh -c '
