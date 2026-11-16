@@ -18,7 +18,7 @@
         su root root
         daily
         missingok
-        rotate 7
+        rotate -1
         # compress
         # delaycompress
         dateext
@@ -58,6 +58,20 @@
                         sleep 0.2
                 fi
 
-                find /opt/seafile/logs/ -mtime +7 -name "*.log*" -exec rm -f {} \;
+                # Keep all archives on reopen failure; never remove current logs.
+                command -v fuser >/dev/null 2>&1 || exit 1
+                find /opt/seafile/logs/ -maxdepth 1 -type f -mtime +7 \
+                        -name '*.log.[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]' -exec sh -c '
+                        for LOG_FILE do
+                                if OUTPUT=$(fuser "$LOG_FILE" 2>&1); then
+                                        continue
+                                fi
+                                if [ -n "$OUTPUT" ]; then
+                                        printf "logrotate: cannot check %s: %s\n" "$LOG_FILE" "$OUTPUT" >&2
+                                        exit 1
+                                fi
+                                rm -f -- "$LOG_FILE" || exit 1
+                        done
+                        ' sh {} +
         endscript
 }
