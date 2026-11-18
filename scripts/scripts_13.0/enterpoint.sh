@@ -49,7 +49,6 @@ if [[ $NON_ROOT == "true" ]] ;then
 
     # chown
     chown seafile:seafile /opt/seafile/
-    chown -R seafile:seafile /opt/seafile/$SEAFILE_SERVER-$SEAFILE_VERSION/
 
     # seafile.sh
     sed -i 's/^    validate_running_user;/#    validate_running_user;/' /opt/seafile/$SEAFILE_SERVER-$SEAFILE_VERSION/seafile.sh
