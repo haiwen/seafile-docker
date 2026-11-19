@@ -1058,7 +1058,6 @@ class SeahubConfigurator(AbstractConfigurator):
             fp.write('\n')
             self.write_secret_key(fp)
             fp.write('\n')
-            self.write_database_config(fp)
 
     def write_utf8_comment(self, fp):
         fp.write('# -*- coding: utf-8 -*-')
