@@ -74,7 +74,7 @@ ENV MARIADB_TLS_DISABLE_PEER_VERIFICATION=1
 
 # Seafile
 WORKDIR /opt/seafile
-COPY seafile-server-${SEAFILE_VERSION} /opt/seafile/seafile-server-${SEAFILE_VERSION}
+COPY --chmod=777 seafile-server-${SEAFILE_VERSION} /opt/seafile/seafile-server-${SEAFILE_VERSION}
 
 EXPOSE 80
 
