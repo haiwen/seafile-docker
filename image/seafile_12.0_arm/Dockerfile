@@ -30,20 +30,12 @@ RUN export DEBIAN_FRONTEND=noninteractive && apt-get install -y tzdata \
     fuse poppler-utils \
     ldap-utils libldap2-dev ca-certificates dnsutils pkg-config
 
-# fix pyjwt
-RUN apt-get install -y --no-install-recommends curl ca-certificates && \
-    curl -fsSL \
-      https://deb.debian.org/debian/pool/main/p/pyjwt/python3-jwt_2.15.1-1_all.deb \
-      -o /tmp/python3-jwt.deb && \
-    apt-get install -y --no-install-recommends /tmp/python3-jwt.deb && \
-    rm -f /tmp/python3-jwt.deb
-    
 # Python3
-RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap && \
+RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap python3-rados python3-oauthlib && \
     rm /usr/lib/python3.12/EXTERNALLY-MANAGED && \
     rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python && \
-    pip3 install --no-cache-dir --ignore-installed -U setuptools cryptography && \
-    rm -rf /usr/lib/python3/dist-packages/setuptools* && rm -rf /usr/lib/python3/dist-packages/cryptography*
+    pip3 install --no-cache-dir --ignore-installed -U pip wheel setuptools pyasn1 pyjwt cryptography six httplib2 python-ldap && \
+    rm -rf /usr/lib/python3/dist-packages/*-info && rm -f /usr/local/lib/python3.12/dist-packages/pip/_vendor/bom.cdx.json
 
 RUN pip3 install --no-cache-dir --timeout=3600 --ignore-installed \
     click termcolor colorlog pytz \
