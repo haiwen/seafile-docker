@@ -524,6 +524,7 @@ def copy_scripts_and_libs():
     must_copy(os.path.join(scripts_srcdir, 'seafile.sh'), serverdir)
     must_copy(os.path.join(scripts_srcdir, 'seahub.sh'), serverdir)
     must_copy(os.path.join(scripts_srcdir, 'reset-admin.sh'), serverdir)
+    must_copy(os.path.join(scripts_srcdir, 'reset-admin-password.sh'), serverdir)
     must_copy(os.path.join(scripts_srcdir, 'seaf-fuse.sh'), serverdir)
     must_copy(os.path.join(scripts_srcdir, 'seaf-gc.sh'), serverdir)
     must_copy(os.path.join(scripts_srcdir, 'seaf-fsck.sh'), serverdir)
