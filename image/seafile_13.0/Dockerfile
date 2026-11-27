@@ -29,14 +29,14 @@ RUN export DEBIAN_FRONTEND=noninteractive && apt-get install -y tzdata \
     libmysqlclient-dev \
     libmemcached11 libmemcached-dev \
     fuse poppler-utils \
-    ldap-utils libldap2-dev ca-certificates dnsutils pkg-config \
-    exiftool
+    ldap-utils libldap-dev libldap2-dev libsasl2-dev ca-certificates dnsutils \
+    pkg-config exiftool
 
 # Python3
-RUN apt-get install -y python3 python3-pip python3-setuptools python3-ldap python3-rados python3-oauthlib && \
+RUN apt-get install -y python3 python3-pip python3-rados && \
     rm /usr/lib/python3.12/EXTERNALLY-MANAGED && \
     rm -f /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python && \
-    pip3 install --no-cache-dir --ignore-installed -U pip wheel setuptools pyasn1 pyjwt cryptography six httplib2 python-ldap && \
+    pip3 install --no-cache-dir --ignore-installed -U pip wheel setuptools && \
     rm -rf /usr/lib/python3/dist-packages/*-info && rm -f /usr/local/lib/python3.12/dist-packages/pip/_vendor/bom.cdx.json
 
 RUN pip3 install --no-cache-dir --timeout=3600 --ignore-installed \
